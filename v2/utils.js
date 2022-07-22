@@ -19,5 +19,29 @@ function escapeHtml(message) {
 }
 
 function TwitchAPI(url) {
+/*    return $.getJSON(url + (url.search(/\?/) > -1 ? '&' : '?') + 'client_id=' + client_id);*/
+/* use only helix api oauth endpoint to get user_id and store the id# */
+    return $.ajax({
+        type: "GET", 
+        url: "https://id.twitch.tv/oauth2/validate", 
+        dataType: "json",
+        headers: {'Authorization': 'Bearer ' + credentials},
+/* not required client_id auth for running locally */
+/*        headers: {'Client-Id': client_id},*/
+        success : function(result) { 
+            //set your variable to the result
+            console.log('jChat: helix json aquired user_id');
+            // console.log(url)
+            // console.log(result)
+        },
+        error : function(result) {
+            // this *should* show up when the token expires
+            var $chatLine = $('<div style="color: red;">Twitch OAuth invalid</div>');
+            Chat.info.lines.push($chatLine.wrap('<div>').parent().html());
+        }
+    });
+}
+
+function oldTwitchAPI(url) {
     return $.getJSON(url + (url.search(/\?/) > -1 ? '&' : '?') + 'client_id=' + client_id);
 }

@@ -93,8 +93,10 @@ Chat = {
     },
 
     load: function(callback) {
-        TwitchAPI('https://api.twitch.tv/v5/users?login=' + Chat.info.channel).done(function(res) {
-            Chat.info.channelID = res.users[0]._id;
+/*        TwitchAPI('https://api.twitch.tv/helix/users?login=' + Chat.info.channel).done(function(res) {*/
+/* dont call helix again, the user_id is already stored*/
+        TwitchAPI().done(function(res) {
+            Chat.info.channelID = res.user_id;
             Chat.loadEmotes(Chat.info.channelID);
 
             // Load CSS
@@ -117,13 +119,13 @@ Chat = {
             }
 
             // Load badges
-            TwitchAPI('https://badges.twitch.tv/v1/badges/global/display').done(function(global) {
+            oldTwitchAPI('https://badges.twitch.tv/v1/badges/global/display').done(function(global) {
                 Object.entries(global.badge_sets).forEach(badge => {
                     Object.entries(badge[1].versions).forEach(v => {
                         Chat.info.badges[badge[0] + ':' + v[0]] = v[1].image_url_4x;
                     });
                 });
-                TwitchAPI('https://badges.twitch.tv/v1/badges/channels/' + encodeURIComponent(Chat.info.channelID) + '/display').done(function(channel) {
+                oldTwitchAPI('https://badges.twitch.tv/v1/badges/channels/' + encodeURIComponent(Chat.info.channelID) + '/display').done(function(channel) {
                     Object.entries(channel.badge_sets).forEach(badge => {
                         Object.entries(badge[1].versions).forEach(v => {
                             Chat.info.badges[badge[0] + ':' + v[0]] = v[1].image_url_4x;
@@ -174,7 +176,9 @@ Chat = {
             }
 
             // Load cheers images
-            TwitchAPI("https://api.twitch.tv/v5/bits/actions?channel_id=" + Chat.info.channelId).done(function(res) {
+/*            TwitchAPI("https://api.twitch.tv/v5/bits/actions?channel_id=" + Chat.info.channelId).done(function(res) {*/
+/* untested change to user_id, i dont have ability to test cheer emotes on helix api*/
+            TwitchAPI().done(function(res) {
                 res.actions.forEach(action => {
                     Chat.info.cheers[action.prefix] = {}
                     action.tiers.forEach(tier => {
@@ -554,5 +558,5 @@ Chat = {
 };
 
 $(document).ready(function() {
-    Chat.connect($.QueryString.channel ? $.QueryString.channel.toLowerCase() : 'giambaj');
+    Chat.connect($.QueryString.channel ? $.QueryString.channel.toLowerCase() : 'thathypedperson');
 });
