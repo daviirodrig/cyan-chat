@@ -33,17 +33,17 @@ function processMessages(items)
 {
 	if(items != undefined)
 	{
+		current_messages = []
+		first_index = 0
+
 		items.forEach((message, index) => {
-			// add if statement to ignore messages sent before start time
-			if(!yt_messages.includes(message["id"]))
+			if(!yt_messages.includes(message["id"])) // ignore messages sent before website is run
 			{
-				if(message["id"] == yt_messages[index])
+				message_time = Date.parse(message["snippet"]["publishedAt"])
+				if(message_time >= start_time)
 				{
-					Chat.clearMessage(yt_messages[index]) // remove deleted message from jchat 
-					yt_messages.splice(index, 1) // remove deleted message from this script's comparison
-				}
-				else
-				{
+					if(first_index == 0) {first_index = index}
+
 					badges = ""
 					badge_info = true // change when memberships are added
 					if(message["authorDetails"]["isChatOwner"])
@@ -74,22 +74,35 @@ function processMessages(items)
 						emotes: true,
 						"first-msg": "0",
 						flags: true,
-						id: message["id"],
+						id: String(hashFnv32a(message["id"])),
 						mod: String(message["authorDetails"]["isChatModerator"] ? 1 : 0),
 						"returning-chatter": "0",
 						"room-id": "133875470", // change?
 						subscriber: "0", // update for memberships
-						"tmi-sent-ts": String(Date.parse(message["snippet"]["publishedAt"])), // (epoch time) (find conversion)
+						"tmi-sent-ts": String(message_time), // (epoch time) (find conversion)
 						turbo: "0",
 						"user-id": message["authorDetails"]["channelId"],
 						"user-type": true
 					}
 
 					Chat.write(message["authorDetails"]["channelId"], info, message["snippet"]["displayMessage"])
-					yt_messages.push(message["id"])
 				}
+				yt_messages.push(message["id"])
 			}
+			current_messages.push(message["id"])
 		});
+		
+		// remove deleted messages (i'm just gonna hope this works and doesn't break in production)
+		offset = 0
+		for(let i = 0; i < yt_messages.length; i++)
+		{
+			if(yt_messages[i + offset] != current_messages[i])
+			{
+				Chat.clearMessage(String(hashFnv32a(yt_messages[i + offset])))
+				offset++
+			}
+		}
+		yt_messages = current_messages
 	}
 	else
 	{
@@ -97,7 +110,24 @@ function processMessages(items)
 	}
 }
 
-const message_wait = 10000 // wait 10s between requests
+// https://blog.trannhat.xyz/generate-a-hash-from-string-in-javascript/
+function hashFnv32a(str, asString, seed) { // fixes a bug when deleting a message
+    /*jshint bitwise:false */
+    var i, l,
+        hval = (seed === undefined) ? 0x811c9dc5 : seed;
+
+    for (i = 0, l = str.length; i < l; i++) {
+        hval ^= str.charCodeAt(i);
+        hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
+    }
+    if( asString ){
+        // Convert to 8 digit hex string
+        return ("0000000" + (hval >>> 0).toString(16)).substr(-8);
+    }
+    return hval >>> 0;
+}
+
+const message_wait = 10000 // wait 5s between requests
 async function execute() {
 	if(typeof gapi.client != "undefined")
 	{
@@ -108,7 +138,7 @@ async function execute() {
 		]
 		})
 		.then(function(response) {
-			console.log(response.result.items)
+			// console.log(response.result.items)
 			processMessages(response.result.items)
 			setTimeout(execute, message_wait)
 		},
