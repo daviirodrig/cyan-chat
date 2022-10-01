@@ -85,7 +85,7 @@ function processMessages(items)
 						"user-type": true
 					}
 
-					Chat.write(message["authorDetails"]["channelId"], info, message["snippet"]["displayMessage"])
+					Chat.write(message["authorDetails"]["channelId"], info, message["snippet"]["displayMessage"], "youtube")
 				}
 				yt_messages.push(message["id"])
 			}

@@ -292,7 +292,7 @@ Chat = {
         });
     },
 
-    write: function(nick, info, message) {
+    write: function(nick, info, message, service) {
         if (info) {
             var $chatLine = $('<div></div>');
             $chatLine.addClass('chat_line');
@@ -301,6 +301,13 @@ Chat = {
             $chatLine.attr('data-id', info.id);
             var $userInfo = $('<span></span>');
             $userInfo.addClass('user_info');
+
+            if (service == "youtube") {
+                $userInfo.append('<span class="service" style="color:red">|</span>')
+            }
+            if (service == "twitch") {
+                $userInfo.append('<span class="service" style="color:#6441A4">|</span>')
+            }
 
             // Writing badges
             if (Chat.info.hideBadges) {
@@ -548,7 +555,7 @@ Chat = {
                                 if (Chat.info.bttvBadges && Chat.info.seventvBadges && Chat.info.chatterinoBadges && Chat.info.ffzapBadges && !Chat.info.userBadges[nick]) Chat.loadUserBadges(nick, message.tags['user-id']);
                             }
 
-                            Chat.write(nick, message.tags, message.params[1]);
+                            Chat.write(nick, message.tags, message.params[1], "twitch");
                             return;
                     }
                 });
