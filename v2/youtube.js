@@ -1,14 +1,7 @@
 // currently need to get from another program
 const liveChatId = "KicKGFVDUHdiYm1qTlhOeE0tNHMxMjh3Y01wURILaXFBdy0wNTE4UXM"
 
-function loadClient() {
-	console.log("attempting to load gapi client")
-	gapi.client.setApiKey(yt_api);
-	return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
-		.then(function() { console.log("GAPI client loaded for API"); },
-			function(err) { console.error("Error loading GAPI client for API", err); });
-}
-
+// implement a proper callback(?) to check if gapi client is actually loaded
 gapi.load("client");
 var gapiChecker = setInterval(function(){
 	// Find it with a selector
@@ -17,9 +10,95 @@ var gapiChecker = setInterval(function(){
 		clearInterval(gapiChecker);
 		loadClient()
 	}
-}, 500);
+}, 1000);
 
-function execute() {
+function loadClient() {
+	console.log("attempting to load gapi client")
+	gapi.client.setApiKey(yt_api);
+	return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
+		.then(function() { console.log("GAPI client loaded for API"); execute(); },
+		// .then(function() { console.log("GAPI client loaded for API");}, // uncomment to disable requests
+			function(err) { console.error("Error loading GAPI client for API", err); });
+}
+
+// store all message["id"]
+yt_messages = []
+
+// ignore messages sent before website opened (epoch in ms)
+start_time = new Date().getTime()
+
+// check for new messages + convert them for jchat processing
+// to-do: handle responses in other pages (channel too small to consider this sadge)
+function processMessages(items)
+{
+	if(items != undefined)
+	{
+		items.forEach((message, index) => {
+			// add if statement to ignore messages sent before start time
+			if(!yt_messages.includes(message["id"]))
+			{
+				if(message["id"] == yt_messages[index])
+				{
+					Chat.clearMessage(yt_messages[index]) // remove deleted message from jchat 
+					yt_messages.splice(index, 1) // remove deleted message from this script's comparison
+				}
+				else
+				{
+					badges = ""
+					badge_info = true // change when memberships are added
+					if(message["authorDetails"]["isChatOwner"])
+					{
+						badges += "broadcaster/1"
+					}
+					if(message["authorDetails"]["isChatModerator"])
+					{
+						badges += "moderator/1"
+					}
+					if(message["authorDetails"]["isVerified"]) // can't test, hopefully shows verified channels
+					{
+						badges += "partner/1"
+					}
+					if(message["authorDetails"]["isChatSponsor"]) // can't test, will implement when i get memberships
+					{
+						badges += "subscriber/0"
+					}
+					if(badges == "")
+					{
+						badges = true
+					}
+					info = {
+						"badge-info": badge_info,
+						badges: badges, // (only check for listed below)
+						color: true,
+						"display-name": message["authorDetails"]["displayName"],
+						emotes: true,
+						"first-msg": "0",
+						flags: true,
+						id: message["id"],
+						mod: String(message["authorDetails"]["isChatModerator"] ? 1 : 0),
+						"returning-chatter": "0",
+						"room-id": "133875470", // change?
+						subscriber: "0", // update for memberships
+						"tmi-sent-ts": String(Date.parse(message["snippet"]["publishedAt"])), // (epoch time) (find conversion)
+						turbo: "0",
+						"user-id": message["authorDetails"]["channelId"],
+						"user-type": true
+					}
+
+					Chat.write(message["authorDetails"]["channelId"], info, message["snippet"]["displayMessage"])
+					yt_messages.push(message["id"])
+				}
+			}
+		});
+	}
+	else
+	{
+		console.log("no items found")
+	}
+}
+
+const message_wait = 10000 // wait 10s between requests
+async function execute() {
 	if(typeof gapi.client != "undefined")
 	{
 		return gapi.client.youtube.liveChatMessages.list({
@@ -29,13 +108,16 @@ function execute() {
 		]
 		})
 		.then(function(response) {
-			console.log("Response", response);
+			console.log(response.result.items)
+			processMessages(response.result.items)
+			setTimeout(execute, message_wait)
 		},
-		function(err) { console.error("could not get gapi response", err); });
+		function(err) { console.error("yt request encountered an error, retrying...", err); setTimeout(execute, message_wait)});
 	}
 	else
 	{
-		console.log("gapi client has not been loaded yet")
+		console.log("gapi client has not been loaded yet, attempting request again...")
+		setTimeout(execute, message_wait)
 	}
 }
 
