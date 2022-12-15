@@ -19,16 +19,18 @@
 Chat = {
     info: {
         channel: null,
-        animate: ('animate' in $.QueryString ? ($.QueryString.animate.toLowerCase() === 'true') : false),
+        animate: ('animate' in $.QueryString ? ($.QueryString.animate.toLowerCase() === 'true') : true),
         showBots: ('bots' in $.QueryString ? ($.QueryString.bots.toLowerCase() === 'true') : false),
-        hideCommands: ('hide_commands' in $.QueryString ? ($.QueryString.hide_commands.toLowerCase() === 'true') : false),
+        hideCommands: ('hide_commands' in $.QueryString ? ($.QueryString.hide_commands.toLowerCase() === 'true') : true),
         hideBadges: ('hide_badges' in $.QueryString ? ($.QueryString.hide_badges.toLowerCase() === 'true') : false),
-        fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
-        size: ('size' in $.QueryString ? parseInt($.QueryString.size) : 3),
+        // fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
+        fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : 360),
+        size: ('size' in $.QueryString ? parseInt($.QueryString.size) : 2),
         font: ('font' in $.QueryString ? parseInt($.QueryString.font) : 0),
         stroke: ('stroke' in $.QueryString ? parseInt($.QueryString.stroke) : false),
-        shadow: ('shadow' in $.QueryString ? parseInt($.QueryString.shadow) : false),
+        shadow: ('shadow' in $.QueryString ? parseInt($.QueryString.shadow) : 3),
         smallCaps: ('small_caps' in $.QueryString ? ($.QueryString.small_caps.toLowerCase() === 'true') : false),
+        invert: ('invert' in $.QueryString ? ($.QueryString.invert.toLowerCase() === 'true') : false),
         emotes: {},
         badges: {},
         userBadges: {},
@@ -116,6 +118,9 @@ Chat = {
             }
             if (Chat.info.smallCaps) {
                 appendCSS('variant', 'SmallCaps');
+            }
+            if (Chat.info.invert) {
+                appendCSS('variant', 'invert');
             }
 
             // Load badges
@@ -205,26 +210,55 @@ Chat = {
                 $auxDiv.remove();
 
                 var $animDiv = $('<div></div>');
-                $('#chat_container').append($animDiv);
-                $animDiv.animate({ "height": auxHeight }, 150, function() {
-                    $(this).remove();
-                    $('#chat_container').append(lines);
-                });
+                if (Chat.info.invert) {
+                    $('#chat_container').prepend($animDiv);
+                    $animDiv.animate({ "height": auxHeight }, 150, function() {
+                        $(this).remove();
+                        $('#chat_container').prepend(lines);
+                    });
+                } else {
+                    $('#chat_container').append($animDiv);
+                    $animDiv.animate({ "height": auxHeight }, 150, function() {
+                        $(this).remove();
+                        $('#chat_container').append(lines);
+                    });
+                }
+                
             } else {
-                $('#chat_container').append(lines);
+                if (Chat.info.invert) {
+                    $('#chat_container').prepend(lines);
+                } else {
+                    $('#chat_container').append(lines);
+                }
             }
             Chat.info.lines = [];
             var linesToDelete = $('.chat_line').length - 100;
-            while (linesToDelete > 0) {
-                $('.chat_line').eq(0).remove();
-                linesToDelete--;
+            if (Chat.info.invert) {
+                while (linesToDelete > 0) {
+                    $('.chat_line').eq(-1).remove();
+                    linesToDelete--;
+                }
+            } else {
+                while (linesToDelete > 0) {
+                    $('.chat_line').eq(0).remove();
+                    linesToDelete--;
+                }
             }
         } else if (Chat.info.fade) {
-            var messageTime = $('.chat_line').eq(0).data('time');
-            if ((Date.now() - messageTime) / 1000 >= Chat.info.fade) {
-                $('.chat_line').eq(0).fadeOut(function() {
-                    $(this).remove();
-                });
+            if (Chat.info.invert) {
+                var messageTime = $('.chat_line').eq(-1).data('time');
+                if ((Date.now() - messageTime) / 1000 >= Chat.info.fade) {
+                    $('.chat_line').eq(-1).fadeOut(function() {
+                        $(this).remove();
+                    });
+                }
+            } else {
+                var messageTime = $('.chat_line').eq(0).data('time');
+                if ((Date.now() - messageTime) / 1000 >= Chat.info.fade) {
+                    $('.chat_line').eq(0).fadeOut(function() {
+                        $(this).remove();
+                    });
+                }
             }
         }
     }, 200),
@@ -303,10 +337,10 @@ Chat = {
             $userInfo.addClass('user_info');
 
             if (service == "youtube") {
-                $userInfo.append('<span class="service" style="color:red">|</span>')
+                $userInfo.append('<span id="service" style="color:red";>> | </span>')
             }
             if (service == "twitch") {
-                $userInfo.append('<span class="service" style="color:#6441A4">|</span>')
+                $userInfo.append('<span id="service" style="color:#6441A4;">> | </span>')
             }
 
             // Writing badges
