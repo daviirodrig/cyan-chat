@@ -1,5 +1,12 @@
 // currently need to get from another program
-const liveChatId = "KicKGFVDUHdiYm1qTlhOeE0tNHMxMjh3Y01wURILaXFBdy0wNTE4UXM"
+// const liveChatId = "KicKGFVDUHdiYm1qTlhOeE0tNHMxMjh3Y01wURILaXFBdy0wNTE4UXM" // testing
+const liveChatId = "KicKGFVDUHdiYm1qTlhOeE0tNHMxMjh3Y01wURILckxpaVhWNzFuQXc"
+
+if(typeof yt_api === "undefined")
+{
+	var $chatLine = $('<div style="color: red;">Uncomment YouTube API key</div>');
+	Chat.info.lines.push($chatLine.wrap('<div>').parent().html());
+}
 
 // implement a proper callback(?) to check if gapi client is actually loaded
 gapi.load("client");
@@ -8,7 +15,7 @@ var gapiChecker = setInterval(function(){
 	if(typeof gapi.client != "undefined"){
 		console.log("gapi.client loaded");
 		clearInterval(gapiChecker);
-		loadClient()
+		loadClient();
 	}
 }, 1000);
 
@@ -28,6 +35,7 @@ yt_messages = []
 start_time = new Date().getTime()
 
 // check for new messages + convert them for jchat processing
+// to-do: add default twitch emotes to youtube
 // to-do: handle responses in other pages (channel too small to consider this sadge)
 function processMessages(items)
 {
@@ -82,7 +90,7 @@ function processMessages(items)
 						"tmi-sent-ts": String(message_time), // (epoch time) (find conversion)
 						turbo: "0",
 						"user-id": message["authorDetails"]["channelId"],
-						"user-type": true
+						"user-type": true // need to implement mod user-type
 					}
 
 					Chat.write(message["authorDetails"]["channelId"], info, message["snippet"]["displayMessage"], "youtube")
@@ -110,6 +118,7 @@ function processMessages(items)
 	}
 }
 
+// generate a hash for username color picking
 // https://blog.trannhat.xyz/generate-a-hash-from-string-in-javascript/
 function hashFnv32a(str, asString, seed) { // fixes a bug when deleting a message
     /*jshint bitwise:false */
