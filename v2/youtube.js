@@ -1,6 +1,6 @@
 // currently need to get from another program
 // const liveChatId = "KicKGFVDUHdiYm1qTlhOeE0tNHMxMjh3Y01wURILaXFBdy0wNTE4UXM" // testing
-const liveChatId = "KicKGFVDUHdiYm1qTlhOeE0tNHMxMjh3Y01wURILckxpaVhWNzFuQXc"
+const liveChatId = "KicKGFVDUHdiYm1qTlhOeE0tNHMxMjh3Y01wURILY182MlJFc1VFbHM"
 
 if(typeof yt_api === "undefined")
 {
@@ -20,7 +20,7 @@ var gapiChecker = setInterval(function(){
 }, 1000);
 
 function loadClient() {
-	console.log("attempting to load gapi client")
+	console.log("attempting to load youtube client")
 	gapi.client.setApiKey(yt_api);
 	return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
 		.then(function() { console.log("GAPI client loaded for API"); execute(); },
@@ -96,6 +96,10 @@ function processMessages(items)
 					Chat.write(message["authorDetails"]["channelId"], info, message["snippet"]["displayMessage"], "youtube")
 				}
 				yt_messages.push(message["id"])
+				if(yt_messages.length > 100)
+				{
+					yt_messages.shift()
+				}
 			}
 			current_messages.push(message["id"])
 		});
@@ -136,11 +140,13 @@ function hashFnv32a(str, asString, seed) { // fixes a bug when deleting a messag
     return hval >>> 0;
 }
 
-const message_wait = 5000 // wait 5s between requests
-// const message_wait = 10000 // wait 10s between requests
+// const message_wait = 5000 // wait 5s between requests
+const message_wait = 10000 // wait 15s between requests
 async function execute() {
 	if(typeof gapi.client != "undefined")
 	{
+		console.log("reading messages")
+		// add code here to get new livestream liveChatID
 		return gapi.client.youtube.liveChatMessages.list({
 		"liveChatId": liveChatId,
 		"part": [

@@ -410,10 +410,6 @@ Chat = {
             } else {
                 const twitchColors = ["#FF0000", "#0000FF", "#008000", "#B22222", "#FF7F50", "#9ACD32", "#FF4500", "#2E8B57", "#DAA520", "#D2691E", "#5F9EA0", "#1E90FF", "#FF69B4", "#8A2BE2", "#00FF7F"];
                 var color = twitchColors[nick.charCodeAt(0) % 15];
-                if(service == "youtube") // too many collisions basing the color off of youtube id
-                {
-                    var color = twitchColors[info['display-name'].charCodeAt(0) % 15];
-                }
             }
             $username.css('color', color);
             $username.html(info['display-name'] ? info['display-name'] : nick);
