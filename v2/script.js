@@ -95,13 +95,11 @@ Chat = {
     },
 
     load: function(callback) {
-/*        TwitchAPI('https://api.twitch.tv/helix/users?login=' + Chat.info.channel).done(function(res) {*/
-/* dont call helix again, the user_id is already stored*/
-        TwitchAPI().done(function(res) {
+        TwitchOAuth().done(function(res) {
             Chat.info.channelID = res.user_id;
             Chat.loadEmotes(Chat.info.channelID);
 
-            let client_id = res.client_id
+            client_id = res.client_id
 
             // Load CSS
             let size = sizes[Chat.info.size - 1];
@@ -126,14 +124,14 @@ Chat = {
             }
 
             // Load badges
-            TwitchGET('https://api.twitch.tv/helix/chat/badges/global', client_id).done(function(global) {  
+            TwitchAPI('https://api.twitch.tv/helix/chat/badges/global', client_id).done(function(global) {  
                 Object.entries(global.data).forEach(badge => {
                     Object.entries(badge[1].versions).forEach(v => {
                         Chat.info.badges[badge[1]["set_id"] + ':' + v[1].id] = v[1].image_url_4x;
                     });
                 });
             });
-            TwitchGET('https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + encodeURIComponent(Chat.info.channelID), client_id).done(function(channel) {
+            TwitchAPI('https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + encodeURIComponent(Chat.info.channelID), client_id).done(function(channel) {
                 Object.entries(channel.data).forEach(badge => {
                     Object.entries(badge[1].versions).forEach(v => {
                         Chat.info.badges[badge[1]["set_id"] + ':' + v[1].id] = v[1].image_url_4x;
@@ -183,7 +181,7 @@ Chat = {
             }
 
             // Load cheers images
-            TwitchGET("https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=" + encodeURIComponent(Chat.info.channelID), client_id).done(function(res) {
+            TwitchAPI("https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=" + encodeURIComponent(Chat.info.channelID), client_id).done(function(res) {
                 res.data.forEach(action => {
                     Chat.info.cheers[action.prefix] = {}
                     action.tiers.forEach(tier => {
