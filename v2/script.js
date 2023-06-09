@@ -21,7 +21,7 @@ Chat = {
         channel: null,
         animate: ('animate' in $.QueryString ? ($.QueryString.animate.toLowerCase() === 'true') : true),
         showBots: ('bots' in $.QueryString ? ($.QueryString.bots.toLowerCase() === 'true') : false),
-        hideCommands: ('hide_commands' in $.QueryString ? ($.QueryString.hide_commands.toLowerCase() === 'true') : true),
+        hideCommands: ('hide_commands' in $.QueryString ? ($.QueryString.hide_commands.toLowerCase() === 'true') : false),
         hideBadges: ('hide_badges' in $.QueryString ? ($.QueryString.hide_badges.toLowerCase() === 'true') : false),
         // fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
         fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : 360),
@@ -101,6 +101,8 @@ Chat = {
             Chat.info.channelID = res.user_id;
             Chat.loadEmotes(Chat.info.channelID);
 
+            let client_id = res.client_id
+
             // Load CSS
             let size = sizes[Chat.info.size - 1];
             let font = fonts[Chat.info.font];
@@ -124,27 +126,27 @@ Chat = {
             }
 
             // Load badges
-            oldTwitchAPI('https://badges.twitch.tv/v1/badges/global/display').done(function(global) {
-                Object.entries(global.badge_sets).forEach(badge => {
+            TwitchGET('https://api.twitch.tv/helix/chat/badges/global', client_id).done(function(global) {  
+                Object.entries(global.data).forEach(badge => {
                     Object.entries(badge[1].versions).forEach(v => {
-                        Chat.info.badges[badge[0] + ':' + v[0]] = v[1].image_url_4x;
+                        Chat.info.badges[badge[1]["set_id"] + ':' + v[1].id] = v[1].image_url_4x;
                     });
                 });
-                oldTwitchAPI('https://badges.twitch.tv/v1/badges/channels/' + encodeURIComponent(Chat.info.channelID) + '/display').done(function(channel) {
-                    Object.entries(channel.badge_sets).forEach(badge => {
-                        Object.entries(badge[1].versions).forEach(v => {
-                            Chat.info.badges[badge[0] + ':' + v[0]] = v[1].image_url_4x;
-                        });
-                    });
-                    $.getJSON('https://api.frankerfacez.com/v1/_room/id/' + encodeURIComponent(Chat.info.channelID)).done(function(res) {
-                        if (res.room.moderator_badge) {
-                            Chat.info.badges['moderator:1'] = 'https://cdn.frankerfacez.com/room-badge/mod/' + Chat.info.channel + '/4/rounded';
-                        }
-                        if (res.room.vip_badge) {
-                            Chat.info.badges['vip:1'] = 'https://cdn.frankerfacez.com/room-badge/vip/' + Chat.info.channel + '/4';
-                        }
+            });
+            TwitchGET('https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + encodeURIComponent(Chat.info.channelID), client_id).done(function(channel) {
+                Object.entries(channel.data).forEach(badge => {
+                    Object.entries(badge[1].versions).forEach(v => {
+                        Chat.info.badges[badge[1]["set_id"] + ':' + v[1].id] = v[1].image_url_4x;
                     });
                 });
+            });
+            $.getJSON('https://api.frankerfacez.com/v1/_room/id/' + encodeURIComponent(Chat.info.channelID)).done(function(res) {
+                if (res.room.moderator_badge) {
+                    Chat.info.badges['moderator:1'] = 'https://cdn.frankerfacez.com/room-badge/mod/' + Chat.info.channel + '/4/rounded';
+                }
+                if (res.room.vip_badge) {
+                    Chat.info.badges['vip:1'] = 'https://cdn.frankerfacez.com/room-badge/vip/' + Chat.info.channel + '/4';
+                }
             });
 
             if (!Chat.info.hideBadges) {
@@ -181,10 +183,8 @@ Chat = {
             }
 
             // Load cheers images
-/*            TwitchAPI("https://api.twitch.tv/v5/bits/actions?channel_id=" + Chat.info.channelId).done(function(res) {*/
-/* untested change to user_id, i dont have ability to test cheer emotes on helix api*/
-            TwitchAPI().done(function(res) {
-                res.actions.forEach(action => {
+            TwitchGET("https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=" + encodeURIComponent(Chat.info.channelID), client_id).done(function(res) {
+                res.data.forEach(action => {
                     Chat.info.cheers[action.prefix] = {}
                     action.tiers.forEach(tier => {
                         Chat.info.cheers[action.prefix][tier.min_bits] = {

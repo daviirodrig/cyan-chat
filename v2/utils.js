@@ -18,7 +18,7 @@ function escapeHtml(message) {
         .replace(/(>)(?!\()/g, "&gt;");
 }
 
-function TwitchAPI(url) {
+function TwitchAPI() {
 /*    return $.getJSON(url + (url.search(/\?/) > -1 ? '&' : '?') + 'client_id=' + client_id);*/
 /* use only helix api oauth endpoint to get user_id and store the id# */
     return $.ajax({
@@ -34,6 +34,27 @@ function TwitchAPI(url) {
             // console.log(url)
             // console.log(result)
         },
+        error : function(result) {
+            // this *should* show up when the token expires
+            var $chatLine = $('<div style="color: red;">Twitch OAuth invalid</div>');
+            Chat.info.lines.push($chatLine.wrap('<div>').parent().html());
+        }
+    });
+}
+
+function TwitchGET(url, client_id) {
+    return $.ajax({
+        type: "GET", 
+        url: url, 
+        dataType: "json",
+        headers: {'Authorization': 'Bearer ' + credentials,
+                  'Client-Id': client_id},
+                  success : function(result) { 
+                    //set your variable to the result
+                    console.log('jChat: got ' + url);
+                    // console.log(url)
+                    // console.log(result)
+                },
         error : function(result) {
             // this *should* show up when the token expires
             var $chatLine = $('<div style="color: red;">Twitch OAuth invalid</div>');
