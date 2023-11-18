@@ -41,7 +41,7 @@ function TwitchOAuth() {
 function TwitchAPI(url) {
     return $.ajax({
         type: "GET", 
-        url: url, 
+        url: "https://api.twitch.tv/helix" + url, 
         dataType: "json",
         headers: {'Authorization': 'Bearer ' + credentials,
                   'Client-Id': client_id},

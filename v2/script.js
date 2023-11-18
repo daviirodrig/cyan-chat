@@ -36,12 +36,13 @@ Chat = {
         userBadges: {},
         ffzapBadges: null,
         bttvBadges: null,
-        seventvBadges: null,
+        seventvBadges: [],
         chatterinoBadges: null,
         cheers: {},
         lines: [],
         blockedUsers: ('block' in $.QueryString ? $.QueryString.block.toLowerCase().split(',') : false),
-        bots: ['streamelements', 'streamlabs', 'nightbot', 'moobot', 'fossabot']
+        bots: ['streamelements', 'streamlabs', 'nightbot', 'moobot', 'fossabot'],
+        nicknameColor: ('cN' in $.QueryString ? $.QueryString.cN : false)
     },
 
     loadEmotes: function(channelID) {
@@ -75,35 +76,34 @@ Chat = {
                     Chat.info.emotes[emote.code] = {
                         id: emote.id,
                         image: 'https://cdn.betterttv.net/emote/' + emote.id + '/3x',
-                        zeroWidth: ["5e76d338d6581c3724c0f0b2", "5e76d399d6581c3724c0f0b8", "567b5b520e984428652809b6", "5849c9a4f52be01a7ee5f79d", "567b5c080e984428652809ba", "567b5dc00e984428652809bd", "58487cc6f52be01a7ee5f205", "5849c9c8f52be01a7ee5f79e"].includes(emote.id) // "5e76d338d6581c3724c0f0b2" => cvHazmat, "5e76d399d6581c3724c0f0b8" => cvMask, "567b5b520e984428652809b6" => SoSnowy, "5849c9a4f52be01a7ee5f79d" => IceCold, "567b5c080e984428652809ba" => CandyCane, "567b5dc00e984428652809bd" => ReinDeer, "58487cc6f52be01a7ee5f205" => SantaHat, "5849c9c8f52be01a7ee5f79e" => TopHat
+                        zeroWidth: ["5e76d338d6581c3724c0f0b2", "5e76d399d6581c3724c0f0b8", "567b5b520e984428652809b6", "5849c9a4f52be01a7ee5f79d", "567b5c080e984428652809ba", "567b5dc00e984428652809bd", "58487cc6f52be01a7ee5f205", "5849c9c8f52be01a7ee5f79e"].includes(emote.id)
+                            // "5e76d338d6581c3724c0f0b2" => cvHazmat, "5e76d399d6581c3724c0f0b8" => cvMask, "567b5b520e984428652809b6" => SoSnowy, "5849c9a4f52be01a7ee5f79d" => IceCold, "567b5c080e984428652809ba" => CandyCane, "567b5dc00e984428652809bd" => ReinDeer, "58487cc6f52be01a7ee5f205" => SantaHat, "5849c9c8f52be01a7ee5f79e" => TopHat
                     };
                 });
             });
         });
 
-        // 7TV Global Emotes
-        $.getJSON('https://7tv.io/v3/emote-sets/global').done(function(res) {
-            console.log(res)
-            res.emotes.forEach(emote => {
+        $.getJSON('https://7tv.io/v3/emote-sets/global').done((res) => {
+            res?.emotes?.forEach(emote => {
+                const emoteData = emote.data.host.files.pop();
                 Chat.info.emotes[emote.name] = {
                     id: emote.id,
-                    image: emote.data.host.url + "/" + emote.data.host.files.at(-1).name,
-                    zeroWidth: Boolean(emote.flags)
-                };
-            });
-        });
+                    image: `https:${emote.data.host.url}/${emoteData.name}`,
+                    zeroWidth: emote.data.flags == 256,
+                }
+            })
+        })
 
-        // 7TV Channel Emotes
-        $.getJSON('https://7tv.io/v3/users/twitch/' + encodeURIComponent(channelID)).done(function(res) {
-            console.log(res)    
-            res.emote_set.emotes.forEach(emote => {
+        $.getJSON('https://7tv.io/v3/users/twitch/' + encodeURIComponent(channelID)).done((res) => {
+            res?.emote_set?.emotes?.forEach(emote => {
+                const emoteData = emote.data.host.files.pop();
                 Chat.info.emotes[emote.name] = {
                     id: emote.id,
-                    image: emote.data.host.url + "/" + emote.data.host.files.at(-1).name,
-                    zeroWidth: Boolean(emote.flags)
-                };
-            });
-        });
+                    image: `https:${emote.data.host.url}/${emoteData.name}`,
+                    zeroWidth: emote.data.flags == 256,
+                }
+            })
+        })
     },
 
     load: function(callback) {
@@ -136,27 +136,29 @@ Chat = {
             }
 
             // Load badges
-            TwitchAPI('https://api.twitch.tv/helix/chat/badges/global', client_id).done(function(global) {  
-                Object.entries(global.data).forEach(badge => {
-                    Object.entries(badge[1].versions).forEach(v => {
-                        Chat.info.badges[badge[1]["set_id"] + ':' + v[1].id] = v[1].image_url_4x;
+            TwitchAPI('/chat/badges/global').done(function(res) {
+                res?.data.forEach(badge => {
+                    badge?.versions.forEach(version => {
+                        Chat.info.badges[badge.set_id + ':' + version.id] = version.image_url_4x;
                     });
                 });
-            });
-            TwitchAPI('https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + encodeURIComponent(Chat.info.channelID), client_id).done(function(channel) {
-                Object.entries(channel.data).forEach(badge => {
-                    Object.entries(badge[1].versions).forEach(v => {
-                        Chat.info.badges[badge[1]["set_id"] + ':' + v[1].id] = v[1].image_url_4x;
+
+                TwitchAPI('/chat/badges?broadcaster_id=' + Chat.info.channelID).done(function(res) {
+                    res?.data.forEach(badge => {
+                        badge?.versions.forEach(version => {
+                            Chat.info.badges[badge.set_id + ':' + version.id] = version.image_url_4x;
+                        });
+                    });            
+
+                    $.getJSON('https://api.frankerfacez.com/v1/_room/id/' + encodeURIComponent(Chat.info.channelID)).done(function(res) {
+                        if (res.room.moderator_badge) {
+                            Chat.info.badges['moderator:1'] = 'https://cdn.frankerfacez.com/room-badge/mod/' + Chat.info.channel + '/4/rounded';
+                        }
+                        if (res.room.vip_badge) {
+                            Chat.info.badges['vip:1'] = 'https://cdn.frankerfacez.com/room-badge/vip/' + Chat.info.channel + '/4';
+                        }
                     });
                 });
-            });
-            $.getJSON('https://api.frankerfacez.com/v1/_room/id/' + encodeURIComponent(Chat.info.channelID)).done(function(res) {
-                if (res.room.moderator_badge) {
-                    Chat.info.badges['moderator:1'] = 'https://cdn.frankerfacez.com/room-badge/mod/' + Chat.info.channel + '/4/rounded';
-                }
-                if (res.room.vip_badge) {
-                    Chat.info.badges['vip:1'] = 'https://cdn.frankerfacez.com/room-badge/vip/' + Chat.info.channel + '/4';
-                }
             });
 
             if (!Chat.info.hideBadges) {
@@ -175,13 +177,15 @@ Chat = {
                         Chat.info.bttvBadges = [];
                     });
 
-                $.getJSON('https://api.7tv.app/v2/badges?user_identifier=login') // possibly broken?
+                /* Deprecated endpoint
+                $.getJSON('https://7tv.io/v3/badges?user_identifier=login')
                     .done(function(res) {
                         Chat.info.seventvBadges = res.badges;
                     })
                     .fail(function() {
                         Chat.info.seventvBadges = [];
                     });
+                */
 
                 $.getJSON('https://api.chatterino.com/badges')
                     .done(function(res) {
@@ -193,8 +197,9 @@ Chat = {
             }
 
             // Load cheers images
-            TwitchAPI("https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=" + encodeURIComponent(Chat.info.channelID), client_id).done(function(res) {
-                res.data.forEach(action => {
+            TwitchAPI("/bits/cheermotes?broadcaster_id=" + Chat.info.channelID).done(function(res) {
+                res = res.data
+                res.forEach(action => {
                     Chat.info.cheers[action.prefix] = {}
                     action.tiers.forEach(tier => {
                         Chat.info.cheers[action.prefix][tier.min_bits] = {
@@ -275,12 +280,19 @@ Chat = {
 
     loadUserBadges: function(nick, userId) {
         Chat.info.userBadges[nick] = [];
+        if (nick === 'giambaj' || nick === 'thathypedperson') {
+            var userBadge = {
+                description: 'jChat Dev',
+                url: 'https://www.giambaj.it/twitch/jchat/img/peepoHappyBadge.png'
+            };
+            if (!Chat.info.userBadges[nick].includes(userBadge)) Chat.info.userBadges[nick].push(userBadge);
+        }
         $.getJSON('https://api.frankerfacez.com/v1/user/' + nick).always(function(res) {
             if (res.badges) {
                 Object.entries(res.badges).forEach(badge => {
                     var userBadge = {
                         description: badge[1].title,
-                        url: 'https:' + badge[1].urls['4'],
+                        url: badge[1].urls['4'],
                         color: badge[1].color
                     };
                     if (!Chat.info.userBadges[nick].includes(userBadge)) Chat.info.userBadges[nick].push(userBadge);
@@ -513,13 +525,13 @@ Chat = {
     clearChat: function(nick) {
         setTimeout(function() {
             $('.chat_line[data-nick=' + nick + ']').remove();
-        }, 200);
+        }, 100);
     },
 
     clearMessage: function(id) {
         setTimeout(function() {
             $('.chat_line[data-id=' + id + ']').remove();
-        }, 200);
+        }, 100);
     },
 
     connect: function(channel) {
@@ -579,6 +591,20 @@ Chat = {
                                     Chat.loadEmotes(Chat.info.channelID);
                                     console.log('jChat: Refreshing emotes...');
                                     return;
+                                }
+                            }
+
+                            if (message.params[1].toLowerCase() === "!reloadchat" && typeof(message.tags.badges) === 'string') {
+                                var flag = false;
+                                message.tags.badges.split(',').forEach(badge => {
+                                    badge = badge.split('/');
+                                    if (badge[0] === "moderator" || badge[0] === "broadcaster") {
+                                        flag = true;
+                                        return;
+                                    }
+                                });
+                                if (flag) {
+                                    location.reload();
                                 }
                             }
 
