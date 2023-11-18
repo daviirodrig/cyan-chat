@@ -81,15 +81,27 @@ Chat = {
             });
         });
 
-        ['emotes/global', 'users/' + encodeURIComponent(channelID) + '/emotes'].forEach(endpoint => {
-            $.getJSON('https://api.7tv.app/v2/' + endpoint).done(function(res) {
-                res.forEach(emote => {
-                    Chat.info.emotes[emote.name] = {
-                        id: emote.id,
-                        image: emote.urls[emote.urls.length - 1][1],
-                        zeroWidth: emote.visibility_simple.includes("ZERO_WIDTH")
-                    };
-                });
+        // 7TV Global Emotes
+        $.getJSON('https://7tv.io/v3/emote-sets/global').done(function(res) {
+            console.log(res)
+            res.emotes.forEach(emote => {
+                Chat.info.emotes[emote.name] = {
+                    id: emote.id,
+                    image: emote.data.host.url + "/" + emote.data.host.files.at(-1).name,
+                    zeroWidth: Boolean(emote.flags)
+                };
+            });
+        });
+
+        // 7TV Channel Emotes
+        $.getJSON('https://7tv.io/v3/users/twitch/' + encodeURIComponent(channelID)).done(function(res) {
+            console.log(res)    
+            res.emote_set.emotes.forEach(emote => {
+                Chat.info.emotes[emote.name] = {
+                    id: emote.id,
+                    image: emote.data.host.url + "/" + emote.data.host.files.at(-1).name,
+                    zeroWidth: Boolean(emote.flags)
+                };
             });
         });
     },
@@ -163,7 +175,7 @@ Chat = {
                         Chat.info.bttvBadges = [];
                     });
 
-                $.getJSON('https://api.7tv.app/v2/badges?user_identifier=login')
+                $.getJSON('https://api.7tv.app/v2/badges?user_identifier=login') // possibly broken?
                     .done(function(res) {
                         Chat.info.seventvBadges = res.badges;
                     })
@@ -402,11 +414,10 @@ Chat = {
             // Writing username
             var $username = $('<span></span>');
             $username.addClass('nick');
+            const twitchColors = ["#FF0000", "#0000FF", "#008000", "#B22222", "#FF7F50", "#9ACD32", "#FF4500", "#2E8B57", "#DAA520", "#D2691E", "#5F9EA0", "#1E90FF", "#FF69B4", "#8A2BE2", "#00FF7F"];
             if (typeof(info.color) === 'string') {
-                if (tinycolor(info.color).getBrightness() <= 50) var color = tinycolor(info.color).lighten(30);
-                else var color = info.color;
+                var color = info.color;
             } else {
-                const twitchColors = ["#FF0000", "#0000FF", "#008000", "#B22222", "#FF7F50", "#9ACD32", "#FF4500", "#2E8B57", "#DAA520", "#D2691E", "#5F9EA0", "#1E90FF", "#FF69B4", "#8A2BE2", "#00FF7F"];
                 var color = twitchColors[nick.charCodeAt(0) % 15];
             }
             $username.css('color', color);
