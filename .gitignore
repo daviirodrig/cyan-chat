@@ -3,3 +3,5 @@ backups/
 t/
 .vscode
 *.go
+*.mod
+*.sum
