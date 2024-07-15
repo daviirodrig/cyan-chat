@@ -2,3 +2,4 @@ credentials.js
 backups/
 t/
 .vscode
+*.go

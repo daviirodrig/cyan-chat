@@ -35,7 +35,8 @@
 .emote {
     max-width: 128px;
     max-height: 42px;
-    margin-right: -3px;
+    margin-right: -3.5px;
+    margin-left: -3.5px;
 }
 
 .upscale {
