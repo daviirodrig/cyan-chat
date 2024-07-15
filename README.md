@@ -3,10 +3,6 @@
 **Cyan Chat** (A fork of JChat) is an overlay that allows you to show your Twitch chat on screen with OBS, XSplit, and any other streaming software that supports browser sources. It supports your [**BetterTTV**](https://betterttv.com/), [**FrankerFaceZ**](https://www.frankerfacez.com/) and [**7TV**](https://7tv.app/) emotes, always at the best available quality. You have many options to customize your chat, like enabling a smooth animation for new messages, or fading old ones after some time. If you have a chat full of !gamble addicts, you can choose to hide bots and commands messages. It also comes with many fonts and styling options that can be combined as desired.
 ### The app will be up and running soon.
 
-**Local Cyan Chat** running Cyan Chat locally is supported.  Download the files and point to index.html in https://github.com/Johnnycyan/cyan-chat/tree/main/v2 - a Twitch Helix API oauth code will be required in credentials.js. (fixme: how to efficiently get helix api oauth tokens)
-* example: `file://v2/index.html?channel=yourusername&fade=10&hide_commands=true&size=1&shadow=0`
-* credentials.js: `const credentials = 'YOUR_OAUTH_HERE';`
-
 ## Features
 - 7TV, BTTV and FFZ emotes support
 - Custom channel badges
