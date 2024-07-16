@@ -6,3 +6,4 @@ t/
 *.mod
 *.sum
 *.exe
+tokens.json
