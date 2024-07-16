@@ -64,6 +64,11 @@ Chat = {
         : false,
     bots: ["streamelements", "streamlabs", "nightbot", "moobot", "fossabot"],
     nicknameColor: "cN" in $.QueryString ? $.QueryString.cN : false,
+    regex:
+      "regex" in $.QueryString
+        ? new RegExp(decodeURIComponent($.QueryString.regex))
+        : null,
+    emoteScale: "emoteScale" in $.QueryString ? parseInt($.QueryString.emoteScale) : 1,
   },
 
   loadEmotes: function (channelID) {
@@ -156,9 +161,19 @@ Chat = {
       // Load CSS
       let size = sizes[Chat.info.size - 1];
       let font = fonts[Chat.info.font];
+      let emoteScale = 1;
+      if (Chat.info.emoteScale > 1) {
+        emoteScale = Chat.info.emoteScale;
+      }
+      if (emoteScale > 3) {
+        emoteScale = 3;
+      }
 
       appendCSS("size", size);
       appendCSS("font", font);
+      if (emoteScale > 1) {
+        appendCSS("emoteScale_"+size, emoteScale);
+      }
 
       if (Chat.info.stroke && Chat.info.stroke > 0) {
         let stroke = strokes[Chat.info.stroke - 1];
@@ -429,7 +444,8 @@ Chat = {
             if (!seventvPaintInfo.image_url) {
               var gradient = createGradient(
                 seventvPaintInfo.angle,
-                seventvPaintInfo.stops
+                seventvPaintInfo.stops,
+                seventvPaintInfo.function
               );
               var dropShadows = createDropShadows(seventvPaintInfo.shadows);
               var userPaint = {
@@ -488,6 +504,11 @@ Chat = {
 
   write: function (nick, info, message, service) {
     if (info) {
+      if (Chat.info.regex) {
+        if (doesStringMatchPattern(message, Chat.info)) {
+          return
+        }
+      }
       var $chatLine = $("<div></div>");
       $chatLine.addClass("chat_line");
       $chatLine.attr("data-nick", nick);
@@ -609,11 +630,7 @@ Chat = {
             );
           }
           $username.css("filter", paint.filter);
-          $username.css("background-size", "cover");
-          $username.css("background-clip", "text");
-          $username.css("-webkit-background-clip", "text");
-          $username.css("-webkit-text-fill-color", "transparent");
-          $username.css("text-shadow", "none");
+          $username.addClass("paint");
         });
       }
       $userInfo.append($username);

@@ -82,6 +82,10 @@ form[name="generator"] {
     align-items: center;
 }
 
+input[name="regex"] {
+    width: 75% !important;
+}
+
 .form_table {
     width: 100%;
     display: flex;
@@ -149,7 +153,7 @@ input[type="checkbox"] {
     appearance: none;
     width: 50px;
     height: 25px;
-    background: rgb(221, 221, 221);
+    background-color: #191919;
     border-radius: 20px;
     position: relative;
     cursor: pointer;
@@ -189,6 +193,8 @@ select {
     font-size: 0.7em;
     padding: 0px 8px;
     cursor: pointer;
+    background-color: #191919;
+    border: none;
 }
 
 .hidden {
@@ -252,8 +258,7 @@ input:focus {
 
 #example .cheer_bits {
     color: rgb(189, 98, 255);
-    font-size: 0.6em;
-    -webkit-text-stroke: 1px black;
+    font-size: 0.8em;
 }
 
 #example .emote {
@@ -302,10 +307,10 @@ input[type="button"]:hover {
     position: absolute;
     width: 800px;
     height: 30px;
-    background-color: white;
+    background-color: #191919;
     border-radius: 5px;
     cursor: pointer;
-    color: black;
+    color: white;
     font-size: 1em;
     text-align: center;
     padding: 2px 10px;
@@ -341,11 +346,12 @@ input[type="button"]:hover {
     margin: 15px;
 }
 
-#paypal {
+#donate {
     width: 100px;
     height: 25px;
     border-radius: 20px;
-    background-color: rgb(255, 196, 57);
+    background-color: rgb(0 128 255);
+    color: black;
     font-size: 0.9em;
     font-weight: 600;
 }

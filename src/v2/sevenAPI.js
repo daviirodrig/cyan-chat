@@ -275,11 +275,15 @@ async function getUserInfo(twitchUserId) {
     return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, 1)`; // Force alpha to 1 for the desired output
   }
   
-  function createGradient(angle, stops) {
+  function createGradient(angle, stops, type) {
     const gradientStops = stops.map(
       (stop) => `${convertColor(stop.color)} ${stop.at * 100}%`
     );
-    return `linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
+    if (type === "LINEAR_GRADIENT") {
+      return `linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
+    } else {
+      return `radial-gradient(${gradientStops.join(", ")})`;
+    }
   }
   
   function createDropShadows(shadows) {

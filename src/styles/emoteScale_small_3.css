@@ -1,0 +1,10 @@
+#example .emote {
+    max-height: 75px;
+    max-width: 225px;
+    height: 75px;
+}
+
+.zero-width_container {
+    margin-bottom: 16.5px;
+    margin-top: 16.5px;
+}

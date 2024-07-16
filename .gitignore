@@ -2,8 +2,5 @@ credentials.js
 backups/
 t/
 .vscode
-*.go
-*.mod
-*.sum
 *.exe
 tokens.json

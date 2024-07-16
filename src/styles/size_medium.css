@@ -34,7 +34,8 @@
 #example .emote {
     max-width: 128px;
     height: 42px;
-    margin-right: -6px;
+    margin-right: -3.5px;
+    margin-left: -3.5px;
 }
 
 #example .emoji {

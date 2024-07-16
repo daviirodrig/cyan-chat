@@ -10,8 +10,18 @@ function fadeOption(event) {
 
 function sizeUpdate(event) {
     let size = sizes[Number($size.val()) - 1];
+    let scale = $emoteScale.val();
     removeCSS('size');
+    removeCSS('emoteScale');
     appendCSS('size', size);
+    appendCSS('emoteScale', size+"_"+scale);
+}
+
+function emoteScaleUpdate(event) {
+    let size = sizes[Number($size.val()) - 1];
+    let scale = $emoteScale.val();
+    removeCSS('emoteScale');
+    appendCSS('emoteScale', size+"_"+scale);
 }
 
 function fontUpdate(event) {
@@ -59,10 +69,18 @@ function capsUpdate(event) {
 function generateURL(event) {
     event.preventDefault();
 
-    const generatedUrl = 'https://www.giambaj.it/twitch/jchat/v2/?channel=' + $channel.val();
+    const currentUrl = window.location.href;
+
+    var generatedUrl = ''
+    if ($regex.val() == '') {
+        generatedUrl = currentUrl + '/v2/?channel=' + $channel.val();
+    } else {
+       generatedUrl = currentUrl + '/v2/?channel=' + $channel.val() + '&regex=' + encodeURIComponent($regex.val());
+    }
 
     let data = {
         size: $size.val(),
+        emoteScale: $emoteScale.val(),
         font: $font.val(),
         stroke: ($stroke.val() != '0' ? $stroke.val() : false),
         shadow: ($shadow.val() != '0' ? $shadow.val() : false),
@@ -109,7 +127,9 @@ function showUrl(event) {
 
 function resetForm(event) {
     $channel.val('');
+    $regex.val('');
     $size.val('3');
+    $emoteScale.val('1');
     $font.val('0');
     $stroke.val('0');
     $shadow.val('0');
@@ -150,6 +170,7 @@ const $small_caps = $("input[name='small_caps']");
 const $invert = $('input[name="invert"]');
 const $badges = $("input[name='badges']");
 const $size = $("select[name='size']");
+const $emoteScale = $("select[name='emote_scale']");
 const $font = $("select[name='font']");
 const $stroke = $("select[name='stroke']");
 const $shadow = $("select[name='shadow']");
@@ -159,9 +180,11 @@ const $result = $("#result");
 const $url = $('#url');
 const $alert = $("#alert");
 const $reset = $("#reset");
+const $regex = $('input[name="regex"]');
 
 $fade_bool.change(fadeOption);
 $size.change(sizeUpdate);
+$emoteScale.change(emoteScaleUpdate);
 $font.change(fontUpdate);
 $stroke.change(strokeUpdate);
 $shadow.change(shadowUpdate);

@@ -54,8 +54,7 @@ body {
 }
 
 .cheer_bits {
-    font-size: 0.6em;
-    -webkit-text-stroke: 1px black;
+    font-size: 0.8em;
 }
 
 .emote {
@@ -72,4 +71,12 @@ body {
 
 .hidden {
     display: none;
+}
+
+.paint {
+    background-size: cover;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
 }
