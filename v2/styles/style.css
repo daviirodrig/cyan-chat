@@ -5,6 +5,26 @@ body {
     position: relative;
 }
 
+#info_container {
+    position: absolute;
+    bottom: 10px;
+    margin: 0 auto;
+    pointer-events: none;
+    align-items: center;
+    display: flex;
+    width: 100%;
+    z-index: 1;
+}
+
+#info_text {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    color: white;
+    margin: 0 auto;
+    font-family: 'Noto Sans', sans-serif;
+    opacity: 0;
+}
+
 #chat_container {
     width: calc(100% - 20px);
     padding: 10px;

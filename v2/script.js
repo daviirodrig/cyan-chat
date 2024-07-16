@@ -755,7 +755,8 @@ Chat = {
     $(document).prop("title", title + Chat.info.channel);
 
     Chat.load(function () {
-      console.log("jChat: Connecting to IRC server...");
+      SendInfoText("Starting Cyan Chat");
+      console.log("Cyan Chat: Connecting to IRC server...");
       var socket = new ReconnectingWebSocket(
         "wss://irc-ws.chat.twitch.tv",
         "irc",
@@ -763,7 +764,7 @@ Chat = {
       );
 
       socket.onopen = function () {
-        console.log("jChat: Connected");
+        console.log("Cyan Chat: Connected");
         socket.send("PASS blah\r\n");
         socket.send(
           "NICK justinfan" + Math.floor(Math.random() * 99999) + "\r\n"
@@ -773,7 +774,7 @@ Chat = {
       };
 
       socket.onclose = function () {
-        console.log("jChat: Disconnected");
+        console.log("Cyan Chat: Disconnected");
       };
 
       socket.onmessage = function (data) {
@@ -787,7 +788,8 @@ Chat = {
               socket.send("PONG " + message.params[0]);
               return;
             case "JOIN":
-              console.log("jChat: Joined channel #" + Chat.info.channel);
+              console.log("Cyan Chat: Joined channel #" + Chat.info.channel);
+              SendInfoText("Connected to " + Chat.info.channel);
               return;
             case "CLEARMSG":
               if (message.tags)
@@ -814,8 +816,9 @@ Chat = {
                   }
                 });
                 if (flag) {
+                  SendInfoText("Refreshing emotes...");
                   Chat.loadEmotes(Chat.info.channelID);
-                  console.log("jChat: Refreshing emotes...");
+                  console.log("Cyan Chat: Refreshing emotes...");
                   return;
                 }
               }
@@ -838,7 +841,7 @@ Chat = {
               }
 
               if (
-                message.params[1].toLowerCase() === "!chat refresh" && message.params[2].toLowerCase() === "refresh" &&
+                message.params[1].toLowerCase() === "!chat refresh" &&
                 typeof message.tags.badges === "string"
               ) {
                 var flag = false;
@@ -850,8 +853,9 @@ Chat = {
                   }
                 });
                 if (flag) {
+                  SendInfoText("Refreshing emotes...");
                   Chat.loadEmotes(Chat.info.channelID);
-                  console.log("jChat: Refreshing emotes...");
+                  console.log("Cyan Chat: Refreshing emotes...");
                   return;
                 }
               }

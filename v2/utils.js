@@ -63,7 +63,7 @@ function TwitchOAuth() {
         dataType: "json",
         success: function(result) {
             // Set your variable to the result
-            console.log('jChat: helix json acquired user_id');
+            console.log('Cyan Chat: helix json acquired user_id');
             // console.log(url)
             // console.log(result)
         },
@@ -81,7 +81,7 @@ function TwitchAPI(url) {
         url: `/twitch/api?url=${encodeURIComponent(url)}`, // Relative URL
         dataType: "json",
         success: function() {
-            console.log('jChat: GET ' + url);
+            console.log('Cyan Chat: GET ' + url);
         },
         error: function(result) {
             var $chatLine = $('<div style="color: red;">Twitch API Error</div>');
@@ -89,4 +89,13 @@ function TwitchAPI(url) {
             Chat.info.lines.push($chatLine.wrap('<div>').parent().html());
         }
     });
+}
+
+function SendInfoText(text) {
+    var $infoText = $("#info_text");
+    $infoText.css("opacity", "1");
+    $infoText.html(text);
+    setTimeout(function() {
+        $infoText.css("opacity", "0");
+    }, 3000);
 }
