@@ -13,6 +13,23 @@
 
     return params;
   })(window.location.search.substr(1).split("&"));
+
+  // Check if 'v' parameter exists
+  if (!$.QueryString.hasOwnProperty('v')) {
+    console.log("'v' parameter is not present.");
+    var currentUrl = window.location.href;
+    var newUrl = addRandomQueryString(currentUrl);
+    window.location.href = newUrl;
+  } else {
+    // Check if 'v' parameter is valid
+    if ((Date.now() - $.QueryString.v) > 10000) {
+      console.log("'v' parameter is not up to date.");
+      var currentUrl = window.location.href;
+      var cleanUrl = removeRandomQueryString(currentUrl);
+      var newUrl = addRandomQueryString(cleanUrl);
+      window.location.href = newUrl;
+    }
+  }
 })(jQuery);
 
 Chat = {
@@ -77,7 +94,7 @@ Chat = {
     ["emotes/global", "users/twitch/" + encodeURIComponent(channelID)].forEach(
       (endpoint) => {
         $.getJSON(
-          "https://api.betterttv.net/3/cached/frankerfacez/" + endpoint
+          addRandomQueryString("https://api.betterttv.net/3/cached/frankerfacez/" + endpoint)
         ).done(function (res) {
           res.forEach((emote) => {
             if (emote.images["4x"]) {
@@ -99,7 +116,7 @@ Chat = {
 
     ["emotes/global", "users/twitch/" + encodeURIComponent(channelID)].forEach(
       (endpoint) => {
-        $.getJSON("https://api.betterttv.net/3/cached/" + endpoint).done(
+        $.getJSON(addRandomQueryString("https://api.betterttv.net/3/cached/" + endpoint)).done(
           function (res) {
             if (!Array.isArray(res)) {
               res = res.channelEmotes.concat(res.sharedEmotes);
@@ -126,7 +143,8 @@ Chat = {
       }
     );
 
-    $.getJSON("https://7tv.io/v3/emote-sets/global").done((res) => {
+    var randomNumber = Math.floor(Math.random() * 724238534543)
+    $.getJSON(addRandomQueryString("https://7tv.io/v3/emote-sets/global")).done((res) => {
       res?.emotes?.forEach((emote) => {
         const emoteData = emote.data.host.files.pop();
         Chat.info.emotes[emote.name] = {
@@ -138,7 +156,7 @@ Chat = {
     });
 
     $.getJSON(
-      "https://7tv.io/v3/users/twitch/" + encodeURIComponent(channelID)
+      addRandomQueryString("https://7tv.io/v3/users/twitch/" + encodeURIComponent(channelID))
     ).done((res) => {
       res?.emote_set?.emotes?.forEach((emote) => {
         const emoteData = emote.data.host.files.pop();
@@ -152,9 +170,11 @@ Chat = {
   },
 
   load: function (callback) {
-    TwitchOAuth().done(function (res) {
-      Chat.info.channelID = res.user_id;
+    GetTwitchUserID(Chat.info.channel).done(function (res) {
+      console.log(res.data[0].id);
+      Chat.info.channelID = res.data[0].id;
       Chat.loadEmotes(Chat.info.channelID);
+      seven_ws(Chat.info.channel)
 
       client_id = res.client_id;
 

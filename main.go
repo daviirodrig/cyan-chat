@@ -60,6 +60,41 @@ func TwitchOAuthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
+func TwitchGetUserIDforUsernameHandler(w http.ResponseWriter, r *http.Request) {
+	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users?login="+r.URL.Query().Get("username"), nil)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	req.Header.Add("Client-Id", clientID)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		log.Println(string(body))
+		http.Error(w, string(body), resp.StatusCode)
+		return
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(body)
+}
+
 func TwitchAPIHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Query().Get("url")
 	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix"+url, nil)
@@ -198,6 +233,7 @@ func main() {
 	http.HandleFunc("/twitch/oauth", TwitchOAuthHandler)
 	http.HandleFunc("/twitch/api", TwitchAPIHandler)
 	http.HandleFunc("/auth/callback", TwitchRedirectHandler)
+	http.HandleFunc("/twitch/get_id", TwitchGetUserIDforUsernameHandler)
 	// serve the current directory as a static web server
 	staticFilesV2 := http.FileServer(http.Dir("./src"))
 	http.Handle("/", staticFilesV2)

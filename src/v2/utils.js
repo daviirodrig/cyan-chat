@@ -92,6 +92,25 @@ function TwitchAPI(url) {
   });
 }
 
+function GetTwitchUserID(username) {
+  return $.ajax({
+    type: "GET",
+    url: "/twitch/get_id?username=" + username,
+    dataType: "json",
+    success: function () {
+      // Set your variable to the result
+      console.log("Cyan Chat: helix json acquired user_id");
+    },
+    error: function (result) {
+      // This should show up when the token expires
+      var $chatLine = $('<div style="color: red;">Twitch OAuth invalid</div>');
+      console.log(result);
+      Chat.info.lines.push($chatLine.wrap("<div>").parent().html());
+      return null;
+    },
+  });
+}
+
 function SendInfoText(text) {
   var $infoText = $("#info_text");
   $infoText.css("opacity", "1");
@@ -110,3 +129,27 @@ function doesStringMatchPattern(stringToTest, info) {
     return false;
   }
 }
+
+function addRandomQueryString(url) {
+  return url + (url.indexOf("?") >= 0 ? "&" : "?") + "v=" + Date.now();
+}
+
+function removeRandomQueryString(url) {
+    return url.replace(/[?&]v=[^&]+/, "");
+}
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) {
+        // The element is off screen
+        entry.target.style.display = "none";
+      }
+    });
+  },
+  {
+    root: null, // Use the viewport as the root
+    rootMargin: "0px",
+    threshold: 0, // Trigger as soon as any part of the element is out of view
+  }
+);
