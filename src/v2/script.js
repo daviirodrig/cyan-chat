@@ -79,6 +79,7 @@ Chat = {
     bttvBadges: null,
     seventvBadges: [],
     seventvPaints: {},
+    colors: {},
     chatterinoBadges: null,
     cheers: {},
     lines: [],
@@ -673,6 +674,7 @@ Chat = {
         var color = twitchColors[nick.charCodeAt(0) % 15];
       }
       $username.css("color", color);
+      Chat.info.colors[nick] = color;
       $username.html(info["display-name"] ? info["display-name"] : nick);
       // check the info for seventv paints and add them to the username
       if (Chat.info.seventvPaints[nick]) {
@@ -793,8 +795,11 @@ Chat = {
         .map((word) => {
           if (word.startsWith("@")) {
             var username = word.substring(1).toLowerCase();
+            var $mention = $(`<span class="mention">${word}</span>`);
+            if (Chat.info.colors[username]) {
+              $mention.css("color", Chat.info.colors[username]);
+            }
             if (Chat.info.seventvPaints[username]) {
-              var $mention = $(`<span class="mention">${word}</span>`);
               Chat.info.seventvPaints[username].forEach((paint) => {
                 if (paint.type === "gradient") {
                   $mention.css("background-image", paint.backgroundImage);
