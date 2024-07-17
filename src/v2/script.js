@@ -180,7 +180,7 @@ Chat = {
 
   load: function (callback) {
     GetTwitchUserID(Chat.info.channel).done(function (res) {
-      console.log(res.data[0].id);
+      // console.log(res.data[0].id);
       Chat.info.channelID = res.data[0].id;
       Chat.loadEmotes(Chat.info.channelID);
       seven_ws(Chat.info.channel);
@@ -199,7 +199,6 @@ Chat = {
       }
 
       if (Chat.info.center) {
-        console.log("Centered is enabled");
         Chat.info.animate = false;
         Chat.info.invert = false;
         appendCSS("variant", "center");
@@ -473,7 +472,7 @@ Chat = {
               Chat.info.userBadges[nick].push(userBadge);
             }
           } else {
-            console.log("No 7tv badge info found for", userId);
+            // console.log("No 7tv badge info found for", userId);
           }
 
           if (seventvPaintInfo) {
@@ -506,10 +505,10 @@ Chat = {
               }
             }
           } else {
-            console.log("No 7tv paint info found for", userId);
+            // console.log("No 7tv paint info found for", userId);
           }
         } catch (error) {
-          console.error("Error fetching badge info:", error);
+          // console.error("Error fetching badge info:", error);
         }
       })();
       // Chat.info.seventvBadges.forEach(badge => {

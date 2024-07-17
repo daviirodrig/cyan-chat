@@ -1,15 +1,25 @@
 // Step 1: Get 7TV user ID using Twitch user ID
 async function getUserInfo(twitchUserId) {
-  const response = await fetch(
-    addRandomQueryString(`https://7tv.io/v3/users/twitch/${twitchUserId}`)
-  );
-  const data = await response.json();
-  return data.emote_set.id;
+  try {
+    const response = await fetch(
+      addRandomQueryString(`https://7tv.io/v3/users/twitch/${twitchUserId}`)
+    );
+    const data = await response.json();
+    try {
+      return data.emote_set.id;
+    } catch (e) {
+      // console.log("No 7tv user ID found for " + twitchUserId);
+      return null;
+    }
+  } catch (e) {
+    // console.log("No 7tv user ID found for " + twitchUserId);
+    return null;
+  }
 }
 
 // Step 2: Get cosmetics for the 7TV user ID
 async function getUserCosmetics(sevenTvUserId) {
-  console.log("Getting 7tv cosmetics for " + sevenTvUserId);
+  // console.log("Getting 7tv cosmetics for " + sevenTvUserId);
   const query = {
     operationName: "GetUserCosmetics",
     variables: { id: sevenTvUserId },
@@ -41,17 +51,17 @@ async function getUserCosmetics(sevenTvUserId) {
     returnData = data.data.user.cosmetics.filter(
       (cosmetic) => cosmetic.selected
     );
-    console.log("Got 7tv cosmetics for " + sevenTvUserId);
+    // console.log("Got 7tv cosmetics for " + sevenTvUserId);
     return returnData;
   } catch (error) {
-    console.log("No 7tv cosmetics found for " + sevenTvUserId);
+    // console.log("No 7tv cosmetics found for " + sevenTvUserId);
     return [];
   }
 }
 
 // Step 3: Get detailed information about cosmetics
 async function getCosmeticDetails(ids) {
-  console.log("Getting 7tv cosmetic details for " + ids);
+  // console.log("Getting 7tv cosmetic details for " + ids);
   const query = {
     operationName: "GetCosmestics",
     variables: { list: ids },
@@ -110,6 +120,9 @@ async function getCosmeticDetails(ids) {
 async function getBadgeUrl(twitchUserId) {
   try {
     const sevenTvUserId = await getUserInfo(twitchUserId);
+    if (sevenTvUserId === null) {
+      return null;
+    }
     const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
 
     const badgeCosmetics = selectedCosmetics.filter(
@@ -136,28 +149,28 @@ async function getBadgeUrl(twitchUserId) {
 // Function to get the user's badge information including id and tooltip
 async function getBadgeInfo(twitchUserId) {
   try {
-    console.log("Getting 7tv badge info for user:", twitchUserId);
+    // console.log("Getting 7tv badge info for user:", twitchUserId);
     const sevenTvUserId = await getUserInfo(twitchUserId);
-    console.log(sevenTvUserId);
+    // console.log(sevenTvUserId);
     const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
-    console.log(selectedCosmetics);
+    // console.log(selectedCosmetics);
 
     const badgeCosmetics = selectedCosmetics.filter(
       (cosmetic) => cosmetic.kind === "BADGE"
     );
     if (badgeCosmetics.length === 0) {
-      console.log("No 7tv badges found for user:", twitchUserId);
+      // console.log("No 7tv badges found for user:", twitchUserId);
       return null;
     }
 
     const cosmeticDetails = await getCosmeticDetails(
       badgeCosmetics.map((c) => c.id)
     );
-    console.log(cosmeticDetails);
+    // console.log(cosmeticDetails);
     const badgeDetail = cosmeticDetails.badges.find(
       (badge) => badge.id === badgeCosmetics[0].id
     );
-    console.log(badgeDetail);
+    // console.log(badgeDetail);
 
     if (badgeDetail) {
       return {
@@ -202,11 +215,17 @@ async function getNamePaintInfo(twitchUserId) {
 
 async function getUserBadgeAndPaintInfo(twitchUserId) {
   try {
-    console.log("Getting 7tv badge and paint info for user:", twitchUserId);
+    // console.log("Getting 7tv badge and paint info for user:", twitchUserId);
 
     // Fetch user info
     const sevenTvUserId = await getUserInfo(twitchUserId);
-    console.log("SevenTvUserId:", sevenTvUserId);
+    if (sevenTvUserId === null) {
+      return {
+        badge: null,
+        paint: null,
+      };
+    }
+    // console.log("SevenTvUserId:", sevenTvUserId);
 
     // Fetch user cosmetics info
     const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
@@ -216,7 +235,7 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
         paint: null,
       };
     }
-    console.log("SelectedCosmetics:", selectedCosmetics);
+    // console.log("SelectedCosmetics:", selectedCosmetics);
 
     // Filter for badge and paint cosmetics
     const badgeCosmetics = selectedCosmetics.filter(
@@ -238,7 +257,7 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
 
       // Fetch cosmetic details
       const cosmeticDetails = await getCosmeticDetails(cosmeticIds);
-      console.log("CosmeticDetails:", cosmeticDetails);
+      // console.log("CosmeticDetails:", cosmeticDetails);
 
       // Extract badge detail
       if (badgeCosmetics.length > 0) {
@@ -246,7 +265,7 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
         badgeDetail = cosmeticDetails.badges.find(
           (badge) => badge.id === badgeCosmeticId
         );
-        console.log("BadgeDetail:", badgeDetail);
+        // console.log("BadgeDetail:", badgeDetail);
         if (badgeDetail) {
           badgeDetail = {
             id: badgeDetail.id,
@@ -261,7 +280,7 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
         paintDetail = cosmeticDetails.paints.find(
           (paint) => paint.id === paintCosmeticId
         );
-        console.log("PaintDetail:", paintDetail);
+        // console.log("PaintDetail:", paintDetail);
       }
     }
 

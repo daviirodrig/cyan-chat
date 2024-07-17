@@ -8,7 +8,10 @@ class EmoteChanged {
 function seven_ws(channel) {
     (async () => {
         var id = await getUserInfo(Chat.info.channelID);
-        console.log('id for 7tv ws', id)
+        if (id === null) {
+            return
+        }
+        // console.log('id for 7tv ws', id)
 
         const options = {
             debug: true,
