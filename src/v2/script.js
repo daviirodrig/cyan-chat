@@ -663,15 +663,45 @@ Chat = {
         "#00FF7F",
       ];
       if (typeof info.color === "string") {
+        var color = info.color;
         if (Chat.info.readable) {
-          if (tinycolor(info.color).getBrightness() <= 50)
+          if (info.color === "#8A2BE2") {
+            info.color = "#C797F4";
+          }
+          if (info.color === "#008000") {
+            info.color = "#00FF00";
+          }
+          // console.log(nick,"color is string and readable is true");
+          if (tinycolor(info.color).getBrightness() <= 50) {
+            // console.log(nick,"color is not bright enough",tinycolor(color).getBrightness())
             color = tinycolor(info.color).lighten(30);
-          else color = info.color;
+          } else {
+            // console.log(nick,"color is bright enough",tinycolor(color).getBrightness())
+            color = info.color;
+          }
         } else {
           var color = info.color;
         }
       } else {
         var color = twitchColors[nick.charCodeAt(0) % 15];
+        if (Chat.info.readable) {
+          if (color === "#8A2BE2") {
+            color = "#C797F4";
+          }
+          if (info.color === "#008000") {
+            info.color = "#00FF00";
+          }
+          // console.log(nick,"color is not string and readable is true");
+          if (tinycolor(color).getBrightness() <= 50) {
+            // console.log(nick,"color is not bright enough",tinycolor(color).getBrightness())
+            color = tinycolor(color).lighten(30);
+          } else {
+            // console.log(nick,"color is bright enough",tinycolor(color).getBrightness())
+            color = color;
+          }
+        } else {
+          var color = color;
+        }
       }
       $username.css("color", color);
       Chat.info.colors[nick] = color;

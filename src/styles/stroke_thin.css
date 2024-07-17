@@ -1,3 +1,15 @@
+:root {
+    --stroke: 1px;
+    --stroke-min: -1px;
+}
+
 #example {
-    -webkit-text-stroke: 1px black;
+    text-shadow: var(--stroke-min) var(--stroke-min) 0 #000, 
+                 var(--stroke) var(--stroke-min) 0 #000, 
+                 var(--stroke-min) var(--stroke) 0 #000, 
+                 var(--stroke) var(--stroke) 0 #000,
+                 var(--stroke) 0 0 #000,
+                 var(--stroke-min) 0 0 #000,
+                 0 var(--stroke) 0 #000,
+                 0 var(--stroke-min) 0 #000;
 }
