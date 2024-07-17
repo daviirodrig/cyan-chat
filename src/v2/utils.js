@@ -3,7 +3,7 @@ function appendCSS(type, name) {
     rel: "stylesheet",
     type: "text/css",
     class: `chat_${type}`,
-    href: `styles/${type}_${name}.css`,
+    href: addRandomQueryString(`styles/${type}_${name}.css`),
   }).appendTo("head");
 }
 

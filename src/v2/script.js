@@ -734,7 +734,7 @@ Chat = {
           .trim();
         $userInfo.append("<span>&nbsp;</span>");
       } else {
-        $userInfo.append('<span class="colon">:</span>');
+        $userInfo.append('<span class="colon"> :</span>');
       }
       $chatLine.append($userInfo);
 
