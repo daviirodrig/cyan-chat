@@ -11,11 +11,15 @@ function appendCSS(type, name) {
     $("<link/>", {
         rel: "stylesheet",
         type: "text/css",
-        class: `preview_${type}`,
+        class: `preview_${type}_${name}`,
         href: `styles/${type}_${name}.css`
     }).appendTo("head");
 }
 
-function removeCSS(type) {
-    $(`link[class="preview_${type}"]`).remove();
+function removeCSS(type, name) {
+    if (name) {
+        $(`link[class="preview_${type}_${name}"]`).remove();
+    } else {
+        $(`link[class^="preview_${type}"]`).remove();
+    }
 }

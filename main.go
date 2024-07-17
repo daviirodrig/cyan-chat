@@ -2,10 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"regexp"
+	"strings"
+	"time"
 
 	"github.com/nicklaw5/helix/v2"
 )
@@ -45,9 +49,19 @@ func TwitchOAuthHandler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		http.Error(w, string(body), resp.StatusCode)
-		return
+		if resp.StatusCode == http.StatusUnauthorized {
+			log.Println("Refreshing token")
+			err = refreshTokenOnce()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			TwitchOAuthHandler(w, r)
+		} else {
+			body, _ := io.ReadAll(resp.Body)
+			http.Error(w, string(body), resp.StatusCode)
+			return
+		}
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -79,10 +93,20 @@ func TwitchGetUserIDforUsernameHandler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		log.Println(string(body))
-		http.Error(w, string(body), resp.StatusCode)
-		return
+		if resp.StatusCode == http.StatusUnauthorized {
+			log.Println("Refreshing token")
+			err = refreshTokenOnce()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			TwitchGetUserIDforUsernameHandler(w, r)
+		} else {
+			body, _ := io.ReadAll(resp.Body)
+			log.Println(string(body))
+			http.Error(w, string(body), resp.StatusCode)
+			return
+		}
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -115,9 +139,19 @@ func TwitchAPIHandler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		http.Error(w, string(body), resp.StatusCode)
-		return
+		if resp.StatusCode == http.StatusUnauthorized {
+			log.Println("Refreshing token")
+			err = refreshTokenOnce()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			TwitchAPIHandler(w, r)
+		} else {
+			body, _ := io.ReadAll(resp.Body)
+			http.Error(w, string(body), resp.StatusCode)
+			return
+		}
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -164,10 +198,96 @@ func saveTokens(accessToken string, refreshToken string) {
 		log.Fatal(err)
 		return
 	}
-	log.Println("Access token: " + accessToken)
+}
+
+func refreshTokenOnce() error {
+	resp, err := client.RefreshUserAccessToken(refreshToken)
+	if err != nil {
+		log.Println("Failed to refresh token: " + err.Error())
+		return err
+	}
+	accessToken = resp.Data.AccessToken
+	refreshToken = resp.Data.RefreshToken
+	saveTokens(accessToken, refreshToken)
+	log.Println("Token Refreshed")
+	return nil
+}
+
+func refreshTokenLoop() {
+	for {
+		resp, err := client.RefreshUserAccessToken(refreshToken)
+		if err != nil {
+			log.Println("Failed to refresh token: " + err.Error())
+			time.Sleep(time.Second * 5)
+			go refreshTokenLoop()
+		}
+		accessToken = resp.Data.AccessToken
+		refreshToken = resp.Data.RefreshToken
+		saveTokens(accessToken, refreshToken)
+		log.Println("Token Refreshed")
+		time.Sleep(time.Minute * 120)
+	}
+}
+
+func cacheBuster(filePath string) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Fatalf("Error reading file: %v", err)
+		return
+	}
+
+	// Convert file content to string
+	content := string(data)
+
+	// Get the current timestamp
+	timestamp := fmt.Sprintf("?v=%d", time.Now().Unix())
+
+	// Regular expression to match the <head>...</head> section
+	headRe := regexp.MustCompile(`(?s)<head>(.*?)</head>`)
+	matchedHead := headRe.FindStringSubmatch(content)
+	if len(matchedHead) < 2 {
+		log.Println("No <head> section found in the file")
+		return
+	}
+
+	originalHead := matchedHead[1]
+
+	// Regular expression to match <script src="..."></script> tags
+	scriptRe := regexp.MustCompile(`<script\s+src="([^"]+)"([^>]*)></script>`)
+
+	updatedHead := scriptRe.ReplaceAllStringFunc(originalHead, func(scriptTag string) string {
+		// Extract the src value
+		matches := scriptRe.FindStringSubmatch(scriptTag)
+		if len(matches) == 0 {
+			return scriptTag
+		}
+
+		src := matches[1]
+		rest := matches[2]
+
+		// Replace or append the timestamp query parameter
+		newSrc := regexp.MustCompile(`(\?v=\d+)?`).ReplaceAllString(src, "")
+		newSrc += timestamp
+
+		return fmt.Sprintf(`<script src="%s"%s></script>`, newSrc, rest)
+	})
+
+	// Replace the old head section with the updated head section
+	updatedContent := strings.Replace(content, originalHead, updatedHead, 1)
+
+	// Write the updated content back to the file
+	err = os.WriteFile(filePath, []byte(updatedContent), 0644)
+	if err != nil {
+		log.Fatalf("Error writing file: %v", err)
+		return
+	}
+
+	log.Println("Updated script sources with the current timestamp")
 }
 
 func main() {
+	cacheBuster("./src/index.html")
+	cacheBuster("./src/v2/index.html")
 	// load access and refresh tokens from file
 	file, err := os.Open("tokens.json")
 	if err != nil {
@@ -221,7 +341,10 @@ func main() {
 		accessToken = newAccessToken
 		refreshToken = newRefreshToken
 		saveTokens(accessToken, refreshToken)
+		client.SetUserAccessToken(accessToken)
+		client.SetRefreshToken(refreshToken)
 	})
+	go refreshTokenLoop()
 	url := client.GetAuthorizationURL(&helix.AuthorizationURLParams{
 		ResponseType: "code", // or "token"
 		Scopes:       []string{},

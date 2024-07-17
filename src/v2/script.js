@@ -15,14 +15,14 @@
   })(window.location.search.substr(1).split("&"));
 
   // Check if 'v' parameter exists
-  if (!$.QueryString.hasOwnProperty('v')) {
+  if (!$.QueryString.hasOwnProperty("v")) {
     console.log("'v' parameter is not present.");
     var currentUrl = window.location.href;
     var newUrl = addRandomQueryString(currentUrl);
     window.location.href = newUrl;
   } else {
     // Check if 'v' parameter is valid
-    if ((Date.now() - $.QueryString.v) > 10000) {
+    if (Date.now() - $.QueryString.v > 10000) {
       console.log("'v' parameter is not up to date.");
       var currentUrl = window.location.href;
       var cleanUrl = removeRandomQueryString(currentUrl);
@@ -39,6 +39,8 @@ Chat = {
       "animate" in $.QueryString
         ? $.QueryString.animate.toLowerCase() === "true"
         : true,
+    center:
+      "center" in $.QueryString ? $.QueryString.center.toLowerCase() === "true" : false,
     showBots:
       "bots" in $.QueryString
         ? $.QueryString.bots.toLowerCase() === "true"
@@ -85,7 +87,8 @@ Chat = {
       "regex" in $.QueryString
         ? new RegExp(decodeURIComponent($.QueryString.regex))
         : null,
-    emoteScale: "emoteScale" in $.QueryString ? parseInt($.QueryString.emoteScale) : 1,
+    emoteScale:
+      "emoteScale" in $.QueryString ? parseInt($.QueryString.emoteScale) : 1,
   },
 
   loadEmotes: function (channelID) {
@@ -94,7 +97,9 @@ Chat = {
     ["emotes/global", "users/twitch/" + encodeURIComponent(channelID)].forEach(
       (endpoint) => {
         $.getJSON(
-          addRandomQueryString("https://api.betterttv.net/3/cached/frankerfacez/" + endpoint)
+          addRandomQueryString(
+            "https://api.betterttv.net/3/cached/frankerfacez/" + endpoint
+          )
         ).done(function (res) {
           res.forEach((emote) => {
             if (emote.images["4x"]) {
@@ -116,47 +121,51 @@ Chat = {
 
     ["emotes/global", "users/twitch/" + encodeURIComponent(channelID)].forEach(
       (endpoint) => {
-        $.getJSON(addRandomQueryString("https://api.betterttv.net/3/cached/" + endpoint)).done(
-          function (res) {
-            if (!Array.isArray(res)) {
-              res = res.channelEmotes.concat(res.sharedEmotes);
-            }
-            res.forEach((emote) => {
-              Chat.info.emotes[emote.code] = {
-                id: emote.id,
-                image: "https://cdn.betterttv.net/emote/" + emote.id + "/3x",
-                zeroWidth: [
-                  "5e76d338d6581c3724c0f0b2",
-                  "5e76d399d6581c3724c0f0b8",
-                  "567b5b520e984428652809b6",
-                  "5849c9a4f52be01a7ee5f79d",
-                  "567b5c080e984428652809ba",
-                  "567b5dc00e984428652809bd",
-                  "58487cc6f52be01a7ee5f205",
-                  "5849c9c8f52be01a7ee5f79e",
-                ].includes(emote.id),
-                // "5e76d338d6581c3724c0f0b2" => cvHazmat, "5e76d399d6581c3724c0f0b8" => cvMask, "567b5b520e984428652809b6" => SoSnowy, "5849c9a4f52be01a7ee5f79d" => IceCold, "567b5c080e984428652809ba" => CandyCane, "567b5dc00e984428652809bd" => ReinDeer, "58487cc6f52be01a7ee5f205" => SantaHat, "5849c9c8f52be01a7ee5f79e" => TopHat
-              };
-            });
+        $.getJSON(
+          addRandomQueryString("https://api.betterttv.net/3/cached/" + endpoint)
+        ).done(function (res) {
+          if (!Array.isArray(res)) {
+            res = res.channelEmotes.concat(res.sharedEmotes);
           }
-        );
+          res.forEach((emote) => {
+            Chat.info.emotes[emote.code] = {
+              id: emote.id,
+              image: "https://cdn.betterttv.net/emote/" + emote.id + "/3x",
+              zeroWidth: [
+                "5e76d338d6581c3724c0f0b2",
+                "5e76d399d6581c3724c0f0b8",
+                "567b5b520e984428652809b6",
+                "5849c9a4f52be01a7ee5f79d",
+                "567b5c080e984428652809ba",
+                "567b5dc00e984428652809bd",
+                "58487cc6f52be01a7ee5f205",
+                "5849c9c8f52be01a7ee5f79e",
+              ].includes(emote.id),
+              // "5e76d338d6581c3724c0f0b2" => cvHazmat, "5e76d399d6581c3724c0f0b8" => cvMask, "567b5b520e984428652809b6" => SoSnowy, "5849c9a4f52be01a7ee5f79d" => IceCold, "567b5c080e984428652809ba" => CandyCane, "567b5dc00e984428652809bd" => ReinDeer, "58487cc6f52be01a7ee5f205" => SantaHat, "5849c9c8f52be01a7ee5f79e" => TopHat
+            };
+          });
+        });
       }
     );
 
-    var randomNumber = Math.floor(Math.random() * 724238534543)
-    $.getJSON(addRandomQueryString("https://7tv.io/v3/emote-sets/global")).done((res) => {
-      res?.emotes?.forEach((emote) => {
-        const emoteData = emote.data.host.files.pop();
-        Chat.info.emotes[emote.name] = {
-          id: emote.id,
-          image: `https:${emote.data.host.url}/${emoteData.name}`,
-          zeroWidth: emote.data.flags == 256,
-        };
-      });
-    });
+    var randomNumber = Math.floor(Math.random() * 724238534543);
+    $.getJSON(addRandomQueryString("https://7tv.io/v3/emote-sets/global")).done(
+      (res) => {
+        res?.emotes?.forEach((emote) => {
+          const emoteData = emote.data.host.files.pop();
+          Chat.info.emotes[emote.name] = {
+            id: emote.id,
+            image: `https:${emote.data.host.url}/${emoteData.name}`,
+            zeroWidth: emote.data.flags == 256,
+          };
+        });
+      }
+    );
 
     $.getJSON(
-      addRandomQueryString("https://7tv.io/v3/users/twitch/" + encodeURIComponent(channelID))
+      addRandomQueryString(
+        "https://7tv.io/v3/users/twitch/" + encodeURIComponent(channelID)
+      )
     ).done((res) => {
       res?.emote_set?.emotes?.forEach((emote) => {
         const emoteData = emote.data.host.files.pop();
@@ -174,7 +183,7 @@ Chat = {
       console.log(res.data[0].id);
       Chat.info.channelID = res.data[0].id;
       Chat.loadEmotes(Chat.info.channelID);
-      seven_ws(Chat.info.channel)
+      seven_ws(Chat.info.channel);
 
       client_id = res.client_id;
 
@@ -189,10 +198,17 @@ Chat = {
         emoteScale = 3;
       }
 
+      if (Chat.info.center) {
+        console.log("Centered is enabled");
+        Chat.info.animate = false;
+        Chat.info.invert = false;
+        appendCSS("variant", "center");
+      }
+
       appendCSS("size", size);
       appendCSS("font", font);
       if (emoteScale > 1) {
-        appendCSS("emoteScale_"+size, emoteScale);
+        appendCSS("emoteScale_" + size, emoteScale);
       }
 
       if (Chat.info.stroke && Chat.info.stroke > 0) {
@@ -457,7 +473,7 @@ Chat = {
               Chat.info.userBadges[nick].push(userBadge);
             }
           } else {
-            console.log("No 7tv badge info found for user.");
+            console.log("No 7tv badge info found for", userId);
           }
 
           if (seventvPaintInfo) {
@@ -490,7 +506,7 @@ Chat = {
               }
             }
           } else {
-            console.log("No 7tv paint info found for user.");
+            console.log("No 7tv paint info found for", userId);
           }
         } catch (error) {
           console.error("Error fetching badge info:", error);
@@ -526,7 +542,7 @@ Chat = {
     if (info) {
       if (Chat.info.regex) {
         if (doesStringMatchPattern(message, Chat.info)) {
-          return
+          return;
         }
       }
       var $chatLine = $("<div></div>");

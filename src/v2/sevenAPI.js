@@ -36,7 +36,17 @@ async function getUserCosmetics(sevenTvUserId) {
   });
 
   const data = await response.json();
-  return data.data.user.cosmetics.filter((cosmetic) => cosmetic.selected);
+  var returnData = [];
+  try {
+    returnData = data.data.user.cosmetics.filter(
+      (cosmetic) => cosmetic.selected
+    );
+    console.log("Got 7tv cosmetics for " + sevenTvUserId);
+    return returnData;
+  } catch (error) {
+    console.log("No 7tv cosmetics found for " + sevenTvUserId);
+    return [];
+  }
 }
 
 // Step 3: Get detailed information about cosmetics
@@ -200,6 +210,12 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
 
     // Fetch user cosmetics info
     const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
+    if (selectedCosmetics.length === 0) {
+      return {
+        badge: null,
+        paint: null,
+      };
+    }
     console.log("SelectedCosmetics:", selectedCosmetics);
 
     // Filter for badge and paint cosmetics

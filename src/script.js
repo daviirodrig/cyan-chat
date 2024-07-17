@@ -62,7 +62,15 @@ function capsUpdate(event) {
     if ($small_caps.is(':checked')) {
         appendCSS('variant', 'SmallCaps');
     } else {
-        removeCSS('variant');
+        removeCSS('variant', 'SmallCaps');
+    }
+}
+
+function centerUpdate(event) {
+    if ($center.is(':checked')) {
+        appendCSS('variant', 'center');
+    } else {
+        removeCSS('variant', 'center');
     }
 }
 
@@ -90,7 +98,8 @@ function generateURL(event) {
         animate: $animate.is(':checked'),
         fade: ($fade_bool.is(':checked') ? $fade.val() : false),
         small_caps: $small_caps.is(':checked'),
-        invert: $invert.is(':checked')
+        invert: $invert.is(':checked'),
+        center: $center.is(':checked')
     };
 
     const params = encodeQueryData(data);
@@ -143,6 +152,7 @@ function resetForm(event) {
     $fade.val("30");
     $small_caps.prop('checked', false);
     $invert.prop('checked', false);
+    $center.prop('checked', false);
 
     sizeUpdate();
     fontUpdate();
@@ -150,6 +160,7 @@ function resetForm(event) {
     shadowUpdate();
     badgesUpdate();
     capsUpdate();
+    centerUpdate();
     if ($example.hasClass("white"))
         changePreview();
 
@@ -168,6 +179,7 @@ const $fade_seconds = $("#fade_seconds");
 const $commands = $("input[name='commands']");
 const $small_caps = $("input[name='small_caps']");
 const $invert = $('input[name="invert"]');
+const $center = $('input[name="center"]');
 const $badges = $("input[name='badges']");
 const $size = $("select[name='size']");
 const $emoteScale = $("select[name='emote_scale']");
@@ -189,6 +201,7 @@ $font.change(fontUpdate);
 $stroke.change(strokeUpdate);
 $shadow.change(shadowUpdate);
 $small_caps.change(capsUpdate);
+$center.change(centerUpdate);
 $badges.change(badgesUpdate);
 $generator.submit(generateURL);
 $brightness.click(changePreview);
