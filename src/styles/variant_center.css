@@ -26,3 +26,7 @@
 .chat_line {
   display: flex;
 }
+
+.message .emote {
+  vertical-align: top;
+}

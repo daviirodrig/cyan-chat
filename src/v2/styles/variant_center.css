@@ -55,3 +55,7 @@
   animation-timing-function: ease-in-out;
   display: flex;
 }
+
+.message .emote {
+  vertical-align: top;
+}
