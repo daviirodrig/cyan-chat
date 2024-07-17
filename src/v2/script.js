@@ -54,7 +54,7 @@ Chat = {
         ? $.QueryString.hide_badges.toLowerCase() === "true"
         : false,
     // fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
-    fade: "fade" in $.QueryString ? parseInt($.QueryString.fade) : 3600,
+    fade: "fade" in $.QueryString ? parseInt($.QueryString.fade) : 360,
     size: "size" in $.QueryString ? parseInt($.QueryString.size) : 2,
     font: "font" in $.QueryString ? parseInt($.QueryString.font) : 0,
     stroke: "stroke" in $.QueryString ? parseInt($.QueryString.stroke) : false,
