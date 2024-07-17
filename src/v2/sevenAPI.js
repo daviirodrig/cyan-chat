@@ -1,6 +1,6 @@
 // Utility function to add a delay
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Generic retry function
@@ -26,7 +26,7 @@ async function getUserInfo(twitchUserId) {
       addRandomQueryString(`https://7tv.io/v3/users/twitch/${twitchUserId}`)
     );
     const data = await response.json();
-    return data.emote_set?.id || null;
+    return data.user?.id || null;
   });
 }
 
@@ -50,13 +50,16 @@ async function getUserCosmetics(sevenTvUserId) {
             }`,
     };
 
-    const response = await fetch(addRandomQueryString("https://7tv.io/v3/gql"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(query),
-    });
+    const response = await fetch(
+      addRandomQueryString("https://7tv.io/v3/gql"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(query),
+      }
+    );
 
     const data = await response.json();
     return data.data.user.cosmetics.filter((cosmetic) => cosmetic.selected);
@@ -108,13 +111,16 @@ async function getCosmeticDetails(ids) {
             }`,
     };
 
-    const response = await fetch(addRandomQueryString("https://7tv.io/v3/gql"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(query),
-    });
+    const response = await fetch(
+      addRandomQueryString("https://7tv.io/v3/gql"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(query),
+      }
+    );
 
     const data = await response.json();
     return data.data.cosmetics;
@@ -152,21 +158,21 @@ async function getBadgeInfo(twitchUserId) {
   try {
     const sevenTvUserId = await getUserInfo(twitchUserId);
     if (sevenTvUserId === null) return null;
-    
+
     const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
     if (selectedCosmetics.length === 0) return null;
 
     const badgeCosmetics = selectedCosmetics.filter(
-        (cosmetic) => cosmetic.kind === "BADGE"
+      (cosmetic) => cosmetic.kind === "BADGE"
     );
     if (badgeCosmetics.length === 0) return null;
 
     const cosmeticDetails = await getCosmeticDetails(
-        badgeCosmetics.map((c) => c.id)
+      badgeCosmetics.map((c) => c.id)
     );
 
     const badgeDetail = cosmeticDetails.badges.find(
-        (badge) => badge.id === badgeCosmetics[0].id
+      (badge) => badge.id === badgeCosmetics[0].id
     );
 
     if (badgeDetail) {
@@ -187,21 +193,21 @@ async function getNamePaintInfo(twitchUserId) {
   try {
     const sevenTvUserId = await getUserInfo(twitchUserId);
     if (sevenTvUserId === null) return null;
-    
+
     const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
     if (selectedCosmetics.length === 0) return null;
 
     const paintCosmetics = selectedCosmetics.filter(
-        (cosmetic) => cosmetic.kind === "PAINT"
+      (cosmetic) => cosmetic.kind === "PAINT"
     );
     if (paintCosmetics.length === 0) return null;
 
     const cosmeticDetails = await getCosmeticDetails(
-        paintCosmetics.map((c) => c.id)
+      paintCosmetics.map((c) => c.id)
     );
 
     const paintDetail = cosmeticDetails.paints.find(
-        (paint) => paint.id === paintCosmetics[0].id
+      (paint) => paint.id === paintCosmetics[0].id
     );
 
     return paintDetail || null;
@@ -210,73 +216,115 @@ async function getNamePaintInfo(twitchUserId) {
   }
 }
 
+async function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function getUserBadgeAndPaintInfo(twitchUserId) {
-  try {
-    const sevenTvUserId = await getUserInfo(twitchUserId);
-    if (sevenTvUserId === null) {
-      return {
-        badge: null,
-        paint: null,
-      };
-    }
+  let tries = 5;
 
-    const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
-    if (selectedCosmetics.length === 0) {
-      return {
-        badge: null,
-        paint: null,
-      };
-    }
+  while (tries > 0) {
+    // console.log(
+    //   `Attempt ${
+    //     6 - tries
+    //   }/5: Fetching badge and paint info for user ${twitchUserId}`
+    // );
 
-    const badgeCosmetics = selectedCosmetics.filter(
+    try {
+      const sevenTvUserId = await getUserInfo(twitchUserId);
+      if (sevenTvUserId === null) {
+        // console.warn(`No SevenTv user found for Twitch user ${twitchUserId}`);
+        return {
+          badge: null,
+          paint: null,
+        };
+      }
+
+      const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
+      // console.log(
+      //   `Selected cosmetics for SevenTv user ${sevenTvUserId}:`,
+      //   selectedCosmetics.length
+      // );
+
+      if (selectedCosmetics.length === 0) {
+        // console.log(
+        //   `No cosmetics found for user ${sevenTvUserId}. Retrying in 1 second...`
+        // );
+        await delay(1000);
+        tries--;
+        continue;
+      }
+
+      const badgeCosmetics = selectedCosmetics.filter(
         (cosmetic) => cosmetic.kind === "BADGE"
-    );
-    const paintCosmetics = selectedCosmetics.filter(
+      );
+      const paintCosmetics = selectedCosmetics.filter(
         (cosmetic) => cosmetic.kind === "PAINT"
-    );
+      );
 
-    let badgeDetail = null;
-    let paintDetail = null;
+      let badgeDetail = null;
+      let paintDetail = null;
 
-    if (badgeCosmetics.length > 0 || paintCosmetics.length > 0) {
-      const cosmeticIds = [
-        ...badgeCosmetics.map((c) => c.id),
-        ...paintCosmetics.map((c) => c.id),
-      ];
+      if (badgeCosmetics.length > 0 || paintCosmetics.length > 0) {
+        const cosmeticIds = [
+          ...badgeCosmetics.map((c) => c.id),
+          ...paintCosmetics.map((c) => c.id),
+        ];
 
-      const cosmeticDetails = await getCosmeticDetails(cosmeticIds);
+        const cosmeticDetails = await getCosmeticDetails(cosmeticIds);
+        // console.log(
+        //   `Cosmetic details fetched for IDs ${cosmeticIds}:`,
+        //   cosmeticDetails
+        // );
 
-      if (badgeCosmetics.length > 0) {
-        const badgeCosmeticId = badgeCosmetics[0].id;
-        badgeDetail = cosmeticDetails.badges.find(
+        if (badgeCosmetics.length > 0) {
+          const badgeCosmeticId = badgeCosmetics[0].id;
+          badgeDetail = cosmeticDetails.badges.find(
             (badge) => badge.id === badgeCosmeticId
-        );
-        if (badgeDetail) {
-          badgeDetail = {
-            id: badgeDetail.id,
-            tooltip: badgeDetail.tooltip,
-          };
+          );
+          if (badgeDetail) {
+            badgeDetail = {
+              id: badgeDetail.id,
+              tooltip: badgeDetail.tooltip,
+            };
+            // console.log(`Badge detail found:`, badgeDetail);
+          }
+        }
+
+        if (paintCosmetics.length > 0) {
+          const paintCosmeticId = paintCosmetics[0].id;
+          paintDetail = cosmeticDetails.paints.find(
+            (paint) => paint.id === paintCosmeticId
+          );
+          // console.log(`Paint detail found:`, paintDetail);
         }
       }
 
-      if (paintCosmetics.length > 0) {
-        const paintCosmeticId = paintCosmetics[0].id;
-        paintDetail = cosmeticDetails.paints.find(
-            (paint) => paint.id === paintCosmeticId
-        );
+      if (badgeDetail || paintDetail) {
+        // console.log(`Returning badge and paint details.`);
+        return {
+          badge: badgeDetail,
+          paint: paintDetail,
+        };
+      } else {
+        // console.log(`No badge or paint details found. Retrying in 1 second...`);
+        await delay(1000);
+        tries--;
       }
+    } catch (err) {
+      // console.error(`Error while fetching data:`, err);
+      await delay(1000);
+      tries--;
     }
-
-    return {
-      badge: badgeDetail,
-      paint: paintDetail,
-    };
-  } catch (err) {
-    return {
-      badge: null,
-      paint: null,
-    };
   }
+
+  // console.warn(
+  //   `Failed to fetch badge and paint info for user ${twitchUserId} after 5 attempts`
+  // );
+  return {
+    badge: null,
+    paint: null,
+  };
 }
 
 function convertColor(color) {

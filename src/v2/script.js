@@ -40,7 +40,9 @@ Chat = {
         ? $.QueryString.animate.toLowerCase() === "true"
         : true,
     center:
-      "center" in $.QueryString ? $.QueryString.center.toLowerCase() === "true" : false,
+      "center" in $.QueryString
+        ? $.QueryString.center.toLowerCase() === "true"
+        : false,
     showBots:
       "bots" in $.QueryString
         ? $.QueryString.bots.toLowerCase() === "true"
@@ -56,7 +58,10 @@ Chat = {
     // fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
     fade: "fade" in $.QueryString ? parseInt($.QueryString.fade) : 360,
     size: "size" in $.QueryString ? parseInt($.QueryString.size) : 2,
-    font: "font" in $.QueryString && !isNaN($.QueryString.font) ? parseInt($.QueryString.font) : $.QueryString.font || 0,
+    font:
+      "font" in $.QueryString && !isNaN($.QueryString.font)
+        ? parseInt($.QueryString.font)
+        : $.QueryString.font || 0,
     stroke: "stroke" in $.QueryString ? parseInt($.QueryString.stroke) : false,
     shadow: "shadow" in $.QueryString ? parseInt($.QueryString.shadow) : 3,
     smallCaps:
@@ -89,6 +94,10 @@ Chat = {
         : null,
     emoteScale:
       "emoteScale" in $.QueryString ? parseInt($.QueryString.emoteScale) : 1,
+    readable:
+      "readable" in $.QueryString
+        ? $.QueryString.readable.toLowerCase() === "true"
+        : false,
   },
 
   loadEmotes: function (channelID) {
@@ -189,14 +198,14 @@ Chat = {
 
       // Load CSS
       let size = sizes[Chat.info.size - 1];
-      var font
-      if (typeof Chat.info.font === 'number') {
+      var font;
+      if (typeof Chat.info.font === "number") {
         font = fonts[Chat.info.font];
         appendCSS("font", font);
       } else {
-        loadCustomFont(Chat.info.font)
+        loadCustomFont(Chat.info.font);
       }
-      
+
       let emoteScale = 1;
       if (Chat.info.emoteScale > 1) {
         emoteScale = Chat.info.emoteScale;
@@ -653,7 +662,13 @@ Chat = {
         "#00FF7F",
       ];
       if (typeof info.color === "string") {
-        var color = info.color;
+        if (Chat.info.readable) {
+          if (tinycolor(info.color).getBrightness() <= 50)
+            color = tinycolor(info.color).lighten(30);
+          else color = info.color;
+        } else {
+          var color = info.color;
+        }
       } else {
         var color = twitchColors[nick.charCodeAt(0) % 15];
       }

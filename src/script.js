@@ -147,7 +147,8 @@ function generateURL(event) {
         fade: ($fade_bool.is(':checked') ? $fade.val() : false),
         small_caps: $small_caps.is(':checked'),
         invert: $invert.is(':checked'),
-        center: $center.is(':checked')
+        center: $center.is(':checked'),
+        readable: $readable.is(':checked')
     };
 
     const params = encodeQueryData(data);
@@ -201,6 +202,7 @@ function resetForm(event) {
     $small_caps.prop('checked', false);
     $invert.prop('checked', false);
     $center.prop('checked', false);
+    $readable.prop('checked', true);
     $custom_font.prop('disabled', true);
 
     sizeUpdate();
@@ -229,6 +231,7 @@ const $commands = $("input[name='commands']");
 const $small_caps = $("input[name='small_caps']");
 const $invert = $('input[name="invert"]');
 const $center = $('input[name="center"]');
+const $readable = $('input[name="readable"]');
 const $badges = $("input[name='badges']");
 const $size = $("select[name='size']");
 const $emoteScale = $("select[name='emote_scale']");
