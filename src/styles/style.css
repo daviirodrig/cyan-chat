@@ -408,3 +408,11 @@ footer a {
 ::-webkit-scrollbar-track {
     background: black;
 }
+
+.paint {
+    background-size: cover;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+  }
