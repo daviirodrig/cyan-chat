@@ -7,6 +7,16 @@ function appendCSS(type, name) {
   }).appendTo("head");
 }
 
+function loadCustomFont(name) {
+  const $chat_container = $("#chat_container");
+  WebFont.load({
+    google: {
+      families: [name],
+    },
+  });
+  $chat_container.css("font-family", name);
+}
+
 function escapeRegExp(string) {
   // Thanks to coolaj86 and Darren Cook (https://stackoverflow.com/a/6969486)
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -135,7 +145,7 @@ function addRandomQueryString(url) {
 }
 
 function removeRandomQueryString(url) {
-    return url.replace(/[?&]v=[^&]+/, "");
+  return url.replace(/[?&]v=[^&]+/, "");
 }
 
 const observer = new IntersectionObserver(

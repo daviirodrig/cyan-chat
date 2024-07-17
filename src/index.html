@@ -11,10 +11,11 @@
     <link rel="stylesheet" href="styles/style.css">
     <link rel="stylesheet" class="preview_size" href="styles/size_large.css">
     <link rel="stylesheet" class="preview_font" href="styles/font_BalooTammudu.css">
-    <script src="jquery.min.js?v=1721192191"></script>
-    <script src="settings.js?v=1721192191" defer></script>
-    <script src="utils.js?v=1721192191" defer></script>
-    <script src="script.js?v=1721192191" defer></script>
+    <script src="jquery.min.js?v=1721221171"></script>
+    <script src="settings.js?v=1721221171" defer></script>
+    <script src="utils.js?v=1721221171" defer></script>
+    <script src="script.js?v=1721221171" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js?v=1721221171"></script>
 </head>
 
 <body>
@@ -32,7 +33,8 @@
             <em>Cyan Chat</em> is an overlay that allows you to show your Twitch chat on screen with OBS, XSplit, and any other streaming software that supports browser sources. It supports your
             <a href="https://betterttv.com/" target="_blank">BetterTTV</a>, <a href="https://www.frankerfacez.com/" target="_blank">FrankerFaceZ</a> and
             <a href="https://7tv.app/" target="_blank">7TV</a> emotes, always at the best available quality. You have many options to customize your chat, like enabling a smooth animation for new messages, or fading old ones after some time. If you have
-            a chat full of !gamble addicts, you can choose to hide bots and commands messages. It also comes with many fonts and styling options that can be combined as desired.
+            a chat full of !gamble addicts, you can choose to hide bots and commands messages. It also comes with many fonts and styling options that can be combined as desired. Custom fonts can either be installed on your system or be the
+            name of any Google font. The "Center" style is not compatible with the animate option and will always have an animation.
         </p>
 
 
@@ -73,6 +75,7 @@
                             <option value="9">Indie Flower</option>
                             <option value="10">Press Start 2P</option>
                             <option value="11">Wallpoet</option>
+                            <option value="12">Custom</option>
                         </select>
                         <label for="font">Font</label>
                     </div>
@@ -113,6 +116,10 @@
                             <option value="2">Medium</option>
                             <option value="3">Large</option>
                         </select>
+                    </div>
+                    <div class="form_row right">
+                        <label for="custom_font">Custom Font</label>
+                        <input type="text" name="custom_font" placeholder="Font Name" disabled>
                     </div>
                     <br>
                     <div class="form_row right">

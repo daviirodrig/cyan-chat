@@ -10,7 +10,8 @@ const fonts = [
     'DancingScript',
     'IndieFlower',
     'PressStart2P',
-    'Wallpoet'
+    'Wallpoet',
+    'Custom'
 ];
 
 const sizes = [

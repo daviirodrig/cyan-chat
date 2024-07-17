@@ -140,6 +140,13 @@ input[type="text"] {
     padding: 2px 10px;
 }
 
+input[name="custom_font"] {
+    width: 184px;
+    height: 25px;
+    padding: 0px 8px;
+    font-size: 0.7em;
+}
+
 input[type="text"].short {
     width: 40px;
     height: 25px;

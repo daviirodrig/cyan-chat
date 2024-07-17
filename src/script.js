@@ -26,8 +26,46 @@ function emoteScaleUpdate(event) {
 
 function fontUpdate(event) {
     let font = fonts[Number($font.val())];
+    if (font !== "Custom") {
+        $custom_font.prop('disabled', true);
+        $example.css('font-family', "");
+        removeCSS('font');
+        appendCSS('font', font);
+    } else {
+        $custom_font.prop('disabled', false);
+        if ($custom_font.val() == "") {
+            console.log("Custom font is empty")
+            return;
+        }
+        console.log("Custom font is not empty")
+        removeCSS('font');
+        WebFont.load({
+            google: {
+                families: [
+                    $custom_font.val()
+                ]
+            }
+        })
+        $example.css('font-family', $custom_font.val());
+    }
+}
+
+function customFontUpdate(event) {
+    if ($custom_font.val() == "") {
+        $example.css('font-family', "");
+        console.log("Custom font is empty")
+        return;
+    }
+    console.log("Custom font is not empty")
     removeCSS('font');
-    appendCSS('font', font);
+    WebFont.load({
+        google: {
+            families: [
+                $custom_font.val()
+            ]
+        }
+    })
+    $example.css('font-family', $custom_font.val());
 }
 
 function strokeUpdate(event) {
@@ -77,7 +115,10 @@ function centerUpdate(event) {
 function generateURL(event) {
     event.preventDefault();
 
-    const currentUrl = window.location.href;
+    const baseUrl = window.location.href;
+    const url = new URL(baseUrl);
+    let currentUrl = url.origin + url.pathname;
+    currentUrl = currentUrl.replace(/\/+$/, '');
 
     var generatedUrl = ''
     if ($regex.val() == '') {
@@ -86,10 +127,17 @@ function generateURL(event) {
        generatedUrl = currentUrl + '/v2/?channel=' + $channel.val() + '&regex=' + encodeURIComponent($regex.val());
     }
 
+    var selectedFont
+    if (fonts[Number($font.val())] == "Custom") {
+        selectedFont = $custom_font.val();
+    } else {
+        selectedFont = $font.val();
+    }
+
     let data = {
         size: $size.val(),
         emoteScale: $emoteScale.val(),
-        font: $font.val(),
+        font: selectedFont,
         stroke: ($stroke.val() != '0' ? $stroke.val() : false),
         shadow: ($shadow.val() != '0' ? $shadow.val() : false),
         bots: $bots.is(':checked'),
@@ -153,6 +201,7 @@ function resetForm(event) {
     $small_caps.prop('checked', false);
     $invert.prop('checked', false);
     $center.prop('checked', false);
+    $custom_font.prop('disabled', true);
 
     sizeUpdate();
     fontUpdate();
@@ -184,6 +233,7 @@ const $badges = $("input[name='badges']");
 const $size = $("select[name='size']");
 const $emoteScale = $("select[name='emote_scale']");
 const $font = $("select[name='font']");
+const $custom_font = $("input[name='custom_font']");
 const $stroke = $("select[name='stroke']");
 const $shadow = $("select[name='shadow']");
 const $brightness = $("#brightness");
@@ -198,6 +248,7 @@ $fade_bool.change(fadeOption);
 $size.change(sizeUpdate);
 $emoteScale.change(emoteScaleUpdate);
 $font.change(fontUpdate);
+$custom_font.change(customFontUpdate);
 $stroke.change(strokeUpdate);
 $shadow.change(shadowUpdate);
 $small_caps.change(capsUpdate);
