@@ -7,7 +7,8 @@ class EmoteChanged {
 
 function seven_ws(channel) {
     (async () => {
-        var id = await getUserInfo(Chat.info.channelID);
+        var info = await getUserInfo(Chat.info.channelID);
+        var id = info.id;
         if (id === null) {
             return
         }

@@ -787,6 +787,36 @@ Chat = {
       message = twemoji.parse(message);
       $message.html(message);
 
+      // New: Handle mentions with seventvPaint
+      message = message
+        .split(" ")
+        .map((word) => {
+          if (word.startsWith("@")) {
+            var username = word.substring(1).toLowerCase();
+            if (Chat.info.seventvPaints[username]) {
+              var $mention = $(`<span class="mention">${word}</span>`);
+              Chat.info.seventvPaints[username].forEach((paint) => {
+                if (paint.type === "gradient") {
+                  $mention.css("background-image", paint.backgroundImage);
+                } else if (paint.type === "image") {
+                  $mention.css(
+                    "background-image",
+                    "url(" + paint.backgroundImage + ")"
+                  );
+                }
+                $mention.css("filter", paint.filter);
+                $mention.addClass("paint");
+              });
+              return $mention[0].outerHTML;
+            }
+          }
+          return word;
+        })
+        .join(" ");
+
+      // Finalize the message HTML
+      $message.html(message);
+
       // Writing zero-width emotes
       messageNodes = $message.children();
       messageNodes.each(function (i) {
@@ -877,7 +907,9 @@ Chat = {
               var nick = message.prefix.split("@")[0].split("!")[0];
 
               if (
-                message.params[1].toLowerCase() === "!refreshoverlay" &&
+                (message.params[1].toLowerCase() === "!chat refresh" ||
+                  message.params[1].toLowerCase() === "!chatis refresh" ||
+                  message.params[1].toLowerCase() === "!refreshoverlay") &&
                 typeof message.tags.badges === "string"
               ) {
                 var flag = false;
@@ -897,44 +929,9 @@ Chat = {
               }
 
               if (
-                message.params[1].toLowerCase() === "!reloadchat" &&
-                typeof message.tags.badges === "string"
-              ) {
-                var flag = false;
-                message.tags.badges.split(",").forEach((badge) => {
-                  badge = badge.split("/");
-                  if (badge[0] === "moderator" || badge[0] === "broadcaster") {
-                    flag = true;
-                    return;
-                  }
-                });
-                if (flag) {
-                  location.reload();
-                }
-              }
-
-              if (
-                message.params[1].toLowerCase() === "!chat refresh" &&
-                typeof message.tags.badges === "string"
-              ) {
-                var flag = false;
-                message.tags.badges.split(",").forEach((badge) => {
-                  badge = badge.split("/");
-                  if (badge[0] === "moderator" || badge[0] === "broadcaster") {
-                    flag = true;
-                    return;
-                  }
-                });
-                if (flag) {
-                  SendInfoText("Refreshing emotes...");
-                  Chat.loadEmotes(Chat.info.channelID);
-                  console.log("Cyan Chat: Refreshing emotes...");
-                  return;
-                }
-              }
-
-              if (
-                message.params[1].toLowerCase() === "!chat reload" &&
+                (message.params[1].toLowerCase() === "!chat reload" ||
+                  message.params[1].toLowerCase() === "!chatis reload" ||
+                  message.params[1].toLowerCase() === "!reloadchat") &&
                 typeof message.tags.badges === "string"
               ) {
                 var flag = false;
