@@ -80,6 +80,7 @@ Chat = {
     seventvBadges: [],
     seventvPaints: {},
     seventvCheckers: {},
+    seventvPersonalEmotes: {},
     colors: {},
     chatterinoBadges: null,
     cheers: {},
@@ -159,7 +160,6 @@ Chat = {
       }
     );
 
-    var randomNumber = Math.floor(Math.random() * 724238534543);
     $.getJSON(addRandomQueryString("https://7tv.io/v3/emote-sets/global")).done(
       (res) => {
         res?.emotes?.forEach((emote) => {
@@ -187,6 +187,61 @@ Chat = {
         };
       });
     });
+  },
+
+  loadPersonalEmotes: async function (channelID) {
+    const emoteSetIDs = [];
+    var nnysNum = 0;
+
+    try {
+      const userResponse = await $.getJSON(
+        addRandomQueryString(
+          "https://7tv.io/v3/users/twitch/" + encodeURIComponent(channelID)
+        )
+      );
+
+      userResponse?.user.emote_sets?.forEach((emoteSet) => {
+        if (emoteSet.id == "65786294a80ced4d1d9f55ff") {
+          nnysNum++;
+          if (nnysNum == 3) {
+            if (!emoteSetIDs.includes(emoteSet.id)) {
+              emoteSetIDs.push(emoteSet.id);
+            }
+          }
+        } else {
+          if (!emoteSetIDs.includes(emoteSet.id)) {
+            emoteSetIDs.push(emoteSet.id);
+          }
+        }
+      });
+
+      Chat.info.seventvPersonalEmotes[channelID] = {};
+
+      for (let i = 0; i < emoteSetIDs.length; i++) {
+        const emoteSetResponse = await $.getJSON(
+          addRandomQueryString(
+            "https://7tv.io/v3/emote-sets/" + encodeURIComponent(emoteSetIDs[i])
+          )
+        );
+
+        emoteSetResponse?.emotes?.forEach((emote) => {
+          const emoteData = emote.data.host.files.pop();
+          const personalEmote = {
+            name: emote.name,
+            id: emote.id,
+            image: `https:${emote.data.host.url}/${emoteData.name}`,
+            zeroWidth: emote.data.flags == 256,
+          };
+          // Add personalEmote if not already in Chat.info.seventvPersonalEmotes[channelID]
+          if (!Chat.info.seventvPersonalEmotes[channelID][personalEmote.name]) {
+            Chat.info.seventvPersonalEmotes[channelID][personalEmote.name] =
+              personalEmote;
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error loading personal emotes: ", error);
+    }
   },
 
   load: function (callback) {
@@ -725,17 +780,23 @@ Chat = {
       }
       $userInfo.append($username);
 
-
       // Updating the 7tv checker
       if (Chat.info.seventvCheckers[info["user-id"]]) {
-        console.log(Chat.info.seventvCheckers[info["user-id"]].timestamp + 60000 - Date.now())
-        if (Chat.info.seventvCheckers[info["user-id"]].timestamp + 60000 < Date.now()) {
-          console.log("7tv checker expired so checking again");
+        // console.log(
+        //   Chat.info.seventvCheckers[info["user-id"]].timestamp +
+        //     60000 -
+        //     Date.now()
+        // );
+        if (
+          Chat.info.seventvCheckers[info["user-id"]].timestamp + 60000 <
+          Date.now()
+        ) {
+          // console.log("7tv checker expired so checking again");
           Chat.loadUserBadges(nick, info["user-id"]);
           const data = {
             enabled: true,
             timestamp: Date.now(),
-          }
+          };
           Chat.info.seventvCheckers[info["user-id"]] = data;
         }
       }
@@ -786,6 +847,26 @@ Chat = {
               '<img class="emote" src="' + emote[1].image + '" />';
         }
       });
+
+      if (Chat.info.seventvPersonalEmotes[info["user-id"]]) {
+        Object.entries(
+          Chat.info.seventvPersonalEmotes[info["user-id"]]
+        ).forEach((emote) => {
+          if (message.search(escapeRegExp(emote[0])) > -1) {
+            if (emote[1].upscale)
+              replacements[emote[0]] =
+                '<img class="emote upscale" src="' + emote[1].image + '" />';
+            else if (emote[1].zeroWidth)
+              replacements[emote[0]] =
+                '<img class="emote" data-zw="true" src="' +
+                emote[1].image +
+                '" />';
+            else
+              replacements[emote[0]] =
+                '<img class="emote" src="' + emote[1].image + '" />';
+          }
+        });
+      }
 
       message = escapeHtml(message);
 
@@ -1022,6 +1103,16 @@ Chat = {
                   Chat.loadUserBadges(nick, message.tags["user-id"]);
               }
 
+              if (!Chat.info.seventvPersonalEmotes[message.tags["user-id"]]) {
+                Chat.loadPersonalEmotes(message.tags["user-id"]);
+              }
+
+              // console.log(
+              //   "personal emotes for",
+              //   message.tags["user-id"],
+              //   Chat.info.seventvPersonalEmotes[message.tags["user-id"]]
+              // );
+
               Chat.write(nick, message.tags, message.params[1], "twitch");
               return;
           }
@@ -1033,8 +1124,6 @@ Chat = {
 
 $(document).ready(function () {
   Chat.connect(
-    $.QueryString.channel
-      ? $.QueryString.channel.toLowerCase()
-      : "thathypedperson"
+    $.QueryString.channel ? $.QueryString.channel.toLowerCase() : "johnnycyan"
   );
 });
