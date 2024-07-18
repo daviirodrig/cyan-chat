@@ -23,3 +23,11 @@ function removeCSS(type, name) {
         $(`link[class^="preview_${type}"]`).remove();
     }
 }
+
+function addRandomQueryString(url) {
+    return url + (url.indexOf("?") >= 0 ? "&" : "?") + "v=" + Date.now();
+  }
+  
+  function removeRandomQueryString(url) {
+    return url.replace(/[?&]v=[^&]+/, "");
+  }
