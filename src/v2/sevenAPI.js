@@ -28,10 +28,27 @@ async function getUserInfo(twitchUserId) {
     const data = await response.json();
     const userID = data.user?.id || null;
     const roles = data.user?.roles || [];
+    if (data.user.id !== null) {
+      // check if the only role is 62b48deb791a15a25c2a0354
+      if (
+        data.user.roles.length === 1 &&
+        data.user.roles[0] === "62b48deb791a15a25c2a0354"
+      ) {
+        console.log(twitchUserId, "is not subscribed to 7tv.");
+      } else {
+        if (!Chat.info.seventvCheckers[twitchUserId]) {
+          const data = {
+            enabled: true,
+            timestamp: Date.now(),
+          }
+          Chat.info.seventvCheckers[twitchUserId] = data;
+        }
+      }
+    }
     return {
       id: userID,
       roles: roles,
-    }
+    };
   });
 }
 
@@ -140,8 +157,11 @@ async function getBadgeUrl(twitchUserId) {
     const sevenTvUserRoles = sevenTvUserInfo.roles;
     if (sevenTvUserId === null) return null;
     // check if the only role is 62b48deb791a15a25c2a0354
-    if (sevenTvUserRoles.length === 1 && sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354") {
-      console.log(twitchUserId,"is not subscribed to 7tv.")
+    if (
+      sevenTvUserRoles.length === 1 &&
+      sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
+    ) {
+      console.log(twitchUserId, "is not subscribed to 7tv.");
       return null;
     }
 
@@ -173,8 +193,11 @@ async function getBadgeInfo(twitchUserId) {
     const sevenTvUserRoles = sevenTvUserInfo.roles;
     if (sevenTvUserId === null) return null;
     // check if the only role is 62b48deb791a15a25c2a0354
-    if (sevenTvUserRoles.length === 1 && sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354") {
-      console.log(twitchUserId,"is not subscribed to 7tv.")
+    if (
+      sevenTvUserRoles.length === 1 &&
+      sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
+    ) {
+      console.log(twitchUserId, "is not subscribed to 7tv.");
       return null;
     }
 
@@ -215,8 +238,11 @@ async function getNamePaintInfo(twitchUserId) {
     const sevenTvUserRoles = sevenTvUserInfo.roles;
     if (sevenTvUserId === null) return null;
     // check if the only role is 62b48deb791a15a25c2a0354
-    if (sevenTvUserRoles.length === 1 && sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354") {
-      console.log(twitchUserId,"is not subscribed to 7tv.")
+    if (
+      sevenTvUserRoles.length === 1 &&
+      sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
+    ) {
+      console.log(twitchUserId, "is not subscribed to 7tv.");
       return null;
     }
 
@@ -267,7 +293,10 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
         };
       }
       // check if the only role is 62b48deb791a15a25c2a0354
-      if (sevenTvUserRoles.length === 1 && sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354") {
+      if (
+        sevenTvUserRoles.length === 1 &&
+        sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
+      ) {
         // console.log(twitchUserId,"is not subscribed to 7tv.")
         return {
           badge: null,
@@ -375,14 +404,20 @@ function convertColor(color) {
   return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, 1)`; // Force alpha to 1 for the desired output
 }
 
-function createGradient(angle, stops, type) {
+function createGradient(angle, stops, type, repeat) {
   const gradientStops = stops.map(
     (stop) => `${convertColor(stop.color)} ${stop.at * 100}%`
   );
   if (type === "LINEAR_GRADIENT") {
     return `linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
-  } else {
+  } else if (type === "LINEAR_GRADIENT" && repeat) {
+    return `repeating-linear-gradient(${gradientStops.join(", ")})`;
+  } else if (type === "RADIAL_GRADIENT") {
     return `radial-gradient(${gradientStops.join(", ")})`;
+  } else if (type === "RADIAL_GRADIENT" && repeat) {
+    return `repeating-radial-gradient(${gradientStops.join(", ")})`;
+  } else {
+    console.log(`Unknown gradient type: ${type}`);
   }
 }
 

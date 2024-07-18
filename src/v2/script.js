@@ -79,6 +79,7 @@ Chat = {
     bttvBadges: null,
     seventvBadges: [],
     seventvPaints: {},
+    seventvCheckers: {},
     colors: {},
     chatterinoBadges: null,
     cheers: {},
@@ -496,7 +497,8 @@ Chat = {
               var gradient = createGradient(
                 seventvPaintInfo.angle,
                 seventvPaintInfo.stops,
-                seventvPaintInfo.function
+                seventvPaintInfo.function,
+                seventvPaintInfo.repeat
               );
               var dropShadows = createDropShadows(seventvPaintInfo.shadows);
               var userPaint = {
@@ -722,6 +724,21 @@ Chat = {
         });
       }
       $userInfo.append($username);
+
+
+      // Updating the 7tv checker
+      if (Chat.info.seventvCheckers[info["user-id"]]) {
+        console.log(Chat.info.seventvCheckers[info["user-id"]].timestamp + 60000 - Date.now())
+        if (Chat.info.seventvCheckers[info["user-id"]].timestamp + 60000 < Date.now()) {
+          console.log("7tv checker expired so checking again");
+          Chat.loadUserBadges(nick, info["user-id"]);
+          const data = {
+            enabled: true,
+            timestamp: Date.now(),
+          }
+          Chat.info.seventvCheckers[info["user-id"]] = data;
+        }
+      }
 
       // Writing message
       var $message = $("<span></span>");

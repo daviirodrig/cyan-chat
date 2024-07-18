@@ -25,7 +25,7 @@ function seven_ws(channel) {
         conn.onopen = function() {
             console.log(`[${channel}] Successfully connected to websocket!`);
 
-            // Subscribe to emote events for the channel
+            // Subscribe to emote set events for the channel
             conn.send(JSON.stringify({
                 op: 35, // subscribe opcode
                 d: {
@@ -40,6 +40,36 @@ function seven_ws(channel) {
                 op: 35, // subscribe opcode
                 d: {
                     type: "emote.*", // subscription type
+                    condition: {
+                        object_id: id // channel ID
+                    }
+                }
+            }));
+            // Subscribe to user events for the channel
+            conn.send(JSON.stringify({
+                op: 35, // subscribe opcode
+                d: {
+                    type: "user.*", // subscription type
+                    condition: {
+                        object_id: id // channel ID
+                    }
+                }
+            }));
+            // Subscribe to cosmetic events for the channel
+            conn.send(JSON.stringify({
+                op: 35, // subscribe opcode
+                d: {
+                    type: "cosmetic.*", // subscription type
+                    condition: {
+                        object_id: id // channel ID
+                    }
+                }
+            }));
+            // Subscribe to entitlement events for the channel
+            conn.send(JSON.stringify({
+                op: 35, // subscribe opcode
+                d: {
+                    type: "entitlement.*", // subscription type
                     condition: {
                         object_id: id // channel ID
                     }
