@@ -4,7 +4,7 @@ function delay(ms) {
 }
 
 // Generic retry function
-async function retry(fn, retries = 5, delayMs = 1000) {
+async function retry(fn, retries = 2, delayMs = 5000) {
   let attempt = 0;
   while (attempt < retries) {
     try {
@@ -28,35 +28,47 @@ async function getUserInfo(twitchUserId) {
     const data = await response.json();
     const userID = data.user?.id || null;
     const roles = data.user?.roles || [];
-    if (data.user.id !== null) {
-      // check if the only role is 62b48deb791a15a25c2a0354
-      if (
-        data.user.roles.length === 1 &&
-        data.user.roles[0] === "62b48deb791a15a25c2a0354"
-      ) {
-        console.log(twitchUserId, "is not subscribed to 7tv.");
-      } else {
-        if (!Chat.info.seventvCheckers[twitchUserId]) {
-          const data = {
-            enabled: true,
-            timestamp: Date.now(),
+    if (data.user) {
+      if (data.user.id !== null) {
+        // check if the only role is 62b48deb791a15a25c2a0354
+        if (
+          data.user.roles.length === 1 &&
+          data.user.roles[0] === "62b48deb791a15a25c2a0354"
+        ) {
+          console.log(twitchUserId, "is not subscribed to 7tv.");
+        } else {
+          if (!Chat.info.seventvCheckers[twitchUserId]) {
+            const data = {
+              enabled: true,
+              timestamp: Date.now(),
+            };
+            Chat.info.seventvCheckers[twitchUserId] = data;
           }
-          Chat.info.seventvCheckers[twitchUserId] = data;
         }
       }
+      return {
+        id: userID,
+        roles: roles,
+      };
+    } else {
+      return {
+        id: null,
+        roles: null,
+      };
     }
-    return {
-      id: userID,
-      roles: roles,
-    };
   });
 }
 
 async function isUserSubbed(twitchUserId) {
   const user = await getUserInfo(twitchUserId);
   var subbed = true;
-  if (user.roles.length === 1 && user.roles[0] === "62b48deb791a15a25c2a0354") {
-    subbed = false;
+  if (user.roles) {
+    if (user.roles.length === 1 && user.roles[0] === "62b48deb791a15a25c2a0354") {
+      subbed = false;
+      Chat.info.seventvNonSubs[twitchUserId] = true;
+    }
+  } else {
+    Chat.info.seventvNoUsers[twitchUserId] = true;
   }
   return subbed;
 }

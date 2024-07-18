@@ -81,6 +81,8 @@ Chat = {
     seventvPaints: {},
     seventvCheckers: {},
     seventvPersonalEmotes: {},
+    seventvNoUsers: {},
+    seventvNonSubs: {},
     colors: {},
     chatterinoBadges: null,
     cheers: {},
@@ -247,7 +249,7 @@ Chat = {
         });
       }
     } catch (error) {
-      console.error("Error loading personal emotes: ", error);
+      // console.error("Error loading personal emotes: ", error);
     }
   },
 
@@ -1111,7 +1113,7 @@ Chat = {
                   Chat.loadUserBadges(nick, message.tags["user-id"]);
               }
 
-              if (!Chat.info.seventvPersonalEmotes[message.tags["user-id"]]) {
+              if (!Chat.info.seventvPersonalEmotes[message.tags["user-id"]] && !Chat.info.seventvNoUsers[message.tags["user-id"]] && !Chat.info.seventvNonSubs[message.tags["user-id"]]) {
                 Chat.loadPersonalEmotes(message.tags["user-id"]);
               }
 
