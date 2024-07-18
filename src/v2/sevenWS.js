@@ -45,36 +45,6 @@ function seven_ws(channel) {
                     }
                 }
             }));
-            // Subscribe to user events for the channel
-            conn.send(JSON.stringify({
-                op: 35, // subscribe opcode
-                d: {
-                    type: "user.*", // subscription type
-                    condition: {
-                        object_id: id // channel ID
-                    }
-                }
-            }));
-            // Subscribe to cosmetic events for the channel
-            conn.send(JSON.stringify({
-                op: 35, // subscribe opcode
-                d: {
-                    type: "cosmetic.*", // subscription type
-                    condition: {
-                        object_id: id // channel ID
-                    }
-                }
-            }));
-            // Subscribe to entitlement events for the channel
-            conn.send(JSON.stringify({
-                op: 35, // subscribe opcode
-                d: {
-                    type: "entitlement.*", // subscription type
-                    condition: {
-                        object_id: id // channel ID
-                    }
-                }
-            }));
         };
 
         conn.onmessage = function(event) {
