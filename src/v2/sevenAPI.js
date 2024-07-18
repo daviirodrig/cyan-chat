@@ -52,6 +52,15 @@ async function getUserInfo(twitchUserId) {
   });
 }
 
+async function isUserSubbed(twitchUserId) {
+  const user = await getUserInfo(twitchUserId);
+  var subbed = true;
+  if (user.roles.length === 1 && user.roles[0] === "62b48deb791a15a25c2a0354") {
+    subbed = false;
+  }
+  return subbed;
+}
+
 // Step 2: Get cosmetics for the 7TV user ID
 async function getUserCosmetics(sevenTvUserId) {
   return retry(async () => {

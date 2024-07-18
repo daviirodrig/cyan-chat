@@ -190,8 +190,12 @@ Chat = {
   },
 
   loadPersonalEmotes: async function (channelID) {
+    var subbed = await isUserSubbed(channelID)
+    if (!subbed) {
+      return;
+    }
     const emoteSetIDs = [];
-    var nnysNum = 0;
+    // var nnysNum = 0;
 
     try {
       const userResponse = await $.getJSON(
@@ -201,17 +205,20 @@ Chat = {
       );
 
       userResponse?.user.emote_sets?.forEach((emoteSet) => {
-        if (emoteSet.id == "65786294a80ced4d1d9f55ff") {
-          nnysNum++;
-          if (nnysNum == 3) {
-            if (!emoteSetIDs.includes(emoteSet.id)) {
-              emoteSetIDs.push(emoteSet.id);
-            }
-          }
-        } else {
-          if (!emoteSetIDs.includes(emoteSet.id)) {
-            emoteSetIDs.push(emoteSet.id);
-          }
+        // if (emoteSet.id == "65786294a80ced4d1d9f55ff") {
+        //   nnysNum++;
+        //   if (nnysNum == 3) {
+        //     if (!emoteSetIDs.includes(emoteSet.id)) {
+        //       emoteSetIDs.push(emoteSet.id);
+        //     }
+        //   }
+        // } else {
+        //   if (!emoteSetIDs.includes(emoteSet.id)) {
+        //     emoteSetIDs.push(emoteSet.id);
+        //   }
+        // }
+        if (!emoteSetIDs.includes(emoteSet.id)) {
+          emoteSetIDs.push(emoteSet.id);
         }
       });
 
@@ -793,6 +800,7 @@ Chat = {
         ) {
           // console.log("7tv checker expired so checking again");
           Chat.loadUserBadges(nick, info["user-id"]);
+          Chat.loadPersonalEmotes(info["user-id"]);
           const data = {
             enabled: true,
             timestamp: Date.now(),
