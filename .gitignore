@@ -4,3 +4,5 @@ t/
 .vscode
 *.exe
 tokens.json
+dist/
+node_modules/

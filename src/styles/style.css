@@ -389,9 +389,6 @@ footer a {
     vertical-align: middle;
 }
 
-
-/* Scrollbar */
-
 ::-webkit-scrollbar {
     width: 12px;
     height: 12px;

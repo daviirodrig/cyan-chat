@@ -286,8 +286,8 @@ func cacheBuster(filePath string) {
 }
 
 func main() {
-	// cacheBuster("./src/index.html")
-	// cacheBuster("./src/v2/index.html")
+	cacheBuster("./src/index.html")
+	cacheBuster("./src/v2/index.html")
 	// load access and refresh tokens from file
 	file, err := os.Open("tokens.json")
 	if err != nil {
@@ -358,7 +358,7 @@ func main() {
 	http.HandleFunc("/auth/callback", TwitchRedirectHandler)
 	http.HandleFunc("/twitch/get_id", TwitchGetUserIDforUsernameHandler)
 	// serve the current directory as a static web server
-	staticFilesV2 := http.FileServer(http.Dir("./dist"))
+	staticFilesV2 := http.FileServer(http.Dir("./src"))
 	http.Handle("/", staticFilesV2)
 
 	log.Println("Serving static files from current directory on http://localhost" + port)

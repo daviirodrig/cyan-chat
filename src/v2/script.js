@@ -14,22 +14,22 @@
     return params;
   })(window.location.search.substr(1).split("&"));
 
-  // Check if 'v' parameter exists
-  if (!$.QueryString.hasOwnProperty("v")) {
-    console.log("'v' parameter is not present.");
-    var currentUrl = window.location.href;
-    var newUrl = addRandomQueryString(currentUrl);
-    window.location.href = newUrl;
-  } else {
-    // Check if 'v' parameter is valid
-    if (Date.now() - $.QueryString.v > 10000) {
-      console.log("'v' parameter is not up to date.");
-      var currentUrl = window.location.href;
-      var cleanUrl = removeRandomQueryString(currentUrl);
-      var newUrl = addRandomQueryString(cleanUrl);
-      window.location.href = newUrl;
-    }
-  }
+  // // Check if 'v' parameter exists
+  // if (!$.QueryString.hasOwnProperty("v")) {
+  //   console.log("'v' parameter is not present.");
+  //   var currentUrl = window.location.href;
+  //   var newUrl = addRandomQueryString(currentUrl);
+  //   window.location.href = newUrl;
+  // } else {
+  //   // Check if 'v' parameter is valid
+  //   if (Date.now() - $.QueryString.v > 10000) {
+  //     console.log("'v' parameter is not up to date.");
+  //     var currentUrl = window.location.href;
+  //     var cleanUrl = removeRandomQueryString(currentUrl);
+  //     var newUrl = addRandomQueryString(cleanUrl);
+  //     window.location.href = newUrl;
+  //   }
+  // }
 })(jQuery);
 
 Chat = {

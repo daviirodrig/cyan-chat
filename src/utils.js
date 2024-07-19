@@ -1,3 +1,4 @@
+
 function encodeQueryData(data) { // https://stackoverflow.com/questions/111529/how-to-create-query-parameters-in-javascript
     const ret = [];
     for (let d in data) {

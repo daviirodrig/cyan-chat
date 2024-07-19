@@ -1,36 +1,36 @@
-(function ($) {
-    // Thanks to BrunoLM (https://stackoverflow.com/a/3855394)
-    $.QueryString = (function (paramsArray) {
-      let params = {};
+// (function ($) {
+//     // Thanks to BrunoLM (https://stackoverflow.com/a/3855394)
+//     $.QueryString = (function (paramsArray) {
+//       let params = {};
   
-      for (let i = 0; i < paramsArray.length; ++i) {
-        let param = paramsArray[i].split("=", 2);
+//       for (let i = 0; i < paramsArray.length; ++i) {
+//         let param = paramsArray[i].split("=", 2);
   
-        if (param.length !== 2) continue;
+//         if (param.length !== 2) continue;
   
-        params[param[0]] = decodeURIComponent(param[1].replace(/\+/g, " "));
-      }
+//         params[param[0]] = decodeURIComponent(param[1].replace(/\+/g, " "));
+//       }
   
-      return params;
-    })(window.location.search.substr(1).split("&"));
+//       return params;
+//     })(window.location.search.substr(1).split("&"));
   
-    // Check if 'v' parameter exists
-    if (!$.QueryString.hasOwnProperty("v")) {
-      console.log("'v' parameter is not present.");
-      var currentUrl = window.location.href;
-      var newUrl = addRandomQueryString(currentUrl);
-      window.location.href = newUrl;
-    } else {
-      // Check if 'v' parameter is valid
-      if (Date.now() - $.QueryString.v > 10000) {
-        console.log("'v' parameter is not up to date.");
-        var currentUrl = window.location.href;
-        var cleanUrl = removeRandomQueryString(currentUrl);
-        var newUrl = addRandomQueryString(cleanUrl);
-        window.location.href = newUrl;
-      }
-    }
-  })(jQuery);
+//     // Check if 'v' parameter exists
+//     if (!$.QueryString.hasOwnProperty("v")) {
+//       console.log("'v' parameter is not present.");
+//       var currentUrl = window.location.href;
+//       var newUrl = addRandomQueryString(currentUrl);
+//       window.location.href = newUrl;
+//     } else {
+//       // Check if 'v' parameter is valid
+//       if (Date.now() - $.QueryString.v > 10000) {
+//         console.log("'v' parameter is not up to date.");
+//         var currentUrl = window.location.href;
+//         var cleanUrl = removeRandomQueryString(currentUrl);
+//         var newUrl = addRandomQueryString(cleanUrl);
+//         window.location.href = newUrl;
+//       }
+//     }
+//   })(jQuery);
 
 function fadeOption(event) {
     if ($fade_bool.is(':checked')) {
