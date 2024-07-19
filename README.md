@@ -9,9 +9,10 @@
 - Custom channel badges
 - Lots of fonts and styling options
 - Twitter emojis
-- 7TV Name Paints and Personal Emotes
+- 7TV Personal Emotes
 - Colored mentions with Twitch color or 7TV Paint color
 - 7TV, BTTV, FFZ, FFZ:AP and Chatterino user badges (on/off)
+- 7TV Name Paints (on/off)
 - Smooth animation (on/off)
 - Fade old messages (on/off)
 - Hide bots messages (on/off)
