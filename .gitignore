@@ -6,3 +6,6 @@ t/
 tokens.json
 dist/
 node_modules/
+compile.bat
+pack.bat
+run.bat
