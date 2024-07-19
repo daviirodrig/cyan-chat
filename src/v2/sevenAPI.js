@@ -19,7 +19,6 @@ async function retry(fn, retries = 2, delayMs = 5000) {
   }
 }
 
-// Step 1: Get 7TV user ID using Twitch user ID
 async function getUserInfo(twitchUserId) {
   return retry(async () => {
     const response = await fetch(
@@ -73,43 +72,6 @@ async function isUserSubbed(twitchUserId) {
   return subbed;
 }
 
-// Step 2: Get cosmetics for the 7TV user ID
-async function getUserCosmetics(sevenTvUserId) {
-  return retry(async () => {
-    const query = {
-      operationName: "GetUserCosmetics",
-      variables: { id: sevenTvUserId },
-      query: `query GetUserCosmetics($id: ObjectID!) {
-              user(id: $id) {
-                id
-                cosmetics {
-                  id
-                  kind
-                  selected
-                  __typename
-                }
-                __typename
-              }
-            }`,
-    };
-
-    const response = await fetch(
-      addRandomQueryString("https://7tv.io/v3/gql"),
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(query),
-      }
-    );
-
-    const data = await response.json();
-    return data.data.user.cosmetics.filter((cosmetic) => cosmetic.selected);
-  });
-}
-
-// Step 3: Get detailed information about cosmetics
 async function getCosmeticDetails(ids) {
   return retry(async () => {
     const query = {
@@ -170,127 +132,67 @@ async function getCosmeticDetails(ids) {
   });
 }
 
-// Function to get the user's badge URL
-async function getBadgeUrl(twitchUserId) {
-  try {
-    const sevenTvUserInfo = await getUserInfo(twitchUserId);
-    const sevenTvUserId = sevenTvUserInfo.id;
-    const sevenTvUserRoles = sevenTvUserInfo.roles;
-    if (sevenTvUserId === null) return null;
-    // check if the only role is 62b48deb791a15a25c2a0354
-    if (
-      sevenTvUserRoles.length === 1 &&
-      sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
-    ) {
-      console.log(twitchUserId, "is not subscribed to 7tv.");
-      return null;
-    }
-
-    const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
-
-    const badgeCosmetics = selectedCosmetics.filter(
-      (cosmetic) => cosmetic.kind === "BADGE"
-    );
-    if (badgeCosmetics.length === 0) return null;
-
-    const cosmeticDetails = await getCosmeticDetails(
-      badgeCosmetics.map((c) => c.id)
+async function getPersonalEmoteData(id) {
+  return retry(async () => {
+    const query = `
+    query MyQuery {
+      userByConnection(id: "${id}", platform: TWITCH) {
+        emote_sets(entitled: true) {
+          id
+          name
+          flags
+        }
+      }
+    }`
+    const response = await fetch(
+      addRandomQueryString("https://7tv.io/v3/gql"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      }
     );
 
-    const badgeDetail = cosmeticDetails.badges.find(
-      (badge) => badge.id === badgeCosmetics[0].id
-    );
-
-    return badgeDetail ? badgeDetail.tag : null;
-  } catch (err) {
-    return null;
-  }
-}
-
-async function getBadgeInfo(twitchUserId) {
-  try {
-    const sevenTvUserInfo = await getUserInfo(twitchUserId);
-    const sevenTvUserId = sevenTvUserInfo.id;
-    const sevenTvUserRoles = sevenTvUserInfo.roles;
-    if (sevenTvUserId === null) return null;
-    // check if the only role is 62b48deb791a15a25c2a0354
-    if (
-      sevenTvUserRoles.length === 1 &&
-      sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
-    ) {
-      console.log(twitchUserId, "is not subscribed to 7tv.");
-      return null;
-    }
-
-    const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
-    if (selectedCosmetics.length === 0) return null;
-
-    const badgeCosmetics = selectedCosmetics.filter(
-      (cosmetic) => cosmetic.kind === "BADGE"
-    );
-    if (badgeCosmetics.length === 0) return null;
-
-    const cosmeticDetails = await getCosmeticDetails(
-      badgeCosmetics.map((c) => c.id)
-    );
-
-    const badgeDetail = cosmeticDetails.badges.find(
-      (badge) => badge.id === badgeCosmetics[0].id
-    );
-
-    if (badgeDetail) {
-      return {
-        id: badgeDetail.id,
-        tooltip: badgeDetail.tooltip,
-      };
-    } else {
-      return null;
-    }
-  } catch (err) {
-    return null;
-  }
-}
-
-// Function to get the user's name paint info
-async function getNamePaintInfo(twitchUserId) {
-  try {
-    const sevenTvUserInfo = await getUserInfo(twitchUserId);
-    const sevenTvUserId = sevenTvUserInfo.id;
-    const sevenTvUserRoles = sevenTvUserInfo.roles;
-    if (sevenTvUserId === null) return null;
-    // check if the only role is 62b48deb791a15a25c2a0354
-    if (
-      sevenTvUserRoles.length === 1 &&
-      sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
-    ) {
-      console.log(twitchUserId, "is not subscribed to 7tv.");
-      return null;
-    }
-
-    const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
-    if (selectedCosmetics.length === 0) return null;
-
-    const paintCosmetics = selectedCosmetics.filter(
-      (cosmetic) => cosmetic.kind === "PAINT"
-    );
-    if (paintCosmetics.length === 0) return null;
-
-    const cosmeticDetails = await getCosmeticDetails(
-      paintCosmetics.map((c) => c.id)
-    );
-
-    const paintDetail = cosmeticDetails.paints.find(
-      (paint) => paint.id === paintCosmetics[0].id
-    );
-
-    return paintDetail || null;
-  } catch (err) {
-    return null;
-  }
+    const data = await response.json();
+    return data.data.userByConnection;
+  });
 }
 
 async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function getUserCosmeticData(id) {
+  return retry(async () => {
+    const query = `
+    query MyQuery {
+      userByConnection(id: "${id}", platform: TWITCH) {
+        style {
+          badge_id
+          paint_id
+        }
+        roles
+      }
+    }`
+    const response = await fetch(
+      addRandomQueryString("https://7tv.io/v3/gql"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      }
+    );
+
+    const data = await response.json();
+    if (data.errors) {
+      return null;
+    }
+    return data.data.userByConnection;
+  });
 }
 
 async function getUserBadgeAndPaintInfo(twitchUserId) {
@@ -304,15 +206,14 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
     // );
 
     try {
-      const sevenTvUserInfo = await getUserInfo(twitchUserId);
-      const sevenTvUserId = sevenTvUserInfo.id;
-      const sevenTvUserRoles = sevenTvUserInfo.roles;
-      if (sevenTvUserId === null) {
+      const sevenTvUserInfo = await getUserCosmeticData(twitchUserId);
+      if (sevenTvUserInfo === null) {
         return {
           badge: null,
           paint: null,
         };
       }
+      const sevenTvUserRoles = sevenTvUserInfo.roles;
       // check if the only role is 62b48deb791a15a25c2a0354
       if (
         sevenTvUserRoles.length === 1 &&
@@ -325,13 +226,13 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
         };
       }
 
-      const selectedCosmetics = await getUserCosmetics(sevenTvUserId);
+      const selectedCosmetics = sevenTvUserInfo.style;
       // console.log(
       //   `Selected cosmetics for SevenTv user ${sevenTvUserId}:`,
       //   selectedCosmetics.length
       // );
 
-      if (selectedCosmetics.length === 0) {
+      if (selectedCosmetics.badge_id === null && selectedCosmetics.paint_id === null) {
         // console.log(
         //   `No cosmetics found for user ${sevenTvUserId}. Retrying in 1 second...`
         // );
@@ -340,21 +241,18 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
         continue;
       }
 
-      const badgeCosmetics = selectedCosmetics.filter(
-        (cosmetic) => cosmetic.kind === "BADGE"
-      );
-      const paintCosmetics = selectedCosmetics.filter(
-        (cosmetic) => cosmetic.kind === "PAINT"
-      );
+      const badgeCosmetics = selectedCosmetics.badge_id;
+      const paintCosmetics = selectedCosmetics.paint_id;
 
       let badgeDetail = null;
       let paintDetail = null;
 
-      if (badgeCosmetics.length > 0 || paintCosmetics.length > 0) {
+      if (badgeCosmetics !== null || paintCosmetics !== null) {
         const cosmeticIds = [
-          ...badgeCosmetics.map((c) => c.id),
-          ...paintCosmetics.map((c) => c.id),
-        ];
+          badgeCosmetics,
+          paintCosmetics,
+        ].filter(cosmetic => cosmetic !== null && cosmetic !== undefined);
+        
 
         const cosmeticDetails = await getCosmeticDetails(cosmeticIds);
         // console.log(
@@ -362,8 +260,8 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
         //   cosmeticDetails
         // );
 
-        if (badgeCosmetics.length > 0) {
-          const badgeCosmeticId = badgeCosmetics[badgeCosmetics.length - 1].id;
+        if (badgeCosmetics !== null) {
+          const badgeCosmeticId = badgeCosmetics;
           badgeDetail = cosmeticDetails.badges.find(
             (badge) => badge.id === badgeCosmeticId
           );
@@ -376,8 +274,8 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
           }
         }
 
-        if (paintCosmetics.length > 0) {
-          const paintCosmeticId = paintCosmetics[0].id;
+        if (paintCosmetics !== null) {
+          const paintCosmeticId = paintCosmetics;
           paintDetail = cosmeticDetails.paints.find(
             (paint) => paint.id === paintCosmeticId
           );

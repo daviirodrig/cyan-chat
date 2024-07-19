@@ -204,27 +204,13 @@ Chat = {
     // var nnysNum = 0;
 
     try {
-      const userResponse = await $.getJSON(
-        addRandomQueryString(
-          "https://7tv.io/v3/users/twitch/" + encodeURIComponent(channelID)
-        )
-      );
+      const userResponse = await getPersonalEmoteData(channelID);
 
-      userResponse?.user.emote_sets?.forEach((emoteSet) => {
-        // if (emoteSet.id == "65786294a80ced4d1d9f55ff") {
-        //   nnysNum++;
-        //   if (nnysNum == 3) {
-        //     if (!emoteSetIDs.includes(emoteSet.id)) {
-        //       emoteSetIDs.push(emoteSet.id);
-        //     }
-        //   }
-        // } else {
-        //   if (!emoteSetIDs.includes(emoteSet.id)) {
-        //     emoteSetIDs.push(emoteSet.id);
-        //   }
-        // }
-        if (!emoteSetIDs.includes(emoteSet.id)) {
-          emoteSetIDs.push(emoteSet.id);
+      userResponse?.emote_sets?.forEach((emoteSet) => {
+        if (emoteSet.flags === 4) {
+          if (!emoteSetIDs.includes(emoteSet.id)) {
+            emoteSetIDs.push(emoteSet.id);
+          }
         }
       });
 
@@ -738,6 +724,9 @@ Chat = {
           }
           if (info.color === "#008000") {
             info.color = "#00FF00";
+          }
+          if (info.color === "#2420d9") {
+            info.color = "#BCBBFC"
           }
           // console.log(nick,"color is string and readable is true");
           if (tinycolor(info.color).getBrightness() <= 50) {
