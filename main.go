@@ -326,10 +326,12 @@ func main() {
 
 	args := os.Args[1:]
 	port := args[0]
+	callbackUrl := "http://localhost" + port + "/auth/callback"
+	callbackUrl = "https://chat.johnnycyan.com/auth/callback"
 	client, err = helix.NewClient(&helix.Options{
 		ClientID:        clientID,
 		ClientSecret:    clientSecret,
-		RedirectURI:     "http://localhost" + port + "/auth/callback",
+		RedirectURI:     callbackUrl,
 		UserAccessToken: accessToken,
 		RefreshToken:    refreshToken,
 	})
