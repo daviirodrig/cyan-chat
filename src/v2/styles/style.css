@@ -118,6 +118,13 @@ body {
   text-shadow: none;
 }
 
+.nopaint {
+  filter: none !important;
+  -webkit-text-fill-color: unset !important;
+  text-shadow: unset !important;
+  background-image: none !important;
+}
+
 .animate-slide-left {
   animation-name: slide-left;
   animation-duration: 0.3s;
@@ -132,6 +139,6 @@ body {
 
 .animate {
   animation-name: fade;
-  animation-duration: 0.15s;
+  animation-duration: 0.05s;
   animation-timing-function: ease-in-out;
 }

@@ -55,6 +55,10 @@ Chat = {
       "hide_badges" in $.QueryString
         ? $.QueryString.hide_badges.toLowerCase() === "true"
         : false,
+    hidePaints:
+      "hide_paints" in $.QueryString
+        ? $.QueryString.hide_paints.toLowerCase() === "true"
+        : false,
     // fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
     fade: "fade" in $.QueryString ? parseInt($.QueryString.fade) : 360,
     size: "size" in $.QueryString ? parseInt($.QueryString.size) : 2,
@@ -192,7 +196,7 @@ Chat = {
   },
 
   loadPersonalEmotes: async function (channelID) {
-    var subbed = await isUserSubbed(channelID)
+    var subbed = await isUserSubbed(channelID);
     if (!subbed) {
       return;
     }
@@ -650,17 +654,7 @@ Chat = {
       // }
 
       // Writing badges
-      if (Chat.info.hideBadges) {
-        if (typeof info.badges === "string") {
-          info.badges.split(",").forEach((badge) => {
-            var $badge = $("<img/>");
-            $badge.addClass("badge");
-            badge = badge.split("/");
-            $badge.attr("src", Chat.info.badges[badge[0] + ":" + badge[1]]);
-            $userInfo.append($badge);
-          });
-        }
-      } else {
+      if (!Chat.info.hideBadges) {
         var badges = [];
         const priorityBadges = [
           "predictions",
@@ -793,6 +787,9 @@ Chat = {
           }
           $username.css("filter", paint.filter);
           $username.addClass("paint");
+          if (Chat.info.hidePaints) {
+            $username.addClass("nopaint");
+          }
         });
       }
       $userInfo.append($username);
@@ -1121,7 +1118,11 @@ Chat = {
                   Chat.loadUserBadges(nick, message.tags["user-id"]);
               }
 
-              if (!Chat.info.seventvPersonalEmotes[message.tags["user-id"]] && !Chat.info.seventvNoUsers[message.tags["user-id"]] && !Chat.info.seventvNonSubs[message.tags["user-id"]]) {
+              if (
+                !Chat.info.seventvPersonalEmotes[message.tags["user-id"]] &&
+                !Chat.info.seventvNoUsers[message.tags["user-id"]] &&
+                !Chat.info.seventvNonSubs[message.tags["user-id"]]
+              ) {
                 Chat.loadPersonalEmotes(message.tags["user-id"]);
               }
 

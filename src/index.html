@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Cyan Chat &bull; Setup | Johnnycyan</title>
@@ -108,7 +111,7 @@
             </div>
             <div class="form_row left">
               <input type="checkbox" name="badges" />
-              <label for="badges">Hide special badges</label>
+              <label for="badges">Hide badges</label>
             </div>
             <div class="form_row left">
               <input type="checkbox" name="center" />
@@ -171,13 +174,51 @@
               <label for="invert">Invert</label>
               <input type="checkbox" name="invert" />
             </div>
+            <div class="form_row right">
+              <label for="paints">Hide 7tv Paints</label>
+              <input type="checkbox" name="paints" />
+            </div>
           </div>
         </div>
-        <div class="form_row center">
+        <div class="form_group center" style="width: 100%; margin-bottom: 10px">
+          <label
+            for="regex"
+            style="
+              width: 100%;
+              display: block;
+              text-align: center;
+              margin-bottom: 5px;
+              margin-top: 10px;
+            "
+            >Regex Blacklist</label
+          >
           <input
             type="text"
             name="regex"
             placeholder="Regex Pattern to Block ex: ^[1-8]$"
+            style=""
+          />
+        </div>
+        <div
+          class="form_group center"
+          style="width: 100%; height: 40px; margin-bottom: 20px"
+        >
+          <label
+            for="blocked_users"
+            style="
+              width: 100%;
+              display: block;
+              text-align: center;
+              margin-bottom: 5px;
+              margin-top: 10px;
+            "
+            >Users/Bots Blocked List</label
+          >
+          <input
+            type="text"
+            name="blocked_users"
+            placeholder="Extra users or bots to hide. Comma separated."
+            style="width: 75% !important; display: block; margin: 0 auto"
           />
         </div>
 
@@ -201,7 +242,7 @@
                   class="badge"
                   src="https://cdn.7tv.app/badge/6508d5bd55deb74f50368f40/3x"
                 /><span
-                  class="nick"
+                  class="nick paint"
                   style="
                     color: rgb(0, 217, 255);
                     background-image: linear-gradient(
@@ -214,10 +255,6 @@
                     filter: drop-shadow(rgb(158, 226, 255) 0px 1px 0.1px)
                       drop-shadow(rgb(255, 112, 243) 1px 0px 0.1px)
                       drop-shadow(rgb(95, 124, 116) 1px 0px 3px);
-                    background-size: cover;
-                    background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    text-shadow: none;
                   "
                   >Johnnycyan</span
                 ><span class="colon">:</span> </span
