@@ -448,6 +448,11 @@ Chat = {
           $("#chat_container").append(lines);
         }
       }
+      // if (Chat.info.invert) {
+      //   $("#chat_container").prepend(lines);
+      // } else {
+      //   $("#chat_container").append(lines);
+      // }
       Chat.info.lines = [];
       var linesToDelete = $(".chat_line").length - 100;
       if (Chat.info.invert) {
@@ -628,6 +633,9 @@ Chat = {
       }
       var $chatLine = $("<div></div>");
       $chatLine.addClass("chat_line");
+      if (Chat.info.animate) {
+        $chatLine.addClass("animate");
+      }
       $chatLine.attr("data-nick", nick);
       $chatLine.attr("data-time", Date.now());
       $chatLine.attr("data-id", info.id);
