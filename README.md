@@ -19,3 +19,29 @@
 - Hide commands messages (on/off)
 - `!chat refresh` to force newly added emotes to appear if there was an issue (mods only)
 - `!chat reload` to reload the chat source (mods only)
+- `!chat rickroll` to rickroll the chat (mods only)
+- `!chat tts` send a tts message with the chat (mods only) // Optionally use -v {voice} to specify a voice
+
+<details>
+<summary>Voice list</summary>
+
+- Brian
+- Ivy
+- Justin
+- Russell
+- Nicole
+- Emma
+- Amy
+- Joanna
+- Salli
+- Kimberly
+- Kendra
+- Joey
+- Mizuki (Japanese)
+- Chantal (French)
+- Mathieu (French)
+- Maxim (Russian)
+- Hans (German)
+- Raveena (Indian)
+
+</details>
