@@ -267,6 +267,11 @@ function resetForm(event) {
   showUrl();
 }
 
+function backToForm(event) {
+  $result.addClass("hidden");
+  $generator.removeClass("hidden");
+}
+
 const $generator = $("form[name='generator']");
 const $channel = $('input[name="channel"]');
 const $animate = $('input[name="animate"]');
@@ -293,6 +298,7 @@ const $result = $("#result");
 const $url = $("#url");
 const $alert = $("#alert");
 const $reset = $("#reset");
+const $goBack = $("#go-back");
 const $regex = $('input[name="regex"]');
 const $blockedUsers = $('input[name="blocked_users"]');
 
@@ -312,3 +318,4 @@ $brightness.click(changePreview);
 $url.click(copyUrl);
 $alert.click(showUrl);
 $reset.click(resetForm);
+$goBack.click(backToForm);
