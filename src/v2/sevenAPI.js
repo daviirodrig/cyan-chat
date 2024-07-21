@@ -30,10 +30,7 @@ async function getUserInfo(twitchUserId) {
     if (data.user) {
       if (data.user.id !== null) {
         // check if the only role is 62b48deb791a15a25c2a0354
-        if (
-          data.user.roles.length === 1 &&
-          data.user.roles[0] === "62b48deb791a15a25c2a0354"
-        ) {
+        if (!data.user.roles.includes("6076a86b09a4c63a38ebe801")) {
           console.log(twitchUserId, "is not subscribed to 7tv.");
         } else {
           if (!Chat.info.seventvCheckers[twitchUserId]) {
@@ -62,7 +59,7 @@ async function isUserSubbed(twitchUserId) {
   const user = await getUserInfo(twitchUserId);
   var subbed = true;
   if (user.roles) {
-    if (user.roles.length === 1 && user.roles[0] === "62b48deb791a15a25c2a0354") {
+    if (!data.user.roles.includes("6076a86b09a4c63a38ebe801")) {
       subbed = false;
       Chat.info.seventvNonSubs[twitchUserId] = true;
     }
@@ -143,7 +140,7 @@ async function getPersonalEmoteData(id) {
           flags
         }
       }
-    }`
+    }`;
     const response = await fetch(
       addRandomQueryString("https://7tv.io/v3/gql"),
       {
@@ -175,7 +172,7 @@ async function getUserCosmeticData(id) {
         }
         roles
       }
-    }`
+    }`;
     const response = await fetch(
       addRandomQueryString("https://7tv.io/v3/gql"),
       {
@@ -232,7 +229,10 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
       //   selectedCosmetics.length
       // );
 
-      if (selectedCosmetics.badge_id === null && selectedCosmetics.paint_id === null) {
+      if (
+        selectedCosmetics.badge_id === null &&
+        selectedCosmetics.paint_id === null
+      ) {
         // console.log(
         //   `No cosmetics found for user ${sevenTvUserId}. Retrying in 1 second...`
         // );
@@ -248,11 +248,9 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
       let paintDetail = null;
 
       if (badgeCosmetics !== null || paintCosmetics !== null) {
-        const cosmeticIds = [
-          badgeCosmetics,
-          paintCosmetics,
-        ].filter(cosmetic => cosmetic !== null && cosmetic !== undefined);
-        
+        const cosmeticIds = [badgeCosmetics, paintCosmetics].filter(
+          (cosmetic) => cosmetic !== null && cosmetic !== undefined
+        );
 
         const cosmeticDetails = await getCosmeticDetails(cosmeticIds);
         // console.log(
