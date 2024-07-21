@@ -148,6 +148,81 @@ function removeRandomQueryString(url) {
   return url.replace(/[?&]v=[^&]+/, "");
 }
 
+function appendMedia(mediaType, source) {
+  // Check if any video or audio element is already playing
+  const existingMedia = document.querySelector("video, audio");
+
+  if (existingMedia) {
+    console.log("A media file is already playing.");
+    return;
+  }
+
+  if (mediaType === "video") {
+    const video = document.createElement("video");
+    video.src = source;
+    video.style.position = "absolute";
+    video.style.top = "50%";
+    video.style.left = "50%";
+    video.style.transform = "translate(-50%, -50%)";
+    video.style.width = "100%";
+    video.style.height = "100%";
+    video.style.objectFit = "cover";
+    video.style.zIndex = -1;
+    video.autoplay = true;
+    video.muted = false;
+    video.onended = function () {
+      video.remove();
+    };
+
+    document.body.appendChild(video);
+  } else if (mediaType === "audio") {
+    const audio = document.createElement("audio");
+    audio.src = source;
+    audio.autoplay = true;
+    audio.onended = function () {
+      audio.remove();
+    };
+
+    document.body.appendChild(audio);
+  }
+}
+
+let cooldown = 0;
+const COOLDOWN = 5;
+const API = "https://api.streamelements.com/kappa/v2/speech";
+
+function playTTSAudio(text, voice) {
+  if (cooldown > 0) {
+    console.log(
+      `Please wait ${cooldown} seconds before making another request.`
+    );
+    return;
+  }
+
+  cooldown = COOLDOWN;
+  const interval = setInterval(() => {
+    cooldown -= 1;
+    if (cooldown <= 0) {
+      clearInterval(interval);
+    }
+  }, 1000);
+
+  fetch(`${API}?voice=${voice}&text=${encodeURIComponent(text)}`)
+    .then((response) => response.blob())
+    .then((blob) => {
+      if (!blob || !blob.size) {
+        throw new Error("No audio received");
+      }
+
+      const audioUrl = URL.createObjectURL(blob);
+      appendMedia("audio", audioUrl);
+    })
+    .catch((error) => {
+      console.log(`Error: ${error}`);
+      cooldown += COOLDOWN;
+    });
+}
+
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {

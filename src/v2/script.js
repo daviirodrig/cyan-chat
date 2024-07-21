@@ -726,7 +726,7 @@ Chat = {
             info.color = "#00FF00";
           }
           if (info.color === "#2420d9") {
-            info.color = "#BCBBFC"
+            info.color = "#BCBBFC";
           }
           // console.log(nick,"color is string and readable is true");
           if (tinycolor(info.color).getBrightness() <= 50) {
@@ -1043,6 +1043,9 @@ Chat = {
                 return;
               var nick = message.prefix.split("@")[0].split("!")[0];
 
+              // DEFINE COMMANDS
+
+              // REFRESH EMOTES
               if (
                 (message.params[1].toLowerCase() === "!chat refresh" ||
                   message.params[1].toLowerCase() === "!chatis refresh" ||
@@ -1065,10 +1068,9 @@ Chat = {
                 }
               }
 
+              // RELOAD CHAT
               if (
-                (message.params[1].toLowerCase() === "!chat reload" ||
-                  message.params[1].toLowerCase() === "!chatis reload" ||
-                  message.params[1].toLowerCase() === "!reloadchat") &&
+                message.params[1].toLowerCase().startsWith("!chat tts") &&
                 typeof message.tags.badges === "string"
               ) {
                 var flag = false;
@@ -1079,10 +1081,84 @@ Chat = {
                     return;
                   }
                 });
+
                 if (flag) {
-                  location.reload();
+                  var fullCommand = message.params[1]
+                    .slice("!chat tts".length)
+                    .trim();
+                  var voiceFlagPrefix = null;
+
+                  const flagOptions = ["-v", "-voice", "-s"];
+
+                  // Find the voice flag if any
+                  for (let option of flagOptions) {
+                    const index = fullCommand.toLowerCase().indexOf(option);
+                    if (index !== -1) {
+                      voiceFlagPrefix = option;
+                      break;
+                    }
+                  }
+
+                  var text = fullCommand;
+                  var voice = "Brian"; // Default voice
+
+                  // If a voice flag is found, extract the voice and text
+                  if (voiceFlagPrefix) {
+                    var lowerCommand = fullCommand.toLowerCase();
+                    var splitPoint = lowerCommand.indexOf(voiceFlagPrefix);
+                    var beforeFlag = fullCommand.slice(0, splitPoint).trim();
+                    var afterFlag = fullCommand
+                      .slice(splitPoint + voiceFlagPrefix.length)
+                      .trim();
+
+                    const afterFlagParts = afterFlag.split(" ");
+                    var potentialVoice = afterFlagParts[0].trim();
+
+                    // Normalize the voice to match the allowed format
+                    potentialVoice =
+                      potentialVoice.charAt(0).toUpperCase() +
+                      potentialVoice.slice(1).toLowerCase();
+
+                    var allowedVoices = [
+                      "Brian",
+                      "Ivy",
+                      "Justin",
+                      "Russell",
+                      "Nicole",
+                      "Emma",
+                      "Amy",
+                      "Joanna",
+                      "Salli",
+                      "Kimberly",
+                      "Kendra",
+                      "Joey",
+                      "Mizuki",
+                      "Chantal",
+                      "Mathieu",
+                      "Maxim",
+                      "Hans",
+                      "Raveena",
+                    ];
+
+                    if (allowedVoices.includes(potentialVoice)) {
+                      voice = potentialVoice;
+                      text = (
+                        beforeFlag +
+                        " " +
+                        afterFlagParts.slice(1).join(" ")
+                      ).trim();
+                    }
+                  }
+
+                  playTTSAudio(text, voice);
+                  console.log(
+                    `Cyan Chat: Playing TTS Audio ... [Voice: ${voice}]`
+                  );
+                  return;
                 }
               }
+
+              // END COMMANDS
 
               if (Chat.info.hideCommands) {
                 if (/^!.+/.test(message.params[1])) return;

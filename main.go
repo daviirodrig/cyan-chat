@@ -326,8 +326,22 @@ func main() {
 
 	args := os.Args[1:]
 	port := args[0]
-	callbackUrl := "http://localhost" + port + "/auth/callback"
-	callbackUrl = "https://chat.johnnycyan.com/auth/callback"
+	var location string
+	if len(args) > 1 {
+		location = args[1]
+		if location == "" {
+			location = "remote"
+		}
+	} else {
+		location = "remote"
+	}
+	var callbackUrl string
+	if location == "local" {
+		callbackUrl = "http://localhost" + port + "/auth/callback"
+	} else {
+		callbackUrl = "https://chat.johnnycyan.com/auth/callback"
+	}
+
 	client, err = helix.NewClient(&helix.Options{
 		ClientID:        clientID,
 		ClientSecret:    clientSecret,

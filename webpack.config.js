@@ -55,7 +55,8 @@ module.exports = {
             patterns: [
                 { from: 'src/styles', to: 'styles' },
                 { from: 'src/v2/styles', to: 'v2/styles' },
-                { from: 'src/fonts', to: '' }
+                { from: 'src/fonts', to: '' },
+                { from: 'src/media', to: 'media' }
             ]
         })
     ]
