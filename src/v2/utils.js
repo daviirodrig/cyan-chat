@@ -167,7 +167,7 @@ function appendMedia(mediaType, source) {
     video.style.width = "100%";
     video.style.height = "100%";
     video.style.objectFit = "cover";
-    video.style.zIndex = -1;
+    video.style.zIndex = -100;
     video.autoplay = true;
     video.muted = false;
     video.onended = function () {

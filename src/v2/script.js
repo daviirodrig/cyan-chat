@@ -768,6 +768,8 @@ Chat = {
       if (Chat.info.seventvPaints[nick]) {
         $usernameCopy = $username.clone();
         $usernameCopy.css("position", "absolute");
+        $usernameCopy.css("color", "transparent");
+        $usernameCopy.css("z-index", "-1");
         Chat.info.seventvPaints[nick].forEach((paint) => {
           if (paint.type === "gradient") {
             $username.css("background-image", paint.backgroundImage);
@@ -938,6 +940,8 @@ Chat = {
             if (Chat.info.seventvPaints[username]) {
               $mentionCopy = $mention.clone();
               $mentionCopy.css("position", "absolute");
+              $mentionCopy.css("color", "transparent");
+              $mentionCopy.css("z-index", "-1");
 
               Chat.info.seventvPaints[username].forEach((paint) => {
                 if (paint.type === "gradient") {
@@ -951,7 +955,8 @@ Chat = {
                 $mention.css("filter", paint.filter);
                 $mention.addClass("paint");
               });
-              var mentionHtml = $mentionCopy[0].outerHTML + $mention[0].outerHTML;
+              var mentionHtml =
+                $mentionCopy[0].outerHTML + $mention[0].outerHTML;
               return mentionHtml;
             }
           }
