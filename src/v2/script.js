@@ -763,8 +763,11 @@ Chat = {
       $username.css("color", color);
       Chat.info.colors[nick] = color;
       $username.html(info["display-name"] ? info["display-name"] : nick);
+      var $usernameCopy = null;
       // check the info for seventv paints and add them to the username
       if (Chat.info.seventvPaints[nick]) {
+        $usernameCopy = $username.clone();
+        $usernameCopy.css("position", "absolute");
         Chat.info.seventvPaints[nick].forEach((paint) => {
           if (paint.type === "gradient") {
             $username.css("background-image", paint.backgroundImage);
@@ -780,6 +783,7 @@ Chat = {
             $username.addClass("nopaint");
           }
         });
+        $userInfo.append($usernameCopy);
       }
       $userInfo.append($username);
 
@@ -932,6 +936,9 @@ Chat = {
               $mention.css("color", Chat.info.colors[username]);
             }
             if (Chat.info.seventvPaints[username]) {
+              $mentionCopy = $mention.clone();
+              $mentionCopy.css("position", "absolute");
+
               Chat.info.seventvPaints[username].forEach((paint) => {
                 if (paint.type === "gradient") {
                   $mention.css("background-image", paint.backgroundImage);
@@ -944,7 +951,8 @@ Chat = {
                 $mention.css("filter", paint.filter);
                 $mention.addClass("paint");
               });
-              return $mention[0].outerHTML;
+              var mentionHtml = $mentionCopy[0].outerHTML + $mention[0].outerHTML;
+              return mentionHtml;
             }
           }
           return word;

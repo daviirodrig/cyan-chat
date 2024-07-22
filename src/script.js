@@ -270,6 +270,7 @@ function resetForm(event) {
 function backToForm(event) {
   $result.addClass("hidden");
   $generator.removeClass("hidden");
+  $alert.css("visibility", "hidden");
 }
 
 const $generator = $("form[name='generator']");
