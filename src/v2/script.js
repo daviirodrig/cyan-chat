@@ -59,6 +59,10 @@ Chat = {
       "hide_paints" in $.QueryString
         ? $.QueryString.hide_paints.toLowerCase() === "true"
         : false,
+    hideColon:
+      "hide_colon" in $.QueryString
+        ? $.QueryString.hide_colon.toLowerCase() === "true"
+        : false,
     // fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
     fade: "fade" in $.QueryString ? parseInt($.QueryString.fade) : 360,
     size: "size" in $.QueryString ? parseInt($.QueryString.size) : 2,
@@ -787,6 +791,11 @@ Chat = {
         });
         $userInfo.append($usernameCopy);
       }
+
+      if (Chat.info.hideColon && !Chat.info.center) {
+        $username.addClass("colon")
+      }
+
       $userInfo.append($username);
 
       // Updating the 7tv checker
@@ -822,7 +831,9 @@ Chat = {
           .trim();
         $userInfo.append("<span>&nbsp;</span>");
       } else {
-        $userInfo.append('<span class="colon"> :</span>');
+        if (!Chat.info.hideColon || Chat.info.center) {
+          $userInfo.append('<span class="colon"> :</span>');
+        }
       }
       $chatLine.append($userInfo);
 

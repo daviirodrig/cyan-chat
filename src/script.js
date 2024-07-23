@@ -134,6 +134,24 @@ function paintsUpdate(event) {
   }
 }
 
+function colonUpdate(event) {
+  if ($center.is(":checked")) {
+    $('span[class="nick paint colon"]').removeClass("colon");
+    $('span[class="nick colon"]').removeClass("colon");
+    $('span[class="colon"]').css("display", "none");
+    return;
+  }
+  if ($colon.is(":checked")) {
+    $('span[class="colon"]').css("display", "none");
+    $('span[class="nick paint"]').addClass("colon");
+    $('span[class="nick"]').addClass("colon");
+  } else {
+    $('span[class="colon"]').css("display", "inline");
+    $('span[class="nick paint colon"]').removeClass("colon");
+    $('span[class="nick colon"]').removeClass("colon");
+  }
+}
+
 function capsUpdate(event) {
   if ($small_caps.is(":checked")) {
     appendCSS("variant", "SmallCaps");
@@ -144,9 +162,13 @@ function capsUpdate(event) {
 
 function centerUpdate(event) {
   if ($center.is(":checked")) {
+    colonUpdate();
+    $('span[class="colon"]').css("display", "none");
     appendCSS("variant", "center");
   } else {
     removeCSS("variant", "center");
+    $('span[class="colon"]').css("display", "inline");
+    colonUpdate();
   }
 }
 
@@ -187,13 +209,14 @@ function generateURL(event) {
     hide_commands: $commands.is(":checked"),
     hide_badges: $badges.is(":checked"),
     hide_paints: $paints.is(":checked"),
+    hide_colon: $colon.is(":checked"),
     animate: $animate.is(":checked"),
     fade: $fade_bool.is(":checked") ? $fade.val() : false,
     small_caps: $small_caps.is(":checked"),
     invert: $invert.is(":checked"),
     center: $center.is(":checked"),
     readable: $readable.is(":checked"),
-    block: $blockedUsers.val().replace(/\s+/g, ''),
+    block: $blockedUsers.val().replace(/\s+/g, ""),
   };
 
   const params = encodeQueryData(data);
@@ -241,7 +264,8 @@ function resetForm(event) {
   $commands.prop("checked", false);
   $badges.prop("checked", false);
   $paints.prop("checked", false);
-  $animate.prop("checked", false);
+  $colon.prop("checked", false);
+  $animate.prop("checked", true);
   $fade_bool.prop("checked", false);
   $fade.addClass("hidden");
   $fade_seconds.addClass("hidden");
@@ -258,6 +282,7 @@ function resetForm(event) {
   shadowUpdate();
   badgesUpdate();
   paintsUpdate();
+  colonUpdate();
   capsUpdate();
   centerUpdate();
   if ($example.hasClass("white")) changePreview();
@@ -287,6 +312,7 @@ const $center = $('input[name="center"]');
 const $readable = $('input[name="readable"]');
 const $badges = $("input[name='badges']");
 const $paints = $("input[name='paints']");
+const $colon = $("input[name='colon']");
 const $size = $("select[name='size']");
 const $emoteScale = $("select[name='emote_scale']");
 const $font = $("select[name='font']");
@@ -314,6 +340,7 @@ $small_caps.change(capsUpdate);
 $center.change(centerUpdate);
 $badges.change(badgesUpdate);
 $paints.change(paintsUpdate);
+$colon.change(colonUpdate);
 $generator.submit(generateURL);
 $brightness.click(changePreview);
 $url.click(copyUrl);
