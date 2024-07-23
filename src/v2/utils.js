@@ -223,6 +223,86 @@ function playTTSAudio(text, voice) {
     });
 }
 
+async function fixZeroWidthEmotes() {
+  // Retry up to 8 times with a 50ms delay between attempts
+  for (let attempt = 1; attempt <= 8; attempt++) {
+    // Select all image elements with the class names 'emote', 'zero-width', and 'staging'
+    const imgElements = Array.from(
+      document.querySelectorAll("img.emote.zero-width.staging")
+    );
+
+    if (imgElements.length > 0) {
+      const BATCH_SIZE = 50; // Process 50 elements at a time
+      for (let i = 0; i < imgElements.length; i += BATCH_SIZE) {
+        const batch = imgElements.slice(i, i + BATCH_SIZE);
+
+        batch.forEach((imgElement) => {
+          const stagingRect = imgElement.getBoundingClientRect();
+          let stagingWidth = stagingRect.width;
+
+          // Adjust width based on `Chat.info.size`
+          let sub;
+          switch (Chat.info.size) {
+            case 3:
+              sub = 10;
+              break;
+            case 2:
+              sub = 7;
+              break;
+            default:
+              sub = 4;
+          }
+
+          const parentElement = imgElement.parentElement;
+
+          if (parentElement) {
+            const siblingEmoteElement = parentElement.querySelector(
+              "img.emote:not(.zero-width)"
+            );
+
+            if (siblingEmoteElement) {
+              const siblingRect = siblingEmoteElement.getBoundingClientRect();
+              let finalWidth = Math.max(stagingWidth, siblingRect.width) - sub;
+
+              if (finalWidth > 0) {
+                parentElement.style.width = `${finalWidth}px`;
+              } else {
+                console.log(
+                  `Final width is zero or negative for one of the images.`
+                );
+              }
+            } else {
+              console.log(
+                `No sibling emote found, removing staging class without resizing.`
+              );
+            }
+
+            imgElement.classList.remove("staging");
+          } else {
+            console.log("Parent element not found for one of the images.");
+          }
+        });
+
+        // Allow the browser to render updates
+        await new Promise(requestAnimationFrame);
+      }
+
+      // Exit the retry loop after successful processing
+      break;
+    } else {
+      // Wait for 100ms before trying again
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    // Log failure message if no elements were found after all attempts
+    if (attempt === 8) {
+      console.log(
+        "Failed to find image elements with the specified class names after 8 attempts."
+      );
+    }
+  }
+}
+
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {

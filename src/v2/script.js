@@ -979,6 +979,7 @@ Chat = {
       $message.html(message);
 
       // Writing zero-width emotes
+      var hasZeroWidth = false;
       messageNodes = $message.children();
       messageNodes.each(function (i) {
         if (
@@ -988,9 +989,11 @@ Chat = {
             $(messageNodes[i - 1]).hasClass("emoji")) &&
           !$(messageNodes[i - 1]).data("zw")
         ) {
+          hasZeroWidth = true;
           var $container = $("<span></span>");
           $container.addClass("zero-width_container");
           $(this).addClass("zero-width");
+          $(this).addClass("staging")
           $(this).before($container);
           $container.append(messageNodes[i - 1], this);
         }
@@ -998,6 +1001,9 @@ Chat = {
       $message.html($message.html().trim());
       $chatLine.append($message);
       Chat.info.lines.push($chatLine.wrap("<div>").parent().html());
+      if (hasZeroWidth) {
+        fixZeroWidthEmotes();
+      }
     }
   },
 

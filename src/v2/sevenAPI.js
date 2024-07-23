@@ -59,7 +59,7 @@ async function isUserSubbed(twitchUserId) {
   const user = await getUserInfo(twitchUserId);
   var subbed = true;
   if (user.roles) {
-    if (!data.user.roles.includes("6076a86b09a4c63a38ebe801")) {
+    if (!user.roles.includes("6076a86b09a4c63a38ebe801")) {
       subbed = false;
       Chat.info.seventvNonSubs[twitchUserId] = true;
     }
