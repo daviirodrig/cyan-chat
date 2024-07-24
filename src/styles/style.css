@@ -1,3 +1,13 @@
+@font-face {
+  font-family: "Baloo Tammudu 2";
+  src: url("BalooTammudu2-Fixed.woff2") format("woff2"),
+    url("BalooTammudu2-Fixed.woff") format("woff"),
+    url("BalooTammudu2-Fixed.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   height: 100vh;
   margin: 0;
@@ -279,7 +289,7 @@ input:focus {
 }
 
 #example .chat_line {
-    line-height: 1.5em;
+  line-height: 1.5em;
 }
 
 input[type="submit"],

@@ -67,11 +67,10 @@ function heightUpdate(event) {
 
 function fontUpdate(event) {
   let font = fonts[Number($font.val())];
+  console.log("Font:", font);
   if (font !== "Custom") {
     $custom_font.prop("disabled", true);
-    $example.css("font-family", "");
-    removeCSS("font");
-    appendCSS("font", font);
+    $example.css("font-family", font);
   } else {
     $custom_font.prop("disabled", false);
     if ($custom_font.val() == "") {
@@ -79,7 +78,6 @@ function fontUpdate(event) {
       return;
     }
     console.log("Custom font is not empty");
-    removeCSS("font");
     WebFont.load({
       google: {
         families: [$custom_font.val()],
@@ -160,9 +158,9 @@ function colonUpdate(event) {
 
 function capsUpdate(event) {
   if ($small_caps.is(":checked")) {
-    appendCSS("variant", "SmallCaps");
+    $example.css("font-variant", "small-caps");
   } else {
-    removeCSS("variant", "SmallCaps");
+    $example.css("font-variant", "normal");
   }
 }
 

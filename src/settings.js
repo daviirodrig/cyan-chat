@@ -1,16 +1,16 @@
 const fonts = [
-    'BalooTammudu',
-    'SegoeUI',
-    'Roboto',
-    'Lato',
-    'NotoSans',
-    'SourceCodePro',
-    'Impact',
-    'Comfortaa',
-    'DancingScript',
-    'IndieFlower',
-    'PressStart2P',
-    'Wallpoet',
+    '"Baloo Tammudu 2", cursive',
+    '"Segoe UI", sans-serif',
+    'Roboto, sans-serif',
+    'Lato, sans-serif',
+    '"Noto Sans JP", sans-serif',
+    '"Source Code Pro", monospace',
+    'Impact, sans-serif',
+    'Comfortaa, cursive',
+    '"Dancing Script", cursive',
+    '"Indie Flower", cursive',
+    '"Press Start 2P", cursive',
+    'Wallpoet, cursive',
     'Custom'
 ];
 
