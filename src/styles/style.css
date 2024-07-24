@@ -278,6 +278,10 @@ input:focus {
   vertical-align: middle;
 }
 
+#example .chat_line {
+    line-height: 1.5em;
+}
+
 input[type="submit"],
 input[type="button"] {
   width: 150px;

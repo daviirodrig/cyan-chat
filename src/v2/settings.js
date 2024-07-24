@@ -31,3 +31,12 @@ const shadows = [
     'medium',
     'large'
 ];
+
+const heights = [
+    'smallest',
+    'smaller',
+    'small',
+    'medium',
+    'large',
+    'largest'
+]

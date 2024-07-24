@@ -15,20 +15,41 @@ const fonts = [
 ];
 
 const sizes = [
-    'small',
-    'medium',
-    'large'
-];
+    size_small,
+    size_medium,
+    size_large
+]
+
+const sizes_ES2 = [
+    size_small+ES_small_2,
+    size_medium+ES_medium_2,
+    size_large+ES_large_2
+]
+
+const sizes_ES3 = [
+    size_small+ES_small_3,
+    size_medium+ES_medium_3,
+    size_large+ES_large_3
+]
 
 const strokes = [
-    'thin',
-    'medium',
-    'thick',
-    'thicker'
+    stroke_thin,
+    stroke_medium,
+    stroke_thick,
+    stroke_thicker
 ];
 
 const shadows = [
-    'small',
-    'medium',
-    'large'
+    'drop-shadow(2px 2px 2px black)',
+    'drop-shadow(2px 2px 4px black)',
+    'drop-shadow(2px 2px 6px black)'
 ];
+
+const heights = [
+    'unset',
+    '1.3em',
+    '1.4em',
+    '1.5em',
+    '1.6em',
+    '1.7em'
+]

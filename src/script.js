@@ -32,6 +32,8 @@
 //     }
 //   })(jQuery);
 
+applyStyles("size", sizes[2]);
+
 function fadeOption(event) {
   if ($fade_bool.is(":checked")) {
     $fade.removeClass("hidden");
@@ -43,19 +45,24 @@ function fadeOption(event) {
 }
 
 function sizeUpdate(event) {
-  let size = sizes[Number($size.val()) - 1];
   let scale = $emoteScale.val();
-  removeCSS("size");
-  removeCSS("emoteScale");
-  appendCSS("size", size);
-  appendCSS("emoteScale", size + "_" + scale);
+  let size
+  if (scale === '1') {
+    size = sizes[Number($size.val()) - 1];
+  } else if (scale === '2') {
+    size = sizes_ES2[Number($size.val()) - 1];
+  } else if (scale === '3') {
+    size = sizes_ES3[Number($size.val()) - 1];
+  } else {
+    console.log("Invalid scale value:",scale);
+  }
+  applyStyles("size", size);
 }
 
-function emoteScaleUpdate(event) {
-  let size = sizes[Number($size.val()) - 1];
-  let scale = $emoteScale.val();
-  removeCSS("emoteScale");
-  appendCSS("emoteScale", size + "_" + scale);
+function heightUpdate(event) {
+  let height = heights[Number($height.val())];
+  let $chatline = $("#example .chat_line");
+  $chatline.css("line-height", height);
 }
 
 function fontUpdate(event) {
@@ -99,20 +106,19 @@ function customFontUpdate(event) {
 }
 
 function strokeUpdate(event) {
-  removeCSS("stroke");
-  if ($stroke.val() == "0") return;
+  if ($stroke.val() == "0") removeStyles("stroke");
   else {
     let stroke = strokes[Number($stroke.val()) - 1];
-    appendCSS("stroke", stroke);
+    applyStyles("stroke", stroke);
   }
 }
 
 function shadowUpdate(event) {
-  removeCSS("shadow");
-  if ($shadow.val() == "0") return;
-  else {
+  if ($shadow.val() == "0") {
+    $example.css("filter", "unset");
+  } else {
     let shadow = shadows[Number($shadow.val()) - 1];
-    appendCSS("shadow", shadow);
+    $example.css("filter", shadow);
   }
 }
 
@@ -203,6 +209,7 @@ function generateURL(event) {
     size: $size.val(),
     emoteScale: $emoteScale.val(),
     font: selectedFont,
+    height: $height.val(),
     stroke: $stroke.val() != "0" ? $stroke.val() : false,
     shadow: $shadow.val() != "0" ? $shadow.val() : false,
     bots: $bots.is(":checked"),
@@ -258,6 +265,7 @@ function resetForm(event) {
   $size.val("3");
   $emoteScale.val("1");
   $font.val("0");
+  $height.val("4");
   $stroke.val("0");
   $shadow.val("0");
   $bots.prop("checked", false);
@@ -278,6 +286,7 @@ function resetForm(event) {
 
   sizeUpdate();
   fontUpdate();
+  heightUpdate();
   strokeUpdate();
   shadowUpdate();
   badgesUpdate();
@@ -316,6 +325,7 @@ const $colon = $("input[name='colon']");
 const $size = $("select[name='size']");
 const $emoteScale = $("select[name='emote_scale']");
 const $font = $("select[name='font']");
+const $height = $("select[name='height']");
 const $custom_font = $("input[name='custom_font']");
 const $stroke = $("select[name='stroke']");
 const $shadow = $("select[name='shadow']");
@@ -331,8 +341,9 @@ const $blockedUsers = $('input[name="blocked_users"]');
 
 $fade_bool.change(fadeOption);
 $size.change(sizeUpdate);
-$emoteScale.change(emoteScaleUpdate);
+$emoteScale.change(sizeUpdate);
 $font.change(fontUpdate);
+$height.change(heightUpdate);
 $custom_font.change(customFontUpdate);
 $stroke.change(strokeUpdate);
 $shadow.change(shadowUpdate);

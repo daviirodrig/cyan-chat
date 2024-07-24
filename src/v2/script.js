@@ -66,6 +66,7 @@ Chat = {
     // fade: ('fade' in $.QueryString ? parseInt($.QueryString.fade) : false),
     fade: "fade" in $.QueryString ? parseInt($.QueryString.fade) : 360,
     size: "size" in $.QueryString ? parseInt($.QueryString.size) : 2,
+    height: "height" in $.QueryString ? parseInt($.QueryString.height) : 3,
     font:
       "font" in $.QueryString && !isNaN($.QueryString.font)
         ? parseInt($.QueryString.font)
@@ -258,6 +259,7 @@ Chat = {
 
       // Load CSS
       let size = sizes[Chat.info.size - 1];
+      let height = heights[Chat.info.height]
       var font;
       if (typeof Chat.info.font === "number") {
         font = fonts[Chat.info.font];
@@ -281,6 +283,7 @@ Chat = {
       }
 
       appendCSS("size", size);
+      appendCSS("height", height)
       if (emoteScale > 1) {
         appendCSS("emoteScale_" + size, emoteScale);
       }

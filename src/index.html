@@ -24,7 +24,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles/style.css?v=1" />
-    <link rel="stylesheet" class="preview_size" href="styles/size_large.css" />
     <link
       rel="stylesheet"
       class="preview_font"
@@ -34,6 +33,7 @@
     <script src="settings.js" defer></script>
     <script src="utils.js" defer></script>
     <script src="syncEmotes.js"></script>
+    <script src="styles.js"></script>
     <script src="script.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js"></script>
   </head>
@@ -151,6 +151,17 @@
               </select>
               <label for="font">Font</label>
             </div>
+            <div class="form_row left">
+                <select name="height">
+                  <option value="0">Smallest</option>
+                  <option value="1">Smaller</option>
+                  <option value="2">Small</option>
+                  <option value="3" selected>Medium</option>
+                  <option value="4">Large</option>
+                  <option value="5">Largest</option>
+                </select>
+                <label for="height">Line Height</label>
+              </div>
             <br />
             <div class="form_row left">
               <input type="checkbox" name="bots" />
@@ -202,6 +213,15 @@
                 disabled
               />
             </div>
+            <div class="form_row right" style="opacity: 0;">
+                <label for="placeholder">Placeholder</label>
+                <select name="placeholder">
+                  <option value="0" selected>placeholder</option>
+                  <option value="1">placeholder</option>
+                  <option value="2">placeholder</option>
+                  <option value="3">placeholder</option>
+                </select>
+              </div>
             <br />
             <div class="form_row right">
               <label for="animate">Animate</label>
@@ -232,7 +252,7 @@
             <div class="form_row right">
                 <label for="colon">Hide Colon</label>
                 <input type="checkbox" name="colon" />
-              </div>
+            </div>
           </div>
         </div>
         <div class="form_group center" style="width: 100%; margin-bottom: 10px">

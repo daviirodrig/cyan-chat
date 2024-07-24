@@ -25,6 +25,26 @@ function removeCSS(type, name) {
   }
 }
 
+function applyStyles(styleId, cssContent) {
+  // Construct the element ID based on the style category
+  const elementId = `dynamic-styles-${styleId}`;
+  let styleElement = $(`#${elementId}`);
+
+  // Check if the style element already exists
+  if (styleElement.length === 0) {
+    // If not, create a new one with the specific ID
+    styleElement = $(`<style id="${elementId}" type="text/css"></style>`);
+    $("head").append(styleElement);
+  }
+
+  // Set the CSS rules as the content of the style element
+  styleElement.html(cssContent);
+}
+
+function removeStyles(styleId) {
+  $(`#dynamic-styles-${styleId}`).remove();
+}
+
 function addRandomQueryString(url) {
   return url + (url.indexOf("?") >= 0 ? "&" : "?") + "v=" + Date.now();
 }
