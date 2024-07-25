@@ -112,6 +112,10 @@ Chat = {
       "readable" in $.QueryString
         ? $.QueryString.readable.toLowerCase() === "true"
         : false,
+    disableSync:
+      "disable_sync" in $.QueryString
+        ? $.QueryString.disable_sync.toLowerCase() === "true"
+        : false,
   },
 
   loadEmotes: function (channelID) {
@@ -330,7 +334,7 @@ Chat = {
 
             $.getJSON(
               "https://api.frankerfacez.com/v1/_room/id/" +
-                encodeURIComponent(Chat.info.channelID)
+              encodeURIComponent(Chat.info.channelID)
             ).done(function (res) {
               if (res.room.moderator_badge) {
                 fetch(badgeUrl)
