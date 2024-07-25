@@ -18,7 +18,15 @@ function setupAnimation(img) {
     img.addEventListener("load", onLoad);
 }
 
+let lastCall = 0;
+const limit = 500; // ms
+
 function synchronizeAnimations() {
+    const now = Date.now();
+    if (now - lastCall < limit) {
+        return;
+    }
+    lastCall = now;
     animations.forEach((img) => {
         const src = img.src;
         img.src = ""; // Force reload

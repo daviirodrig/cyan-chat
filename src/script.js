@@ -375,4 +375,4 @@ $url.click(copyUrl);
 $alert.click(showUrl);
 $reset.click(resetForm);
 $goBack.click(backToForm);
-$sync.change(syncUpdate);
+// $sync.change(syncUpdate);
