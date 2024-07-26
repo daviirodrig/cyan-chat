@@ -4,7 +4,7 @@ function delay(ms) {
 }
 
 // Generic retry function
-async function retry(fn, retries = 2, delayMs = 5000) {
+async function retry(fn, retries = 3, delayMs = 5000) {
   let attempt = 0;
   while (attempt < retries) {
     try {
@@ -207,22 +207,17 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
     try {
       const sevenTvUserInfo = await getUserCosmeticData(twitchUserId);
       if (sevenTvUserInfo === null) {
-        return {
-          badge: null,
-          paint: null,
-        };
+        await delay(1000);
+        tries--;
+        continue;
       }
       const sevenTvUserRoles = sevenTvUserInfo.roles;
       // check if the only role is 62b48deb791a15a25c2a0354
-      if (
-        sevenTvUserRoles.length === 1 &&
-        sevenTvUserRoles[0] === "62b48deb791a15a25c2a0354"
-      ) {
+      if (!sevenTvUserRoles.includes("6076a86b09a4c63a38ebe801")) {
         // console.log(twitchUserId,"is not subscribed to 7tv.")
-        return {
-          badge: null,
-          paint: null,
-        };
+        await delay(1000);
+        tries--;
+        continue;
       }
 
       const selectedCosmetics = sevenTvUserInfo.style;
