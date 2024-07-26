@@ -27,6 +27,7 @@ async function getUserInfo(twitchUserId) {
     const data = await response.json();
     const userID = data.user?.id || null;
     const roles = data.user?.roles || [];
+    const emoteSetID = data.emote_set?.id || null;
     if (data.user) {
       if (data.user.id !== null) {
         // check if the only role is 62b48deb791a15a25c2a0354
@@ -45,6 +46,7 @@ async function getUserInfo(twitchUserId) {
       return {
         id: userID,
         roles: roles,
+        emoteSetID: emoteSetID,
       };
     } else {
       return {

@@ -121,13 +121,20 @@ function GetTwitchUserID(username) {
   });
 }
 
+let timeoutID;
+
 function SendInfoText(text) {
   var $infoText = $("#info_text");
   $infoText.css("opacity", "1");
   $infoText.html(text);
-  setTimeout(function () {
+
+  if (timeoutID) {
+    clearTimeout(timeoutID);
+  }
+
+  timeoutID = setTimeout(function () {
     $infoText.css("opacity", "0");
-  }, 3000);
+  }, 5000);
 }
 
 function doesStringMatchPattern(stringToTest, info) {
