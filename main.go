@@ -181,6 +181,41 @@ func TwitchRedirectHandler(w http.ResponseWriter, r *http.Request) {
 	saveTokens(accessToken, refreshToken)
 }
 
+func handleChatterinoBadges(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers to allow requests from any origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+
+	// Make a request to the Chatterino API
+	resp, err := http.Get("https://api.chatterino.com/badges")
+	if err != nil {
+		http.Error(w, "Failed to fetch Chatterino badges", http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "Failed to read response body", http.StatusInternalServerError)
+		return
+	}
+
+	// Parse the JSON response
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		http.Error(w, "Failed to parse JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the content type to JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// Send the parsed JSON back to the client
+	json.NewEncoder(w).Encode(result)
+}
+
 func saveTokens(accessToken string, refreshToken string) {
 	file, err := os.Create("tokens.json")
 	if err != nil {
@@ -373,6 +408,7 @@ func main() {
 	http.HandleFunc("/twitch/api", TwitchAPIHandler)
 	http.HandleFunc("/auth/callback", TwitchRedirectHandler)
 	http.HandleFunc("/twitch/get_id", TwitchGetUserIDforUsernameHandler)
+	http.HandleFunc("/api/chatterino-badges", handleChatterinoBadges)
 	// serve the current directory as a static web server
 	staticFilesV2 := http.FileServer(http.Dir("./dist"))
 	http.Handle("/", staticFilesV2)

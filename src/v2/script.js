@@ -387,13 +387,14 @@ Chat = {
                     });
                 */
 
-        $.getJSON("https://api.chatterino.com/badges")
+        $.getJSON("/api/chatterino-badges")
           .done(function (res) {
             Chat.info.chatterinoBadges = res.badges;
           })
           .fail(function () {
             Chat.info.chatterinoBadges = [];
           });
+
       }
 
       // Load cheers images
@@ -492,7 +493,9 @@ Chat = {
 
   loadUserBadges: function (nick, userId) {
     Chat.info.userBadges[nick] = [];
-    Chat.info.seventvPaints[nick] = [];
+    if (!Chat.info.seventvPaints[nick]) {
+      Chat.info.seventvPaints[nick] = [];
+    }
     // if (nick === 'johnnycyan') {
     //     var userBadge = {
     //         description: 'Cyan Chat Dev',
@@ -578,6 +581,7 @@ Chat = {
                 filter: dropShadows,
               };
               if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+                Chat.info.seventvPaints[nick] = [];
                 Chat.info.seventvPaints[nick].push(userPaint);
               }
             } else {
@@ -589,11 +593,13 @@ Chat = {
                 filter: dropShadows,
               };
               if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+                Chat.info.seventvPaints[nick] = [];
                 Chat.info.seventvPaints[nick].push(userPaint);
               }
             }
           } else {
-            // console.log("No 7tv paint info found for", userId);
+            console.log("No 7tv paint info found for", userId);
+            Chat.info.seventvPaints[nick] = [];
           }
         } catch (error) {
           // console.error("Error fetching badge info:", error);
