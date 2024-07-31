@@ -1113,6 +1113,47 @@ Chat = {
 
               // RELOAD CHAT
               if (
+                (message.params[1].toLowerCase() === "!chat reload" ||
+                  message.params[1].toLowerCase() === "!chatis reload" ||
+                  message.params[1].toLowerCase() === "!reloadchat") &&
+                typeof message.tags.badges === "string"
+              ) {
+                var flag = false;
+                message.tags.badges.split(",").forEach((badge) => {
+                  badge = badge.split("/");
+                  if (badge[0] === "moderator" || badge[0] === "broadcaster") {
+                    flag = true;
+                    return;
+                  }
+                });
+                if (flag) {
+                  location.reload();
+                }
+              }
+
+              // RICKROLL
+              if (
+                (message.params[1].toLowerCase() === "!chat rickroll" ||
+                  message.params[1].toLowerCase() === "!chatis rickroll") &&
+                typeof message.tags.badges === "string"
+              ) {
+                var flag = false;
+                message.tags.badges.split(",").forEach((badge) => {
+                  badge = badge.split("/");
+                  if (badge[0] === "moderator" || badge[0] === "broadcaster") {
+                    flag = true;
+                    return;
+                  }
+                });
+                if (flag) {
+                  console.log("Cyan Chat: Rickrolling...");
+                  appendMedia("video", "../media/rickroll.webm")
+                  return;
+                }
+              }
+
+              // TTS
+              if (
                 message.params[1].toLowerCase().startsWith("!chat tts") &&
                 typeof message.tags.badges === "string"
               ) {
