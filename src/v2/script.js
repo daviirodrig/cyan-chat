@@ -1086,9 +1086,9 @@ Chat = {
                 return;
               var nick = message.prefix.split("@")[0].split("!")[0];
 
-              // DEFINE COMMANDS
+              // #region COMMANDS
 
-              // REFRESH EMOTES
+              // #region REFRESH EMOTES
               if (
                 (message.params[1].toLowerCase() === "!chat refresh" ||
                   message.params[1].toLowerCase() === "!chatis refresh" ||
@@ -1110,8 +1110,9 @@ Chat = {
                   return;
                 }
               }
+              // #endregion REFRESH EMOTES
 
-              // RELOAD CHAT
+              // #region RELOAD CHAT
               if (
                 (message.params[1].toLowerCase() === "!chat reload" ||
                   message.params[1].toLowerCase() === "!chatis reload" ||
@@ -1130,8 +1131,9 @@ Chat = {
                   location.reload();
                 }
               }
+              // #endregion RELOAD CHAT
 
-              // RICKROLL
+              // #region RICKROLL
               if (
                 (message.params[1].toLowerCase() === "!chat rickroll" ||
                   message.params[1].toLowerCase() === "!chatis rickroll") &&
@@ -1151,8 +1153,9 @@ Chat = {
                   return;
                 }
               }
+              // #endregion RICKROLL
 
-              // TTS
+              // #region TTS
               if (
                 message.params[1].toLowerCase().startsWith("!chat tts") &&
                 typeof message.tags.badges === "string"
@@ -1200,8 +1203,9 @@ Chat = {
                   return;
                 }
               }
+              // #endregion TTS
 
-              // END COMMANDS
+              // #endregion COMMANDS
 
               if (Chat.info.hideCommands) {
                 if (/^!.+/.test(message.params[1])) return;
