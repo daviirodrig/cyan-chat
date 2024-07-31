@@ -1,3 +1,37 @@
+function parseFlags(input, schema) {
+  const parts = input.split(/\s+/);
+  const flags = {};
+  const rest = [];
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (part.startsWith('-')) {
+      const flagName = part.replace(/^-+/, '');
+      if (schema.hasOwnProperty(flagName)) {
+        const flagType = schema[flagName];
+        if (flagType === Boolean) {
+          flags[flagName] = true;
+        } else if (i + 1 < parts.length && !parts[i + 1].startsWith('-')) {
+          flags[flagName] = convertType(parts[i + 1], flagType);
+          i++; // Skip the next part as it's the value
+        }
+      }
+    } else {
+      rest.push(part);
+    }
+  }
+
+  return { flags, rest: rest.join(' ') };
+}
+
+function convertType(value, type) {
+  if (type === String) return value;
+  if (type === Number) return Number(value);
+  if (type === Boolean) return value.toLowerCase() === 'true';
+  if (Array.isArray(type)) return [value]; // For simplicity, just wrap in array
+  return value; // Default to string if type is not recognized
+}
+
 function appendCSS(type, name) {
   $("<link/>", {
     rel: "stylesheet",

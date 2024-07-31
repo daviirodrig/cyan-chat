@@ -1126,77 +1126,36 @@ Chat = {
                 });
 
                 if (flag) {
-                  var fullCommand = message.params[1]
-                    .slice("!chat tts".length)
-                    .trim();
-                  var voiceFlagPrefix = null;
+                  var fullCommand = message.params[1].slice("!chat tts".length).trim();
 
-                  const flagOptions = ["-v", "-voice", "-s"];
+                  const schema = {
+                    v: String,
+                    voice: String,
+                    s: String
+                  };
 
-                  // Find the voice flag if any
-                  for (let option of flagOptions) {
-                    const index = fullCommand.toLowerCase().indexOf(option);
-                    if (index !== -1) {
-                      voiceFlagPrefix = option;
-                      break;
-                    }
-                  }
+                  const { flags, rest } = parseFlags(fullCommand, schema);
 
-                  var text = fullCommand;
+                  var text = rest;
                   var voice = "Brian"; // Default voice
 
-                  // If a voice flag is found, extract the voice and text
-                  if (voiceFlagPrefix) {
-                    var lowerCommand = fullCommand.toLowerCase();
-                    var splitPoint = lowerCommand.indexOf(voiceFlagPrefix);
-                    var beforeFlag = fullCommand.slice(0, splitPoint).trim();
-                    var afterFlag = fullCommand
-                      .slice(splitPoint + voiceFlagPrefix.length)
-                      .trim();
+                  const allowedVoices = [
+                    "Brian", "Ivy", "Justin", "Russell", "Nicole", "Emma", "Amy", "Joanna",
+                    "Salli", "Kimberly", "Kendra", "Joey", "Mizuki", "Chantal", "Mathieu",
+                    "Maxim", "Hans", "Raveena"
+                  ];
 
-                    const afterFlagParts = afterFlag.split(" ");
-                    var potentialVoice = afterFlagParts[0].trim();
-
-                    // Normalize the voice to match the allowed format
-                    potentialVoice =
-                      potentialVoice.charAt(0).toUpperCase() +
-                      potentialVoice.slice(1).toLowerCase();
-
-                    var allowedVoices = [
-                      "Brian",
-                      "Ivy",
-                      "Justin",
-                      "Russell",
-                      "Nicole",
-                      "Emma",
-                      "Amy",
-                      "Joanna",
-                      "Salli",
-                      "Kimberly",
-                      "Kendra",
-                      "Joey",
-                      "Mizuki",
-                      "Chantal",
-                      "Mathieu",
-                      "Maxim",
-                      "Hans",
-                      "Raveena",
-                    ];
-
-                    if (allowedVoices.includes(potentialVoice)) {
-                      voice = potentialVoice;
-                      text = (
-                        beforeFlag +
-                        " " +
-                        afterFlagParts.slice(1).join(" ")
-                      ).trim();
+                  // Check for voice in flags
+                  const potentialVoice = flags.v || flags.voice || flags.s;
+                  if (potentialVoice) {
+                    const normalizedVoice = potentialVoice.charAt(0).toUpperCase() + potentialVoice.slice(1).toLowerCase();
+                    if (allowedVoices.includes(normalizedVoice)) {
+                      voice = normalizedVoice;
                     }
                   }
 
                   playTTSAudio(text, voice);
-                  console.log(
-                    `Cyan Chat: Playing TTS Audio ... [Voice: ${voice}]`
-                  );
+                  console.log(`Cyan Chat: Playing TTS Audio ... [Voice: ${voice}]`);
                   return;
                 }
               }
