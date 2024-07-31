@@ -435,6 +435,8 @@ footer a {
     -webkit-text-fill-color: unset !important;
     text-shadow: unset !important;
     background-image: none !important;
+    z-index: 2;
+    position: relative;
 }
 
 #emotePopup {

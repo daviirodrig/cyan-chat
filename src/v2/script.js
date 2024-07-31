@@ -72,7 +72,7 @@ Chat = {
         ? parseInt($.QueryString.font)
         : $.QueryString.font || 0,
     stroke: "stroke" in $.QueryString ? parseInt($.QueryString.stroke) : false,
-    shadow: "shadow" in $.QueryString ? parseInt($.QueryString.shadow) : 3,
+    shadow: "shadow" in $.QueryString ? parseInt($.QueryString.shadow) : 0,
     smallCaps:
       "small_caps" in $.QueryString
         ? $.QueryString.small_caps.toLowerCase() === "true"
