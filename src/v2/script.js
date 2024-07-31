@@ -116,6 +116,10 @@ Chat = {
       "disable_sync" in $.QueryString
         ? $.QueryString.disable_sync.toLowerCase() === "true"
         : false,
+    disablePruning:
+      "disable_pruning" in $.QueryString
+        ? $.QueryString.disable_pruning.toLowerCase() === "true"
+        : false,
   },
 
   loadEmotes: function (channelID) {

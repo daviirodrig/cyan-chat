@@ -344,18 +344,91 @@ async function fixZeroWidthEmotes() {
   }
 }
 
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) {
-        // The element is off screen
-        entry.target.style.display = "none";
+// #region Message Pruning
+
+const intersectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    const elementRect = entry.target.getBoundingClientRect();
+
+    if (elementRect.top < 0 || elementRect.top >= window.innerHeight - elementRect.height) {
+      console.log("Element left screen")
+      handleChatLineRemoval(entry.target);
+    }
+  });
+}, {
+  root: null,
+  rootMargin: '0px',
+  threshold: [0, 1]
+});
+
+function startObservingChatContainerForLines() {
+  const chatContainer = document.getElementById("chat_container");
+  if (chatContainer) {
+    const chatObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === 1 && node.classList.contains("chat_line")) {
+              // Wait a bit to ensure the element is fully rendered
+              setTimeout(() => {
+                intersectionObserver.observe(node);
+              }, 100);
+            }
+          }
+        }
       }
     });
-  },
-  {
-    root: null, // Use the viewport as the root
-    rootMargin: "0px",
-    threshold: 0, // Trigger as soon as any part of the element is out of view
+
+    chatObserver.observe(chatContainer, {
+      childList: true,
+      subtree: true,
+    });
+  } else {
+    console.error('Element with id "chat_container" not found.');
   }
-);
+}
+
+function handleChatLineRemoval(chatLine) {
+  intersectionObserver.unobserve(chatLine);
+  chatLine.remove();
+
+  // Fading looked bad but may reimplement later
+  // if (Chat.info.fade) {
+  //   $(chatLine).fadeOut(() => {
+  //     chatLine.remove();
+  //   });
+  // } else {
+  //   // If fade is not enabled, remove immediately
+  //   chatLine.remove();
+  // }
+}
+
+function waitForChatContainerForLines(
+  timeout = TIMEOUT_LIMIT,
+  interval = POLL_INTERVAL
+) {
+  const start = Date.now();
+
+  const poll = () => {
+    const chatContainer = document.getElementById("chat_container");
+    if (chatContainer) {
+      startObservingChatContainerForLines();
+    } else if (Date.now() - start < timeout) {
+      setTimeout(poll, interval);
+    } else {
+      console.error(
+        'Element with id "chat_container" not found within the timeout period.'
+      );
+    }
+  };
+
+  poll();
+}
+
+window.addEventListener("load", () => {
+  if (!Chat.info.disablePruning) {
+    waitForChatContainerForLines();
+  }
+});
+
+// #endregion Message Pruning

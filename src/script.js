@@ -238,6 +238,7 @@ function generateURL(event) {
         center: $center.is(":checked"),
         readable: $readable.is(":checked"),
         disable_sync: $sync.is(":checked"),
+        disable_pruning: $pruning.is(":checked"),
         block: $blockedUsers.val().replace(/\s+/g, ""),
     };
 
@@ -298,6 +299,7 @@ function resetForm(event) {
     $center.prop("checked", false);
     $readable.prop("checked", true);
     $sync.prop("checked", false);
+    $pruning.prop("checked", false);
     $custom_font.prop("disabled", true);
 
     sizeUpdate();
@@ -336,6 +338,7 @@ const $invert = $('input[name="invert"]');
 const $center = $('input[name="center"]');
 const $readable = $('input[name="readable"]');
 const $sync = $('input[name="sync"]');
+const $pruning = $('input[name="pruning"]');
 const $badges = $("input[name='badges']");
 const $paints = $("input[name='paints']");
 const $colon = $("input[name='colon']");
