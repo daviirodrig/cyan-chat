@@ -229,24 +229,25 @@ function appendMedia(mediaType, source) {
 }
 
 let cooldown = 0;
-const COOLDOWN = 5;
-const API = "https://api.streamelements.com/kappa/v2/speech";
+const COOLDOWN = 0;
+// const API = "https://api.streamelements.com/kappa/v2/speech";
+const API = "/api/tts";
 
 function playTTSAudio(text, voice) {
-  if (cooldown > 0) {
-    console.log(
-      `Please wait ${cooldown} seconds before making another request.`
-    );
-    return;
-  }
+  // if (cooldown > 0) {
+  //   console.log(
+  //     `Please wait ${cooldown} seconds before making another request.`
+  //   );
+  //   return;
+  // }
 
-  cooldown = COOLDOWN;
-  const interval = setInterval(() => {
-    cooldown -= 1;
-    if (cooldown <= 0) {
-      clearInterval(interval);
-    }
-  }, 1000);
+  // cooldown = COOLDOWN;
+  // const interval = setInterval(() => {
+  //   cooldown -= 1;
+  //   if (cooldown <= 0) {
+  //     clearInterval(interval);
+  //   }
+  // }, 1000);
 
   fetch(`${API}?voice=${voice}&text=${encodeURIComponent(text)}`)
     .then((response) => response.blob())

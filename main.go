@@ -6,13 +6,135 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/polly"
 	"github.com/nicklaw5/helix/v2"
 )
+
+var (
+	pollySvc *polly.Polly
+	voiceMap map[string]string
+	mu       sync.Mutex
+)
+
+func init() {
+	// Create an AWS session
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("eu-north-1"), // Change this to your preferred region
+	})
+	if err != nil {
+		panic(fmt.Sprintf("Failed to create AWS session: %v", err))
+	}
+
+	// Create Polly client
+	pollySvc = polly.New(sess)
+
+	// Initialize voice map
+	voiceMap = map[string]string{
+		"Brian":    "Brian",
+		"Ivy":      "Ivy",
+		"Justin":   "Justin",
+		"Russell":  "Russell",
+		"Nicole":   "Nicole",
+		"Emma":     "Emma",
+		"Amy":      "Amy",
+		"Joanna":   "Joanna",
+		"Salli":    "Salli",
+		"Kimberly": "Kimberly",
+		"Kendra":   "Kendra",
+		"Joey":     "Joey",
+		"Mizuki":   "Mizuki",
+		"Chantal":  "Chantal",
+		"Mathieu":  "Mathieu",
+		"Maxim":    "Maxim",
+		"Hans":     "Hans",
+		"Raveena":  "Raveena",
+	}
+}
+
+func synthesizeSpeechHandler(w http.ResponseWriter, r *http.Request) {
+	// Check if the request is coming from your website
+	if !isRequestFromYourWebsite(r) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get parameters from the request
+	voiceName := r.URL.Query().Get("voice")
+	text := r.URL.Query().Get("text")
+
+	// Convert voice name to Polly voice ID
+	voiceID, ok := voiceMap[voiceName]
+	if !ok {
+		http.Error(w, "Invalid voice name", http.StatusBadRequest)
+		return
+	}
+
+	// Set up the input parameters
+	input := &polly.SynthesizeSpeechInput{
+		OutputFormat: aws.String("mp3"),
+		Text:         aws.String(text),
+		VoiceId:      aws.String(voiceID),
+	}
+
+	// Use a mutex to ensure thread-safe access to the Polly client
+	mu.Lock()
+	output, err := pollySvc.SynthesizeSpeech(input)
+	mu.Unlock()
+
+	if err != nil {
+		http.Error(w, "Failed to synthesize speech", http.StatusInternalServerError)
+		return
+	}
+
+	// Read the audio stream
+	audioBytes, err := io.ReadAll(output.AudioStream)
+	if err != nil {
+		http.Error(w, "Failed to read audio stream", http.StatusInternalServerError)
+		return
+	}
+
+	// Set response headers
+	w.Header().Set("Content-Type", "audio/mpeg")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(audioBytes)))
+
+	// Write the audio data directly to the response
+	_, err = w.Write(audioBytes)
+	if err != nil {
+		http.Error(w, "Failed to write audio data", http.StatusInternalServerError)
+		return
+	}
+}
+
+func isRequestFromYourWebsite(r *http.Request) bool {
+	// Check if it's a same-origin request
+	origin := r.Header.Get("Origin")
+	host := r.Host
+
+	// If Origin is empty, it's likely a same-origin request
+	if origin == "" {
+		return true
+	}
+
+	// If Origin is set, compare it with the Host
+	if origin != "" {
+		originURL, err := url.Parse(origin)
+		if err != nil {
+			return false
+		}
+		return originURL.Host == host
+	}
+
+	return false
+}
 
 type OAuthResponse struct {
 	UserID   string `json:"user_id"`
@@ -409,6 +531,7 @@ func main() {
 	http.HandleFunc("/auth/callback", TwitchRedirectHandler)
 	http.HandleFunc("/twitch/get_id", TwitchGetUserIDforUsernameHandler)
 	http.HandleFunc("/api/chatterino-badges", handleChatterinoBadges)
+	http.HandleFunc("/api/tts", synthesizeSpeechHandler)
 	// serve the current directory as a static web server
 	staticFilesV2 := http.FileServer(http.Dir("./dist"))
 	http.Handle("/", staticFilesV2)

@@ -84,6 +84,7 @@ Chat = {
     emotes: {},
     badges: {},
     userBadges: {},
+    specialBadges: {},
     ffzapBadges: null,
     bttvBadges: null,
     seventvBadges: [],
@@ -497,16 +498,17 @@ Chat = {
 
   loadUserBadges: function (nick, userId) {
     Chat.info.userBadges[nick] = [];
+    Chat.info.specialBadges[nick] = [];
     if (!Chat.info.seventvPaints[nick]) {
       Chat.info.seventvPaints[nick] = [];
     }
-    // if (nick === 'johnnycyan') {
-    //     var userBadge = {
-    //         description: 'Cyan Chat Dev',
-    //         url: 'https://cdn.jsdelivr.net/gh/Johnnycyan/tm-cdn@main/Johnnycyan%2FOneMoreDayVector.svg'
-    //     };
-    //     if (!Chat.info.userBadges[nick].includes(userBadge)) Chat.info.userBadges[nick].push(userBadge);
-    // }
+    if (nick === 'johnnycyan') {
+      var specialBadge = {
+        description: 'Cyan Chat Dev',
+        url: 'https://cdn.jsdelivr.net/gh/Johnnycyan/cyan-chat@main/src/img/CyanChat128.webp'
+      };
+      if (!Chat.info.specialBadges[nick].includes(specialBadge)) Chat.info.specialBadges[nick].push(specialBadge);
+    }
     $.getJSON("https://api.frankerfacez.com/v1/user/" + nick).always(function (
       res
     ) {
@@ -663,6 +665,18 @@ Chat = {
       // Writing badges
       if (!Chat.info.hideBadges) {
         var badges = [];
+
+        // Special Badges
+        if (Chat.info.specialBadges[nick]) {
+          Chat.info.specialBadges[nick].forEach((badge) => {
+            var $badge = $("<img/>");
+            $badge.addClass("badge");
+            $badge.attr("src", badge.url);
+            $userInfo.append($badge);
+          });
+        }
+        // End Special Badges
+
         const priorityBadges = [
           "predictions",
           "admin",
