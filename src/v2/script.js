@@ -774,18 +774,19 @@ Chat = {
         }
       } else {
         var color = twitchColors[nick.charCodeAt(0) % 15];
+        console.log("generated random color for", nick, color)
         if (Chat.info.readable) {
           if (color === "#8A2BE2") {
             color = "#C797F4";
           }
-          if (info.color === "#008000") {
-            info.color = "#00FF00";
+          if (color === "#008000") {
+            color = "#00FF00";
           }
-          if (info.color === "#2420d9") {
-            info.color = "#BCBBFC";
+          if (color === "#2420d9") {
+            color = "#BCBBFC";
           }
-          var colorIsReadable = tinycolor.isReadable("#18181b", info.color, {});
-          var color = tinycolor(info.color);
+          var colorIsReadable = tinycolor.isReadable("#18181b", color, {});
+          var color = tinycolor(color);
           while (!colorIsReadable) {
             color = color.lighten(5);
             colorIsReadable = tinycolor.isReadable("#18181b", color, {});
