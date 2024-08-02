@@ -763,13 +763,11 @@ Chat = {
           if (info.color === "#2420d9") {
             info.color = "#BCBBFC";
           }
-          // console.log(nick,"color is string and readable is true");
-          if (tinycolor(info.color).getBrightness() <= 50) {
-            // console.log(nick,"color is not bright enough",tinycolor(color).getBrightness())
-            color = tinycolor(info.color).lighten(30);
-          } else {
-            // console.log(nick,"color is bright enough",tinycolor(color).getBrightness())
-            color = info.color;
+          var colorIsReadable = tinycolor.isReadable("#18181b", info.color, {});
+          var color = tinycolor(info.color);
+          while (!colorIsReadable) {
+            color = color.lighten(5);
+            colorIsReadable = tinycolor.isReadable("#18181b", color, {});
           }
         } else {
           var color = info.color;
@@ -783,13 +781,14 @@ Chat = {
           if (info.color === "#008000") {
             info.color = "#00FF00";
           }
-          // console.log(nick,"color is not string and readable is true");
-          if (tinycolor(color).getBrightness() <= 50) {
-            // console.log(nick,"color is not bright enough",tinycolor(color).getBrightness())
-            color = tinycolor(color).lighten(30);
-          } else {
-            // console.log(nick,"color is bright enough",tinycolor(color).getBrightness())
-            color = color;
+          if (info.color === "#2420d9") {
+            info.color = "#BCBBFC";
+          }
+          var colorIsReadable = tinycolor.isReadable("#18181b", info.color, {});
+          var color = tinycolor(info.color);
+          while (!colorIsReadable) {
+            color = color.lighten(5);
+            colorIsReadable = tinycolor.isReadable("#18181b", color, {});
           }
         } else {
           var color = color;

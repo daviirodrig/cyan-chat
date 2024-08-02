@@ -352,7 +352,6 @@ const intersectionObserver = new IntersectionObserver((entries) => {
     const elementRect = entry.target.getBoundingClientRect();
 
     if (elementRect.top < 0 || elementRect.top >= window.innerHeight - elementRect.height) {
-      console.log("Element left screen")
       handleChatLineRemoval(entry.target);
     }
   });
