@@ -71,6 +71,12 @@ func synthesizeSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	voiceName := r.URL.Query().Get("voice")
 	text := r.URL.Query().Get("text")
 
+	// Make sure the length of text is under 1000 characters
+	if len(text) > 1000 {
+		http.Error(w, "Text length exceeds the limit of 1000 characters", http.StatusBadRequest)
+		return
+	}
+
 	// Convert voice name to Polly voice ID
 	voiceID, ok := voiceMap[voiceName]
 	if !ok {
