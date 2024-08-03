@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -390,62 +388,6 @@ func refreshTokenLoop() {
 		log.Println("Token Refreshed")
 		time.Sleep(time.Minute * 120)
 	}
-}
-
-func cacheBuster(filePath string) {
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		log.Fatalf("Error reading file: %v", err)
-		return
-	}
-
-	// Convert file content to string
-	content := string(data)
-
-	// Get the current timestamp
-	timestamp := fmt.Sprintf("?v=%d", time.Now().Unix())
-
-	// Regular expression to match the <head>...</head> section
-	headRe := regexp.MustCompile(`(?s)<head>(.*?)</head>`)
-	matchedHead := headRe.FindStringSubmatch(content)
-	if len(matchedHead) < 2 {
-		log.Println("No <head> section found in the file")
-		return
-	}
-
-	originalHead := matchedHead[1]
-
-	// Regular expression to match <script src="..."></script> tags
-	scriptRe := regexp.MustCompile(`<script\s+src="([^"]+)"([^>]*)></script>`)
-
-	updatedHead := scriptRe.ReplaceAllStringFunc(originalHead, func(scriptTag string) string {
-		// Extract the src value
-		matches := scriptRe.FindStringSubmatch(scriptTag)
-		if len(matches) == 0 {
-			return scriptTag
-		}
-
-		src := matches[1]
-		rest := matches[2]
-
-		// Replace or append the timestamp query parameter
-		newSrc := regexp.MustCompile(`(\?v=\d+)?`).ReplaceAllString(src, "")
-		newSrc += timestamp
-
-		return fmt.Sprintf(`<script src="%s"%s></script>`, newSrc, rest)
-	})
-
-	// Replace the old head section with the updated head section
-	updatedContent := strings.Replace(content, originalHead, updatedHead, 1)
-
-	// Write the updated content back to the file
-	err = os.WriteFile(filePath, []byte(updatedContent), 0644)
-	if err != nil {
-		log.Fatalf("Error writing file: %v", err)
-		return
-	}
-
-	log.Println("Updated script sources with the current timestamp")
 }
 
 func main() {
