@@ -1,36 +1,39 @@
 let startTime = null;
-const animations = new Set();
 const TIMEOUT_LIMIT = 5000; // Maximum wait time in milliseconds
 const POLL_INTERVAL = 100; // Poll interval in milliseconds
+const SYNC_DELAY = 50; // Delay before synchronizing in milliseconds
 
-function setupAnimation(img) {
-    img.style.visibility = "hidden";
+function setupAndSynchronizeAnimations(images) {
+    const imagesToSync = [];
 
-    const onLoad = () => {
-        img.removeEventListener("load", onLoad);
-        img.decode().then(() => {
-            animations.add(img);
-            img.style.visibility = "visible";
-            synchronizeAnimations();
-        });
-    };
+    images.forEach((img, index) => {
+        img.style.visibility = "hidden";
 
-    img.addEventListener("load", onLoad);
+        const onLoad = () => {
+            img.removeEventListener("load", onLoad);
+            img.decode().then(() => {
+                img.style.visibility = "visible";
+                imagesToSync.push(img);
+
+                if (imagesToSync.length === images.length) {
+                    setTimeout(() => {
+                        synchronizeAnimations(imagesToSync);
+                    }, SYNC_DELAY);
+                }
+            }).catch(error => {});
+        };
+
+        img.addEventListener("load", onLoad);
+    });
 }
 
-let lastCall = 0;
-const limit = 500; // ms
-
-function synchronizeAnimations() {
-    const now = Date.now();
-    if (now - lastCall < limit) {
-        return;
-    }
-    lastCall = now;
-    animations.forEach((img) => {
+function synchronizeAnimations(images) {
+    images.forEach((img) => {
         const src = img.src;
         img.src = ""; // Force reload
-        img.src = src;
+        setTimeout(() => {
+            img.src = src;
+        }, 0);
     });
 }
 
@@ -42,9 +45,10 @@ function startObservingChatContainer() {
                 if (mutation.type === "childList") {
                     for (const node of mutation.addedNodes) {
                         if (node.nodeType === 1 && node.classList.contains("chat_line")) {
-                            node.querySelectorAll(".emote").forEach((img) => {
-                                setupAnimation(img);
-                            });
+                            const emotes = Array.from(node.querySelectorAll(".emote"));
+                            if (emotes.length > 1) {
+                                setupAndSynchronizeAnimations(emotes);
+                            }
                         }
                     }
                 }
@@ -55,8 +59,6 @@ function startObservingChatContainer() {
             childList: true,
             subtree: true,
         });
-    } else {
-        console.error('Element with id "chat_container" not found.');
     }
 }
 
@@ -72,10 +74,6 @@ function waitForChatContainer(
             startObservingChatContainer();
         } else if (Date.now() - start < timeout) {
             setTimeout(poll, interval);
-        } else {
-            console.error(
-                'Element with id "chat_container" not found within the timeout period.'
-            );
         }
     };
 
@@ -88,6 +86,5 @@ window.addEventListener("load", () => {
 
         // Set startTime for animations
         startTime = performance.now();
-        synchronizeAnimations();
     }
 });

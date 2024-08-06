@@ -1173,6 +1173,28 @@ Chat = {
               }
               // #endregion RICKROLL
 
+              // #region Video
+              if (
+                (message.params[1].toLowerCase() === "!chat video") &&
+                typeof message.tags.badges === "string"
+              ) {
+                var flag = false;
+                message.tags.badges.split(",").forEach((badge) => {
+                  badge = badge.split("/");
+                  if (badge[0] === "moderator" || badge[0] === "broadcaster") {
+                    flag = true;
+                    return;
+                  }
+                });
+                if (flag) {
+                  var fullCommand = message.params[1].slice("!chat video".length).trim();
+                  console.log(`Cyan Chat: Playing ` + fullCommand);
+                  appendMedia("video", `../media/${fullCommand}.webm`)
+                  return;
+                }
+              }
+              // #endregion Video
+
               // #region TTS
               if (
                 message.params[1].toLowerCase().startsWith("!chat tts") &&
