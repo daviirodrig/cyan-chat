@@ -35,6 +35,7 @@
 Chat = {
   info: {
     channel: null,
+    connected: false,
     animate:
       "animate" in $.QueryString
         ? $.QueryString.animate.toLowerCase() === "true"
@@ -265,6 +266,15 @@ Chat = {
       seven_ws(Chat.info.channel);
 
       client_id = res.client_id;
+
+      // Load channel colors
+      TwitchAPI("/chat/color?user_id=" + Chat.info.channelID).done(
+        function (res) {
+          res = res.data[0];
+          Chat.info.colors[Chat.info.channel] = Chat.getUserColor(Chat.info.channel, res);
+        }
+      );
+      Chat.loadUserPaints(Chat.info.channel, Chat.info.channelID);
 
       // Load CSS
       let size = sizes[Chat.info.size - 1];
@@ -626,6 +636,7 @@ Chat = {
             };
 
             if (!Chat.info.userBadges[nick].includes(userBadge)) {
+              Chat.info.userBadges[nick] = [];
               Chat.info.userBadges[nick].push(userBadge);
             }
           } else {
@@ -1108,7 +1119,10 @@ Chat = {
               return;
             case "JOIN":
               console.log("Cyan Chat: Joined channel #" + Chat.info.channel);
-              SendInfoText("Connected to " + Chat.info.channel);
+              if (!Chat.info.connected) {
+                Chat.info.connected = true;
+                SendInfoText("Connected to " + Chat.info.channel);
+              }
               return;
             case "CLEARMSG":
               if (message.tags)
@@ -1271,8 +1285,7 @@ Chat = {
 
               if (!Chat.info.showBots) {
                 if (Chat.info.bots.includes(nick)) {
-                  var color = Chat.getUserColor(nick, message.tags);
-                  Chat.info.colors[nick] = color;
+                  Chat.info.colors[nick] = Chat.getUserColor(nick, message.tags);
                   Chat.loadUserPaints(nick, message.tags["user-id"]);
                   return;
                 }
@@ -1281,8 +1294,7 @@ Chat = {
               if (Chat.info.blockedUsers) {
                 if (Chat.info.blockedUsers.includes(nick)) {
                   console.log("Cyan Chat: Hiding blocked user message but getting color...'" + nick + "'");
-                  var color = Chat.getUserColor(nick, message.tags);
-                  Chat.info.colors[nick] = color;
+                  Chat.info.colors[nick] = Chat.getUserColor(nick, message.tags);
                   Chat.loadUserPaints(nick, message.tags["user-id"]);
                   return;
                 }
