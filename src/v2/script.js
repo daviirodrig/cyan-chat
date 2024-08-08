@@ -496,12 +496,74 @@ Chat = {
     }
   }, 200),
 
+  getUserColor: function (nick, info) {
+    const twitchColors = [
+      "#FF0000",
+      "#0000FF",
+      "#008000",
+      "#B22222",
+      "#FF7F50",
+      "#9ACD32",
+      "#FF4500",
+      "#2E8B57",
+      "#DAA520",
+      "#D2691E",
+      "#5F9EA0",
+      "#1E90FF",
+      "#FF69B4",
+      "#8A2BE2",
+      "#00FF7F",
+    ];
+    if (typeof info.color === "string") {
+      var color = info.color;
+      if (Chat.info.readable) {
+        if (info.color === "#8A2BE2") {
+          info.color = "#C797F4";
+        }
+        if (info.color === "#008000") {
+          info.color = "#00FF00";
+        }
+        if (info.color === "#2420d9") {
+          info.color = "#BCBBFC";
+        }
+        var colorIsReadable = tinycolor.isReadable("#18181b", info.color, {});
+        var color = tinycolor(info.color);
+        while (!colorIsReadable) {
+          color = color.lighten(5);
+          colorIsReadable = tinycolor.isReadable("#18181b", color, {});
+        }
+      } else {
+        var color = info.color;
+      }
+    } else {
+      var color = twitchColors[nick.charCodeAt(0) % 15];
+      console.log("generated random color for", nick, color)
+      if (Chat.info.readable) {
+        if (color === "#8A2BE2") {
+          color = "#C797F4";
+        }
+        if (color === "#008000") {
+          color = "#00FF00";
+        }
+        if (color === "#2420d9") {
+          color = "#BCBBFC";
+        }
+        var colorIsReadable = tinycolor.isReadable("#18181b", color, {});
+        var color = tinycolor(color);
+        while (!colorIsReadable) {
+          color = color.lighten(5);
+          colorIsReadable = tinycolor.isReadable("#18181b", color, {});
+        }
+      } else {
+        var color = color;
+      }
+    }
+    return color;
+  },
+
   loadUserBadges: function (nick, userId) {
     Chat.info.userBadges[nick] = [];
     Chat.info.specialBadges[nick] = [];
-    if (!Chat.info.seventvPaints[nick]) {
-      Chat.info.seventvPaints[nick] = [];
-    }
     if (nick === 'johnnycyan') {
       var specialBadge = {
         description: 'Cyan Chat Dev',
@@ -556,7 +618,6 @@ Chat = {
         try {
           var sevenInfo = await getUserBadgeAndPaintInfo(userId);
           var seventvBadgeInfo = sevenInfo.badge;
-          var seventvPaintInfo = sevenInfo.paint;
 
           if (seventvBadgeInfo) {
             var userBadge = {
@@ -569,43 +630,6 @@ Chat = {
             }
           } else {
             // console.log("No 7tv badge info found for", userId);
-          }
-
-          if (seventvPaintInfo) {
-            if (!seventvPaintInfo.image_url) {
-              var gradient = createGradient(
-                seventvPaintInfo.angle,
-                seventvPaintInfo.stops,
-                seventvPaintInfo.function,
-                seventvPaintInfo.repeat
-              );
-              var dropShadows = createDropShadows(seventvPaintInfo.shadows);
-              var userPaint = {
-                type: "gradient",
-                name: seventvPaintInfo.name,
-                backgroundImage: gradient,
-                filter: dropShadows,
-              };
-              if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
-                Chat.info.seventvPaints[nick] = [];
-                Chat.info.seventvPaints[nick].push(userPaint);
-              }
-            } else {
-              var dropShadows = createDropShadows(seventvPaintInfo.shadows);
-              var userPaint = {
-                type: "image",
-                name: seventvPaintInfo.name,
-                backgroundImage: seventvPaintInfo.image_url,
-                filter: dropShadows,
-              };
-              if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
-                Chat.info.seventvPaints[nick] = [];
-                Chat.info.seventvPaints[nick].push(userPaint);
-              }
-            }
-          } else {
-            console.log("No 7tv paint info found for", userId);
-            Chat.info.seventvPaints[nick] = [];
           }
         } catch (error) {
           // console.error("Error fetching badge info:", error);
@@ -635,6 +659,58 @@ Chat = {
         });
       });
     });
+  },
+
+  loadUserPaints: function (nick, userId) {
+    // 7tv functions Added at the end of the file
+    (async () => {
+      try {
+        var sevenInfo = await getUserBadgeAndPaintInfo(userId);
+        var seventvPaintInfo = sevenInfo.paint;
+
+        if (seventvPaintInfo) {
+          if (!Chat.info.seventvPaints[nick]) {
+            Chat.info.seventvPaints[nick] = [];
+          }
+          if (!seventvPaintInfo.image_url) {
+            var gradient = createGradient(
+              seventvPaintInfo.angle,
+              seventvPaintInfo.stops,
+              seventvPaintInfo.function,
+              seventvPaintInfo.repeat
+            );
+            var dropShadows = createDropShadows(seventvPaintInfo.shadows);
+            var userPaint = {
+              type: "gradient",
+              name: seventvPaintInfo.name,
+              backgroundImage: gradient,
+              filter: dropShadows,
+            };
+            if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+              Chat.info.seventvPaints[nick] = [];
+              Chat.info.seventvPaints[nick].push(userPaint);
+            }
+          } else {
+            var dropShadows = createDropShadows(seventvPaintInfo.shadows);
+            var userPaint = {
+              type: "image",
+              name: seventvPaintInfo.name,
+              backgroundImage: seventvPaintInfo.image_url,
+              filter: dropShadows,
+            };
+            if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+              Chat.info.seventvPaints[nick] = [];
+              Chat.info.seventvPaints[nick].push(userPaint);
+            }
+          }
+        } else {
+          console.log("No 7tv paint info found for", userId);
+          Chat.info.seventvPaints[nick] = [];
+        }
+      } catch (error) {
+        // console.error("Error fetching paint info:", error);
+      }
+    })();
   },
 
   write: function (nick, info, message, service) {
@@ -734,67 +810,7 @@ Chat = {
       // Writing username
       var $username = $("<span></span>");
       $username.addClass("nick");
-      const twitchColors = [
-        "#FF0000",
-        "#0000FF",
-        "#008000",
-        "#B22222",
-        "#FF7F50",
-        "#9ACD32",
-        "#FF4500",
-        "#2E8B57",
-        "#DAA520",
-        "#D2691E",
-        "#5F9EA0",
-        "#1E90FF",
-        "#FF69B4",
-        "#8A2BE2",
-        "#00FF7F",
-      ];
-      if (typeof info.color === "string") {
-        var color = info.color;
-        if (Chat.info.readable) {
-          if (info.color === "#8A2BE2") {
-            info.color = "#C797F4";
-          }
-          if (info.color === "#008000") {
-            info.color = "#00FF00";
-          }
-          if (info.color === "#2420d9") {
-            info.color = "#BCBBFC";
-          }
-          var colorIsReadable = tinycolor.isReadable("#18181b", info.color, {});
-          var color = tinycolor(info.color);
-          while (!colorIsReadable) {
-            color = color.lighten(5);
-            colorIsReadable = tinycolor.isReadable("#18181b", color, {});
-          }
-        } else {
-          var color = info.color;
-        }
-      } else {
-        var color = twitchColors[nick.charCodeAt(0) % 15];
-        console.log("generated random color for", nick, color)
-        if (Chat.info.readable) {
-          if (color === "#8A2BE2") {
-            color = "#C797F4";
-          }
-          if (color === "#008000") {
-            color = "#00FF00";
-          }
-          if (color === "#2420d9") {
-            color = "#BCBBFC";
-          }
-          var colorIsReadable = tinycolor.isReadable("#18181b", color, {});
-          var color = tinycolor(color);
-          while (!colorIsReadable) {
-            color = color.lighten(5);
-            colorIsReadable = tinycolor.isReadable("#18181b", color, {});
-          }
-        } else {
-          var color = color;
-        }
-      }
+      var color = Chat.getUserColor(nick, info);
       $username.css("color", color);
       Chat.info.colors[nick] = color;
       $username.html(info["display-name"] ? info["display-name"] : nick);
@@ -842,6 +858,7 @@ Chat = {
         ) {
           // console.log("7tv checker expired so checking again");
           Chat.loadUserBadges(nick, info["user-id"]);
+          Chat.loadUserPaints(nick, info["user-id"]);
           Chat.loadPersonalEmotes(info["user-id"]);
           const data = {
             enabled: true,
@@ -976,10 +993,7 @@ Chat = {
           if (word.startsWith("@")) {
             var username = word.substring(1).toLowerCase();
             var $mention = $(`<span class="mention">${word}</span>`);
-            if (Chat.info.colors[username]) {
-              $mention.css("color", Chat.info.colors[username]);
-            }
-            if (Chat.info.seventvPaints[username]) {
+            if (Chat.info.seventvPaints[username] && Chat.info.seventvPaints[username].length > 0) {
               $mentionCopy = $mention.clone();
               $mentionCopy.css("position", "absolute");
               $mentionCopy.css("color", "transparent");
@@ -1000,6 +1014,10 @@ Chat = {
               var mentionHtml =
                 $mentionCopy[0].outerHTML + $mention[0].outerHTML;
               return mentionHtml;
+            }
+            if (Chat.info.colors[username]) {
+              $mention.css("color", Chat.info.colors[username]);
+              return $mention[0].outerHTML;
             }
           }
           return word;
@@ -1252,11 +1270,22 @@ Chat = {
               }
 
               if (!Chat.info.showBots) {
-                if (Chat.info.bots.includes(nick)) return;
+                if (Chat.info.bots.includes(nick)) {
+                  var color = Chat.getUserColor(nick, message.tags);
+                  Chat.info.colors[nick] = color;
+                  Chat.loadUserPaints(nick, message.tags["user-id"]);
+                  return;
+                }
               }
 
               if (Chat.info.blockedUsers) {
-                if (Chat.info.blockedUsers.includes(nick)) return;
+                if (Chat.info.blockedUsers.includes(nick)) {
+                  console.log("Cyan Chat: Hiding blocked user message but getting color...'" + nick + "'");
+                  var color = Chat.getUserColor(nick, message.tags);
+                  Chat.info.colors[nick] = color;
+                  Chat.loadUserPaints(nick, message.tags["user-id"]);
+                  return;
+                }
               }
 
               if (!Chat.info.hideBadges) {
@@ -1278,11 +1307,13 @@ Chat = {
                 Chat.loadPersonalEmotes(message.tags["user-id"]);
               }
 
-              // console.log(
-              //   "personal emotes for",
-              //   message.tags["user-id"],
-              //   Chat.info.seventvPersonalEmotes[message.tags["user-id"]]
-              // );
+              if (
+                !Chat.info.seventvPaints[nick] &&
+                !Chat.info.seventvNoUsers[message.tags["user-id"]] &&
+                !Chat.info.seventvNonSubs[message.tags["user-id"]]
+              ) {
+                Chat.loadUserPaints(nick, message.tags["user-id"]);
+              }
 
               Chat.write(nick, message.tags, message.params[1], "twitch");
               return;
