@@ -1207,7 +1207,7 @@ Chat = {
 
               // #region Video
               if (
-                (message.params[1].toLowerCase() === "!chat video") &&
+                message.params[1].toLowerCase().startsWith("!chat video") &&
                 typeof message.tags.badges === "string"
               ) {
                 var flag = false;
@@ -1220,8 +1220,14 @@ Chat = {
                 });
                 if (flag) {
                   var fullCommand = message.params[1].slice("!chat video".length).trim();
-                  console.log(`Cyan Chat: Playing ` + fullCommand);
-                  appendMedia("video", `../media/${fullCommand}.webm`)
+                  findVideoFile(fullCommand).then(result => {
+                    if (result) {
+                      console.log(`Cyan Chat: Playing ` + result);
+                      appendMedia("video", `../media/${result}`)
+                    } else {
+                      console.log("Video file not found");
+                    }
+                  });
                   return;
                 }
               }
