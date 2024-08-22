@@ -908,7 +908,7 @@ Chat = {
           replacements[emoteCode] =
             '<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/' +
             twitchEmote[0] +
-            '/default/dark/3.0" />';
+            '/default/dark/3.0"/>';
         });
       }
 
@@ -916,15 +916,15 @@ Chat = {
         if (message.search(escapeRegExp(emote[0])) > -1) {
           if (emote[1].upscale)
             replacements[emote[0]] =
-              '<img class="emote upscale" src="' + emote[1].image + '" />';
+              '<img class="emote upscale" src="' + emote[1].image + '"/>';
           else if (emote[1].zeroWidth)
             replacements[emote[0]] =
               '<img class="emote" data-zw="true" src="' +
               emote[1].image +
-              '" />';
+              '"/>';
           else
             replacements[emote[0]] =
-              '<img class="emote" src="' + emote[1].image + '" />';
+              '<img class="emote" src="' + emote[1].image + '"/>';
         }
       });
 
@@ -935,15 +935,15 @@ Chat = {
           if (message.search(escapeRegExp(emote[0])) > -1) {
             if (emote[1].upscale)
               replacements[emote[0]] =
-                '<img class="emote upscale" src="' + emote[1].image + '" />';
+                '<img class="emote upscale" src="' + emote[1].image + '"/>';
             else if (emote[1].zeroWidth)
               replacements[emote[0]] =
                 '<img class="emote" data-zw="true" src="' +
                 emote[1].image +
-                '" />';
+                '"/>';
             else
               replacements[emote[0]] =
-                '<img class="emote" src="' + emote[1].image + '" />';
+                '<img class="emote" src="' + emote[1].image + '"/>';
           }
         });
       }
@@ -988,10 +988,13 @@ Chat = {
 
       replacementKeys.forEach((replacementKey) => {
         var regex = new RegExp(
-          "(?<!\\S)(" + escapeRegExp(replacementKey) + ")(?!\\S)",
+          "(" + escapeRegExp(replacementKey) + ")",
           "g"
         );
         message = message.replace(regex, replacements[replacementKey]);
+        message = message.replace(/\s+/g, ' ').trim();
+        message = message.replace(/>(\s+)</g, '><');
+        message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
       });
 
       message = twemoji.parse(message);

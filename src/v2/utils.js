@@ -329,6 +329,7 @@ async function fixZeroWidthEmotes() {
             default:
               sub = 4;
           }
+          sub = 0;
 
           const parentElement = imgElement.parentElement;
 

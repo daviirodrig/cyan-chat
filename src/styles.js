@@ -33,8 +33,6 @@ const size_small = `
 #example .emote {
   max-width: 75px;
   height: 25px;
-  margin-right: -2px;
-  margin-left: -2px;
 }
 
 #example .emoji {
@@ -74,8 +72,6 @@ const size_medium = `
 #example .emote {
   max-width: 128px;
   height: 42px;
-  margin-right: -3.5px;
-  margin-left: -3.5px;
 }
 
 #example .emoji {
@@ -115,8 +111,6 @@ const size_large = `
 #example .emote {
   max-width: 180px;
   height: 60px;
-  margin-right: -5px;
-  margin-left: -5px;
 }
 
 #example .emoji {
