@@ -39,7 +39,7 @@ Chat = {
     animate:
       "animate" in $.QueryString
         ? $.QueryString.animate.toLowerCase() === "true"
-        : true,
+        : false,
     center:
       "center" in $.QueryString
         ? $.QueryString.center.toLowerCase() === "true"
@@ -913,18 +913,17 @@ Chat = {
       }
 
       Object.entries(Chat.info.emotes).forEach((emote) => {
-        if (message.search(escapeRegExp(emote[0])) > -1) {
-          if (emote[1].upscale)
-            replacements[emote[0]] =
-              '<img class="emote upscale" src="' + emote[1].image + '"/>';
-          else if (emote[1].zeroWidth)
-            replacements[emote[0]] =
-              '<img class="emote" data-zw="true" src="' +
-              emote[1].image +
-              '"/>';
-          else
-            replacements[emote[0]] =
-              '<img class="emote" src="' + emote[1].image + '"/>';
+        const emoteRegex = new RegExp(`(^|\\s)${escapeRegExp(emote[0])}($|\\s)`, 'g');
+        if (emoteRegex.test(message)) {
+          let replacement;
+          if (emote[1].upscale) {
+            replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+          } else if (emote[1].zeroWidth) {
+            replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+          } else {
+            replacement = `<img class="emote" src="${emote[1].image}"/>`;
+          }
+          replacements[emote[0]] = replacement;
         }
       });
 
