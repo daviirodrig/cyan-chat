@@ -931,18 +931,17 @@ Chat = {
         Object.entries(
           Chat.info.seventvPersonalEmotes[info["user-id"]]
         ).forEach((emote) => {
-          if (message.search(escapeRegExp(emote[0])) > -1) {
-            if (emote[1].upscale)
-              replacements[emote[0]] =
-                '<img class="emote upscale" src="' + emote[1].image + '"/>';
-            else if (emote[1].zeroWidth)
-              replacements[emote[0]] =
-                '<img class="emote" data-zw="true" src="' +
-                emote[1].image +
-                '"/>';
-            else
-              replacements[emote[0]] =
-                '<img class="emote" src="' + emote[1].image + '"/>';
+          const emoteRegex = new RegExp(`\\b${escapeRegExp(emote[0])}\\b`, 'g');
+          if (emoteRegex.test(message)) {
+            let replacement;
+            if (emote[1].upscale) {
+              replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+            } else if (emote[1].zeroWidth) {
+              replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+            } else {
+              replacement = `<img class="emote" src="${emote[1].image}"/>`;
+            }
+            replacements[emote[0]] = replacement;
           }
         });
       }
