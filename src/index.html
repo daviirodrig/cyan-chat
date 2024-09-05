@@ -47,7 +47,7 @@
     <section>
         <p>
             <em>Cyan Chat</em> is an overlay that allows you to show your Twitch
-            chat on screen with OBS, XSplit, and any other streaming software that
+            chat (and optionally Youtube chat) on screen with OBS, XSplit, and any other streaming software that
             supports browser sources. It supports your
             <a href="https://betterttv.com/" target="_blank">BetterTTV</a>,
             <a href="https://www.frankerfacez.com/" target="_blank">FrankerFaceZ</a>
@@ -110,7 +110,10 @@
 
         <form name="generator">
             <div class="form_row center">
-                <input type="text" name="channel" required placeholder="Channel" />
+                <input type="text" name="channel" required placeholder="Twitch Channel" />
+            </div>
+            <div class="form_row center">
+                <input type="text" name="yt-channel" required placeholder="YT ID or Handle (Optional)" />
             </div>
             <div class="form_table">
                 <div class="form_col">
@@ -356,9 +359,8 @@
                   ">@xen_ninjas</span>
                             gn
                             <img class="emote" src="https://cdn.7tv.app/emote/63882e9d346422503a288b5e/4x.webp"
-                                style="visibility: visible" />
-                            <img class="emote" src="https://cdn.7tv.app/emote/639008385901e8ad82935b7f/4x.webp"
-                                style="visibility: visible" /></span>
+                                style="visibility: visible"/><img class="emote" src="https://cdn.7tv.app/emote/639008385901e8ad82935b7f/4x.webp"
+                                style="visibility: visible"/></span>
                     </div>
                     <div class="chat_line">
                         <span class="user_info"><img class="badge"
@@ -384,10 +386,9 @@
                   ">@xen_ninjas</span>
                             gn
                             <img class="emote" src="https://cdn.7tv.app/emote/63882e9d346422503a288b5e/4x.webp"
-                                style="visibility: visible" />
-                            <img class="emote"
+                                style="visibility: visible"/><img class="emote"
                                 src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_24396e3f5a64449e9ba19b794b0a6aa6/default/dark/3.0"
-                                style="visibility: visible" /></span>
+                                style="visibility: visible"/></span>
                     </div>
                     <div class="chat_line">
                         <span class="user_info"><img class="badge"
@@ -412,9 +413,8 @@
                     filter: drop-shadow(rgb(15, 175, 255) 0px 0px 0.1px);
                   ">xen_ninjas</span><span class="colon"> :</span></span><span class="message"><img class="emote"
                                 src="https://cdn.7tv.app/emote/639008385901e8ad82935b7f/4x.webp"
-                                style="visibility: visible" />
-                            <img class="emote" src="https://cdn.7tv.app/emote/6107cb319dc18aaf9f0e451e/4x.webp"
-                                style="visibility: visible" /></span>
+                                style="visibility: visible"/><img class="emote" src="https://cdn.7tv.app/emote/6107cb319dc18aaf9f0e451e/4x.webp"
+                                style="visibility: visible"/></span>
                     </div>
                     <div class="chat_line">
                         <span class="user_info"><img class="badge"
@@ -454,9 +454,8 @@
                     filter: drop-shadow(rgb(15, 175, 255) 0px 0px 0.1px);
                   ">@xen_ninjas</span>
                             <img class="emote" src="https://cdn.7tv.app/emote/639234ce908ab3ef06b3c640/4x.webp"
-                                style="visibility: visible" />
-                            <img class="emote" src="https://cdn.7tv.app/emote/61a78600e9684edbbc37c61c/4x.webp"
-                                style="visibility: visible" /></span>
+                                style="visibility: visible"/><img class="emote" src="https://cdn.7tv.app/emote/61a78600e9684edbbc37c61c/4x.webp"
+                                style="visibility: visible"/></span>
                     </div>
                 </div>
                 <input type="submit" value="Generate" />

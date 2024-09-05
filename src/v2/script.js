@@ -35,10 +35,11 @@
 Chat = {
   info: {
     channel: null,
+    connected: false,
     animate:
       "animate" in $.QueryString
         ? $.QueryString.animate.toLowerCase() === "true"
-        : true,
+        : false,
     center:
       "center" in $.QueryString
         ? $.QueryString.center.toLowerCase() === "true"
@@ -120,6 +121,10 @@ Chat = {
     disablePruning:
       "disable_pruning" in $.QueryString
         ? $.QueryString.disable_pruning.toLowerCase() === "true"
+        : false,
+    yt:
+      "yt" in $.QueryString
+        ? $.QueryString.yt.toLowerCase()
         : false,
   },
 
@@ -265,6 +270,15 @@ Chat = {
       seven_ws(Chat.info.channel);
 
       client_id = res.client_id;
+
+      // Load channel colors
+      TwitchAPI("/chat/color?user_id=" + Chat.info.channelID).done(
+        function (res) {
+          res = res.data[0];
+          Chat.info.colors[Chat.info.channel] = Chat.getUserColor(Chat.info.channel, res);
+        }
+      );
+      Chat.loadUserPaints(Chat.info.channel, Chat.info.channelID);
 
       // Load CSS
       let size = sizes[Chat.info.size - 1];
@@ -496,12 +510,74 @@ Chat = {
     }
   }, 200),
 
+  getUserColor: function (nick, info) {
+    const twitchColors = [
+      "#FF0000",
+      "#0000FF",
+      "#008000",
+      "#B22222",
+      "#FF7F50",
+      "#9ACD32",
+      "#FF4500",
+      "#2E8B57",
+      "#DAA520",
+      "#D2691E",
+      "#5F9EA0",
+      "#1E90FF",
+      "#FF69B4",
+      "#8A2BE2",
+      "#00FF7F",
+    ];
+    if (typeof info.color === "string") {
+      var color = info.color;
+      if (Chat.info.readable) {
+        if (info.color === "#8A2BE2") {
+          info.color = "#C797F4";
+        }
+        if (info.color === "#008000") {
+          info.color = "#00FF00";
+        }
+        if (info.color === "#2420d9") {
+          info.color = "#BCBBFC";
+        }
+        var colorIsReadable = tinycolor.isReadable("#18181b", info.color, {});
+        var color = tinycolor(info.color);
+        while (!colorIsReadable) {
+          color = color.lighten(5);
+          colorIsReadable = tinycolor.isReadable("#18181b", color, {});
+        }
+      } else {
+        var color = info.color;
+      }
+    } else {
+      var color = twitchColors[nick.charCodeAt(0) % 15];
+      console.log("generated random color for", nick, color)
+      if (Chat.info.readable) {
+        if (color === "#8A2BE2") {
+          color = "#C797F4";
+        }
+        if (color === "#008000") {
+          color = "#00FF00";
+        }
+        if (color === "#2420d9") {
+          color = "#BCBBFC";
+        }
+        var colorIsReadable = tinycolor.isReadable("#18181b", color, {});
+        var color = tinycolor(color);
+        while (!colorIsReadable) {
+          color = color.lighten(5);
+          colorIsReadable = tinycolor.isReadable("#18181b", color, {});
+        }
+      } else {
+        var color = color;
+      }
+    }
+    return color;
+  },
+
   loadUserBadges: function (nick, userId) {
     Chat.info.userBadges[nick] = [];
     Chat.info.specialBadges[nick] = [];
-    if (!Chat.info.seventvPaints[nick]) {
-      Chat.info.seventvPaints[nick] = [];
-    }
     if (nick === 'johnnycyan') {
       var specialBadge = {
         description: 'Cyan Chat Dev',
@@ -556,7 +632,6 @@ Chat = {
         try {
           var sevenInfo = await getUserBadgeAndPaintInfo(userId);
           var seventvBadgeInfo = sevenInfo.badge;
-          var seventvPaintInfo = sevenInfo.paint;
 
           if (seventvBadgeInfo) {
             var userBadge = {
@@ -565,47 +640,11 @@ Chat = {
             };
 
             if (!Chat.info.userBadges[nick].includes(userBadge)) {
+              Chat.info.userBadges[nick] = [];
               Chat.info.userBadges[nick].push(userBadge);
             }
           } else {
             // console.log("No 7tv badge info found for", userId);
-          }
-
-          if (seventvPaintInfo) {
-            if (!seventvPaintInfo.image_url) {
-              var gradient = createGradient(
-                seventvPaintInfo.angle,
-                seventvPaintInfo.stops,
-                seventvPaintInfo.function,
-                seventvPaintInfo.repeat
-              );
-              var dropShadows = createDropShadows(seventvPaintInfo.shadows);
-              var userPaint = {
-                type: "gradient",
-                name: seventvPaintInfo.name,
-                backgroundImage: gradient,
-                filter: dropShadows,
-              };
-              if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
-                Chat.info.seventvPaints[nick] = [];
-                Chat.info.seventvPaints[nick].push(userPaint);
-              }
-            } else {
-              var dropShadows = createDropShadows(seventvPaintInfo.shadows);
-              var userPaint = {
-                type: "image",
-                name: seventvPaintInfo.name,
-                backgroundImage: seventvPaintInfo.image_url,
-                filter: dropShadows,
-              };
-              if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
-                Chat.info.seventvPaints[nick] = [];
-                Chat.info.seventvPaints[nick].push(userPaint);
-              }
-            }
-          } else {
-            console.log("No 7tv paint info found for", userId);
-            Chat.info.seventvPaints[nick] = [];
           }
         } catch (error) {
           // console.error("Error fetching badge info:", error);
@@ -635,6 +674,58 @@ Chat = {
         });
       });
     });
+  },
+
+  loadUserPaints: function (nick, userId) {
+    // 7tv functions Added at the end of the file
+    (async () => {
+      try {
+        var sevenInfo = await getUserBadgeAndPaintInfo(userId);
+        var seventvPaintInfo = sevenInfo.paint;
+
+        if (seventvPaintInfo) {
+          if (!Chat.info.seventvPaints[nick]) {
+            Chat.info.seventvPaints[nick] = [];
+          }
+          if (!seventvPaintInfo.image_url) {
+            var gradient = createGradient(
+              seventvPaintInfo.angle,
+              seventvPaintInfo.stops,
+              seventvPaintInfo.function,
+              seventvPaintInfo.repeat
+            );
+            var dropShadows = createDropShadows(seventvPaintInfo.shadows);
+            var userPaint = {
+              type: "gradient",
+              name: seventvPaintInfo.name,
+              backgroundImage: gradient,
+              filter: dropShadows,
+            };
+            if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+              Chat.info.seventvPaints[nick] = [];
+              Chat.info.seventvPaints[nick].push(userPaint);
+            }
+          } else {
+            var dropShadows = createDropShadows(seventvPaintInfo.shadows);
+            var userPaint = {
+              type: "image",
+              name: seventvPaintInfo.name,
+              backgroundImage: seventvPaintInfo.image_url,
+              filter: dropShadows,
+            };
+            if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+              Chat.info.seventvPaints[nick] = [];
+              Chat.info.seventvPaints[nick].push(userPaint);
+            }
+          }
+        } else {
+          console.log("No 7tv paint info found for", userId);
+          Chat.info.seventvPaints[nick] = [];
+        }
+      } catch (error) {
+        // console.error("Error fetching paint info:", error);
+      }
+    })();
   },
 
   write: function (nick, info, message, service) {
@@ -688,15 +779,17 @@ Chat = {
           "vip",
         ];
         if (typeof info.badges === "string") {
-          info.badges.split(",").forEach((badge) => {
-            badge = badge.split("/");
-            var priority = priorityBadges.includes(badge[0]) ? true : false;
-            badges.push({
-              description: badge[0],
-              url: Chat.info.badges[badge[0] + ":" + badge[1]],
-              priority: priority,
+          if (info.badges != "") {
+            info.badges.split(",").forEach((badge) => {
+              badge = badge.split("/");
+              var priority = priorityBadges.includes(badge[0]) ? true : false;
+              badges.push({
+                description: badge[0],
+                url: Chat.info.badges[badge[0] + ":" + badge[1]],
+                priority: priority,
+              });
             });
-          });
+          }
         }
         var $modBadge;
         badges.forEach((badge) => {
@@ -734,67 +827,7 @@ Chat = {
       // Writing username
       var $username = $("<span></span>");
       $username.addClass("nick");
-      const twitchColors = [
-        "#FF0000",
-        "#0000FF",
-        "#008000",
-        "#B22222",
-        "#FF7F50",
-        "#9ACD32",
-        "#FF4500",
-        "#2E8B57",
-        "#DAA520",
-        "#D2691E",
-        "#5F9EA0",
-        "#1E90FF",
-        "#FF69B4",
-        "#8A2BE2",
-        "#00FF7F",
-      ];
-      if (typeof info.color === "string") {
-        var color = info.color;
-        if (Chat.info.readable) {
-          if (info.color === "#8A2BE2") {
-            info.color = "#C797F4";
-          }
-          if (info.color === "#008000") {
-            info.color = "#00FF00";
-          }
-          if (info.color === "#2420d9") {
-            info.color = "#BCBBFC";
-          }
-          var colorIsReadable = tinycolor.isReadable("#18181b", info.color, {});
-          var color = tinycolor(info.color);
-          while (!colorIsReadable) {
-            color = color.lighten(5);
-            colorIsReadable = tinycolor.isReadable("#18181b", color, {});
-          }
-        } else {
-          var color = info.color;
-        }
-      } else {
-        var color = twitchColors[nick.charCodeAt(0) % 15];
-        console.log("generated random color for", nick, color)
-        if (Chat.info.readable) {
-          if (color === "#8A2BE2") {
-            color = "#C797F4";
-          }
-          if (color === "#008000") {
-            color = "#00FF00";
-          }
-          if (color === "#2420d9") {
-            color = "#BCBBFC";
-          }
-          var colorIsReadable = tinycolor.isReadable("#18181b", color, {});
-          var color = tinycolor(color);
-          while (!colorIsReadable) {
-            color = color.lighten(5);
-            colorIsReadable = tinycolor.isReadable("#18181b", color, {});
-          }
-        } else {
-          var color = color;
-        }
-      }
+      var color = Chat.getUserColor(nick, info);
       $username.css("color", color);
       Chat.info.colors[nick] = color;
       $username.html(info["display-name"] ? info["display-name"] : nick);
@@ -842,6 +875,7 @@ Chat = {
         ) {
           // console.log("7tv checker expired so checking again");
           Chat.loadUserBadges(nick, info["user-id"]);
+          Chat.loadUserPaints(nick, info["user-id"]);
           Chat.loadPersonalEmotes(info["user-id"]);
           const data = {
             enabled: true,
@@ -880,23 +914,22 @@ Chat = {
           replacements[emoteCode] =
             '<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/' +
             twitchEmote[0] +
-            '/default/dark/3.0" />';
+            '/default/dark/3.0"/>';
         });
       }
 
       Object.entries(Chat.info.emotes).forEach((emote) => {
-        if (message.search(escapeRegExp(emote[0])) > -1) {
-          if (emote[1].upscale)
-            replacements[emote[0]] =
-              '<img class="emote upscale" src="' + emote[1].image + '" />';
-          else if (emote[1].zeroWidth)
-            replacements[emote[0]] =
-              '<img class="emote" data-zw="true" src="' +
-              emote[1].image +
-              '" />';
-          else
-            replacements[emote[0]] =
-              '<img class="emote" src="' + emote[1].image + '" />';
+        const emoteRegex = new RegExp(`(^|\\s)${escapeRegExp(emote[0])}($|\\s)`, 'g');
+        if (emoteRegex.test(message)) {
+          let replacement;
+          if (emote[1].upscale) {
+            replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+          } else if (emote[1].zeroWidth) {
+            replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+          } else {
+            replacement = `<img class="emote" src="${emote[1].image}"/>`;
+          }
+          replacements[emote[0]] = replacement;
         }
       });
 
@@ -904,18 +937,17 @@ Chat = {
         Object.entries(
           Chat.info.seventvPersonalEmotes[info["user-id"]]
         ).forEach((emote) => {
-          if (message.search(escapeRegExp(emote[0])) > -1) {
-            if (emote[1].upscale)
-              replacements[emote[0]] =
-                '<img class="emote upscale" src="' + emote[1].image + '" />';
-            else if (emote[1].zeroWidth)
-              replacements[emote[0]] =
-                '<img class="emote" data-zw="true" src="' +
-                emote[1].image +
-                '" />';
-            else
-              replacements[emote[0]] =
-                '<img class="emote" src="' + emote[1].image + '" />';
+          const emoteRegex = new RegExp(`\\b${escapeRegExp(emote[0])}\\b`, 'g');
+          if (emoteRegex.test(message)) {
+            let replacement;
+            if (emote[1].upscale) {
+              replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+            } else if (emote[1].zeroWidth) {
+              replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+            } else {
+              replacement = `<img class="emote" src="${emote[1].image}"/>`;
+            }
+            replacements[emote[0]] = replacement;
           }
         });
       }
@@ -960,10 +992,13 @@ Chat = {
 
       replacementKeys.forEach((replacementKey) => {
         var regex = new RegExp(
-          "(?<!\\S)(" + escapeRegExp(replacementKey) + ")(?!\\S)",
+          "(" + escapeRegExp(replacementKey) + ")",
           "g"
         );
         message = message.replace(regex, replacements[replacementKey]);
+        message = message.replace(/\s+/g, ' ').trim();
+        message = message.replace(/>(\s+)</g, '><');
+        message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
       });
 
       message = twemoji.parse(message);
@@ -976,10 +1011,7 @@ Chat = {
           if (word.startsWith("@")) {
             var username = word.substring(1).toLowerCase();
             var $mention = $(`<span class="mention">${word}</span>`);
-            if (Chat.info.colors[username]) {
-              $mention.css("color", Chat.info.colors[username]);
-            }
-            if (Chat.info.seventvPaints[username]) {
+            if (Chat.info.seventvPaints[username] && Chat.info.seventvPaints[username].length > 0) {
               $mentionCopy = $mention.clone();
               $mentionCopy.css("position", "absolute");
               $mentionCopy.css("color", "transparent");
@@ -1000,6 +1032,10 @@ Chat = {
               var mentionHtml =
                 $mentionCopy[0].outerHTML + $mention[0].outerHTML;
               return mentionHtml;
+            }
+            if (Chat.info.colors[username]) {
+              $mention.css("color", Chat.info.colors[username]);
+              return $mention[0].outerHTML;
             }
           }
           return word;
@@ -1090,7 +1126,10 @@ Chat = {
               return;
             case "JOIN":
               console.log("Cyan Chat: Joined channel #" + Chat.info.channel);
-              SendInfoText("Connected to " + Chat.info.channel);
+              if (!Chat.info.connected) {
+                Chat.info.connected = true;
+                SendInfoText("Connected to " + Chat.info.channel);
+              }
               return;
             case "CLEARMSG":
               if (message.tags)
@@ -1173,6 +1212,34 @@ Chat = {
               }
               // #endregion RICKROLL
 
+              // #region Video
+              if (
+                message.params[1].toLowerCase().startsWith("!chat video") &&
+                typeof message.tags.badges === "string"
+              ) {
+                var flag = false;
+                message.tags.badges.split(",").forEach((badge) => {
+                  badge = badge.split("/");
+                  if (badge[0] === "moderator" || badge[0] === "broadcaster") {
+                    flag = true;
+                    return;
+                  }
+                });
+                if (flag) {
+                  var fullCommand = message.params[1].slice("!chat video".length).trim();
+                  findVideoFile(fullCommand).then(result => {
+                    if (result) {
+                      console.log(`Cyan Chat: Playing ` + result);
+                      appendMedia("video", `../media/${result}`)
+                    } else {
+                      console.log("Video file not found");
+                    }
+                  });
+                  return;
+                }
+              }
+              // #endregion Video
+
               // #region TTS
               if (
                 message.params[1].toLowerCase().startsWith("!chat tts") &&
@@ -1230,11 +1297,20 @@ Chat = {
               }
 
               if (!Chat.info.showBots) {
-                if (Chat.info.bots.includes(nick)) return;
+                if (Chat.info.bots.includes(nick)) {
+                  Chat.info.colors[nick] = Chat.getUserColor(nick, message.tags);
+                  Chat.loadUserPaints(nick, message.tags["user-id"]);
+                  return;
+                }
               }
 
               if (Chat.info.blockedUsers) {
-                if (Chat.info.blockedUsers.includes(nick)) return;
+                if (Chat.info.blockedUsers.includes(nick)) {
+                  console.log("Cyan Chat: Hiding blocked user message but getting color...'" + nick + "'");
+                  Chat.info.colors[nick] = Chat.getUserColor(nick, message.tags);
+                  Chat.loadUserPaints(nick, message.tags["user-id"]);
+                  return;
+                }
               }
 
               if (!Chat.info.hideBadges) {
@@ -1256,11 +1332,13 @@ Chat = {
                 Chat.loadPersonalEmotes(message.tags["user-id"]);
               }
 
-              // console.log(
-              //   "personal emotes for",
-              //   message.tags["user-id"],
-              //   Chat.info.seventvPersonalEmotes[message.tags["user-id"]]
-              // );
+              if (
+                !Chat.info.seventvPaints[nick] &&
+                !Chat.info.seventvNoUsers[message.tags["user-id"]] &&
+                !Chat.info.seventvNonSubs[message.tags["user-id"]]
+              ) {
+                Chat.loadUserPaints(nick, message.tags["user-id"]);
+              }
 
               Chat.write(nick, message.tags, message.params[1], "twitch");
               return;

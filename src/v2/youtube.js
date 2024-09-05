@@ -1,24 +1,62 @@
-// update to real server later
-var socket = new ReconnectingWebSocket('ws://baka.local:8765/', null, { reconnectInterval: 2000 });
-// var socket = new ReconnectingWebSocket('ws://localhost:8765/', null, { reconnectInterval: 2000 });
+if (Chat.info.yt) {
+	// Determine the WebSocket protocol (ws:// or wss://) based on the current page protocol
+	const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-socket.onopen = function() {
-	console.log('YouTube: Connected');
-};
+	// Construct the WebSocket URL using the current host, a relative path, and the channel parameter
+	const wsUrl = `${wsProtocol}//${window.location.host}/ws?channel=${encodeURIComponent(Chat.info.yt)}`;
 
-socket.onclose = function() {
-	console.log('YouTube: Disconnected');
-};
+	// Create the WebSocket connection
+	var yt_socket = new ReconnectingWebSocket(wsUrl, null, { reconnectInterval: 5000 });
 
-socket.onmessage = function(data) {
-	data = JSON.parse(data.data)
-	console.log(data)
-	if(data.info == "deleted")
-	{
-		Chat.clearMessage(String(data.message))
+	yt_socket.onopen = function() {
+		console.log('YouTube: Connected');
+	};
+
+	yt_socket.onclose = function() {
+		console.log('YouTube: Disconnected');
+	};
+
+	function formatMessage(message) {
+		let badges = undefined
+		let badge_info = true
+
+		if (message.author.moderator == true) {
+			badges += "moderator/1"
+		}
+
+		let info = {
+			"badge-info": badge_info,
+			"badges": badges,
+			"color": true,
+			"display-name": message.author.name,
+			"emotes": true,
+			"first-msg": "0",
+			"flags": true,
+			"id": message.id.replace(/\./g, ""),
+			"mod": message.author.moderator ? 1 : 0,
+			"returning-chatter": "0",
+			"room-id": "133875470",
+			"subscriber": "0",
+			"tmi-sent-ts": message.unix,
+			"turbo": "0",
+			"user-id": message.author.id,
+			"user-type": true
+		}
+
+		return info
 	}
-	else
-	{
-		Chat.write(data.username, data.info, data.message, "youtube")
+
+	yt_socket.onmessage = function(data) {
+		data = JSON.parse(data.data)
+		console.log(data)
+		if(data.info == "deleted")
+		{
+			Chat.clearMessage(String(data.message))
+		}
+		else
+		{
+			let info = formatMessage(data)
+			Chat.write(data.author.name, info, data.message, "youtube")
+		}
 	}
 }

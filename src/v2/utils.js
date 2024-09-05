@@ -189,6 +189,41 @@ function removeRandomQueryString(url) {
   return url.replace(/[?&]v=[^&]+/, "");
 }
 
+async function fileExists(url) {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch (error) {
+    console.error("Error checking file existence:", error);
+    return false;
+  }
+}
+
+function findVideoFile(source) {
+  const videoExtensions = [".mp4", ".webm", ".mov"];
+  const mediaFolder = "../media"; // Path to media folder
+
+  // Remove file extension from the source if present
+  const baseName = source.replace(/\.[^/.]+$/, "");
+
+  // Check media folder for the video file based on the source name and the extensions
+  return new Promise(async (resolve) => {
+    for (const extension of videoExtensions) {
+      const fileName = `${baseName}${extension}`;
+      const filePath = `${mediaFolder}/${fileName}`;
+
+      // Check if the file exists
+      if (await fileExists(filePath)) {
+        resolve(fileName);  // Return just the filename with extension
+        return;
+      }
+    }
+
+    // If no matching video file is found, resolve with null
+    resolve(null);
+  });
+}
+
 function appendMedia(mediaType, source) {
   // Check if any video or audio element is already playing
   const existingMedia = document.querySelector("video, audio");
@@ -207,7 +242,7 @@ function appendMedia(mediaType, source) {
     video.style.transform = "translate(-50%, -50%)";
     video.style.width = "100%";
     video.style.height = "100%";
-    video.style.objectFit = "cover";
+    video.style.objectFit = "contain";
     video.style.zIndex = -100;
     video.autoplay = true;
     video.muted = false;
@@ -294,6 +329,7 @@ async function fixZeroWidthEmotes() {
             default:
               sub = 4;
           }
+          sub = 0;
 
           const parentElement = imgElement.parentElement;
 
