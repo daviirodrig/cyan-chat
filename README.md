@@ -45,3 +45,5 @@
 - Raveena (Indian)
 
 </details>
+
+Thank you to [ixnoahlive](https://github.com/ixnoahlive) for creating a [Youtube Websocket](https://github.com/ixnoahlive/youtube-websocket) that I use for this project.
