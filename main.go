@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/polly"
+	"github.com/gorilla/websocket"
 	"github.com/nicklaw5/helix/v2"
 )
 
@@ -390,6 +391,57 @@ func refreshTokenLoop() {
 	}
 }
 
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Be careful with this in production
+	},
+}
+
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	// Extract the channel parameter from the request URL
+	channel := r.URL.Query().Get("channel")
+	if channel == "" {
+		log.Println("No channel specified")
+		http.Error(w, "No channel specified", http.StatusBadRequest)
+		return
+	}
+
+	// Upgrade the HTTP connection to a WebSocket connection
+	clientConn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("Upgrade error:", err)
+		return
+	}
+	defer clientConn.Close()
+
+	// Connect to the YouTube WebSocket using the provided channel
+	youtubeConn, _, err := websocket.DefaultDialer.Dial("ws://localhost:9905/c/"+channel, nil)
+	if err != nil {
+		log.Println("YouTube WebSocket connection error:", err)
+		return
+	}
+	defer youtubeConn.Close()
+
+	// Bidirectional relay (same as before)
+	go relay(clientConn, youtubeConn)
+	relay(youtubeConn, clientConn)
+}
+
+func relay(src, dst *websocket.Conn) {
+	for {
+		messageType, message, err := src.ReadMessage()
+		if err != nil {
+			log.Println("Read error:", err)
+			return
+		}
+		err = dst.WriteMessage(messageType, message)
+		if err != nil {
+			log.Println("Write error:", err)
+			return
+		}
+	}
+}
+
 func main() {
 	// cacheBuster("./src/index.html")
 	// cacheBuster("./src/v2/index.html")
@@ -480,6 +532,7 @@ func main() {
 	http.HandleFunc("/twitch/get_id", TwitchGetUserIDforUsernameHandler)
 	http.HandleFunc("/api/chatterino-badges", handleChatterinoBadges)
 	http.HandleFunc("/api/tts", synthesizeSpeechHandler)
+	http.HandleFunc("/ws", handleWebSocket)
 	// serve the current directory as a static web server
 	staticFilesV2 := http.FileServer(http.Dir("./dist"))
 	http.Handle("/", staticFilesV2)

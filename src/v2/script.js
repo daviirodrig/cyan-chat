@@ -122,6 +122,10 @@ Chat = {
       "disable_pruning" in $.QueryString
         ? $.QueryString.disable_pruning.toLowerCase() === "true"
         : false,
+    yt:
+      "yt" in $.QueryString
+        ? $.QueryString.yt.toLowerCase()
+        : false,
   },
 
   loadEmotes: function (channelID) {
@@ -775,15 +779,17 @@ Chat = {
           "vip",
         ];
         if (typeof info.badges === "string") {
-          info.badges.split(",").forEach((badge) => {
-            badge = badge.split("/");
-            var priority = priorityBadges.includes(badge[0]) ? true : false;
-            badges.push({
-              description: badge[0],
-              url: Chat.info.badges[badge[0] + ":" + badge[1]],
-              priority: priority,
+          if (info.badges != "") {
+            info.badges.split(",").forEach((badge) => {
+              badge = badge.split("/");
+              var priority = priorityBadges.includes(badge[0]) ? true : false;
+              badges.push({
+                description: badge[0],
+                url: Chat.info.badges[badge[0] + ":" + badge[1]],
+                priority: priority,
+              });
             });
-          });
+          }
         }
         var $modBadge;
         badges.forEach((badge) => {

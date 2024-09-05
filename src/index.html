@@ -47,7 +47,7 @@
     <section>
         <p>
             <em>Cyan Chat</em> is an overlay that allows you to show your Twitch
-            chat on screen with OBS, XSplit, and any other streaming software that
+            chat (and optionally Youtube chat) on screen with OBS, XSplit, and any other streaming software that
             supports browser sources. It supports your
             <a href="https://betterttv.com/" target="_blank">BetterTTV</a>,
             <a href="https://www.frankerfacez.com/" target="_blank">FrankerFaceZ</a>
@@ -110,7 +110,10 @@
 
         <form name="generator">
             <div class="form_row center">
-                <input type="text" name="channel" required placeholder="Channel" />
+                <input type="text" name="channel" required placeholder="Twitch Channel" />
+            </div>
+            <div class="form_row center">
+                <input type="text" name="yt-channel" required placeholder="YT ID or Handle (Optional)" />
             </div>
             <div class="form_table">
                 <div class="form_col">
