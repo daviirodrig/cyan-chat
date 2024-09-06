@@ -17,11 +17,11 @@ if (Chat.info.yt) {
 	};
 
 	function formatMessage(message) {
-		let badges = undefined
+		let badges = ""
 		let badge_info = true
 
 		if (message.author.moderator == true) {
-			badges += "moderator/1"
+			badges += "youtubemoderator/1"
 		}
 
 		let info = {
@@ -40,7 +40,8 @@ if (Chat.info.yt) {
 			"tmi-sent-ts": message.unix,
 			"turbo": "0",
 			"user-id": message.author.id,
-			"user-type": true
+			"user-type": true,
+			"runs": message.runs
 		}
 
 		return info
@@ -48,7 +49,6 @@ if (Chat.info.yt) {
 
 	yt_socket.onmessage = function(data) {
 		data = JSON.parse(data.data)
-		console.log(data)
 		if(data.info == "deleted")
 		{
 			Chat.clearMessage(String(data.message))

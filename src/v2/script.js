@@ -776,23 +776,34 @@ Chat = {
           "twitchbot",
           "broadcaster",
           "moderator",
+          "youtubemod",
           "vip",
         ];
         if (typeof info.badges === "string") {
           if (info.badges != "") {
+            console.log(info.badges);
             info.badges.split(",").forEach((badge) => {
               badge = badge.split("/");
               var priority = priorityBadges.includes(badge[0]) ? true : false;
-              badges.push({
-                description: badge[0],
-                url: Chat.info.badges[badge[0] + ":" + badge[1]],
-                priority: priority,
-              });
+              if (badge[0] == "youtubemod") {
+                badges.push({
+                  description: badge[0],
+                  url: "../styles/yt-mod.webp",
+                  priority: priority,
+                });
+              } else {
+                badges.push({
+                  description: badge[0],
+                  url: Chat.info.badges[badge[0] + ":" + badge[1]],
+                  priority: priority,
+                });
+              }
             });
           }
         }
         var $modBadge;
         badges.forEach((badge) => {
+          console.log(badge)
           if (badge.priority) {
             var $badge = $("<img/>");
             $badge.addClass("badge");
@@ -833,27 +844,29 @@ Chat = {
       $username.html(info["display-name"] ? info["display-name"] : nick);
       var $usernameCopy = null;
       // check the info for seventv paints and add them to the username
-      if (Chat.info.seventvPaints[nick]) {
-        $usernameCopy = $username.clone();
-        $usernameCopy.css("position", "absolute");
-        $usernameCopy.css("color", "transparent");
-        $usernameCopy.css("z-index", "-1");
-        Chat.info.seventvPaints[nick].forEach((paint) => {
-          if (paint.type === "gradient") {
-            $username.css("background-image", paint.backgroundImage);
-          } else if (paint.type === "image") {
-            $username.css(
-              "background-image",
-              "url(" + paint.backgroundImage + ")"
-            );
-          }
-          $username.css("filter", paint.filter);
-          $username.addClass("paint");
-          if (Chat.info.hidePaints) {
-            $username.addClass("nopaint");
-          }
-        });
-        $userInfo.append($usernameCopy);
+      if (service != "youtube") {
+        if (Chat.info.seventvPaints[nick]) {
+          $usernameCopy = $username.clone();
+          $usernameCopy.css("position", "absolute");
+          $usernameCopy.css("color", "transparent");
+          $usernameCopy.css("z-index", "-1");
+          Chat.info.seventvPaints[nick].forEach((paint) => {
+            if (paint.type === "gradient") {
+              $username.css("background-image", paint.backgroundImage);
+            } else if (paint.type === "image") {
+              $username.css(
+                "background-image",
+                "url(" + paint.backgroundImage + ")"
+              );
+            }
+            $username.css("filter", paint.filter);
+            $username.addClass("paint");
+            if (Chat.info.hidePaints) {
+              $username.addClass("nopaint");
+            }
+          });
+          $userInfo.append($usernameCopy);
+        }
       }
 
       if (Chat.info.hideColon && !Chat.info.center) {
@@ -863,25 +876,27 @@ Chat = {
       $userInfo.append($username);
 
       // Updating the 7tv checker
-      if (Chat.info.seventvCheckers[info["user-id"]]) {
-        // console.log(
-        //   Chat.info.seventvCheckers[info["user-id"]].timestamp +
-        //     60000 -
-        //     Date.now()
-        // );
-        if (
-          Chat.info.seventvCheckers[info["user-id"]].timestamp + 60000 <
-          Date.now()
-        ) {
-          // console.log("7tv checker expired so checking again");
-          Chat.loadUserBadges(nick, info["user-id"]);
-          Chat.loadUserPaints(nick, info["user-id"]);
-          Chat.loadPersonalEmotes(info["user-id"]);
-          const data = {
-            enabled: true,
-            timestamp: Date.now(),
-          };
-          Chat.info.seventvCheckers[info["user-id"]] = data;
+      if (service != "youtube") {
+        if (Chat.info.seventvCheckers[info["user-id"]]) {
+          // console.log(
+          //   Chat.info.seventvCheckers[info["user-id"]].timestamp +
+          //     60000 -
+          //     Date.now()
+          // );
+          if (
+            Chat.info.seventvCheckers[info["user-id"]].timestamp + 60000 <
+            Date.now()
+          ) {
+            // console.log("7tv checker expired so checking again");
+            Chat.loadUserBadges(nick, info["user-id"]);
+            Chat.loadUserPaints(nick, info["user-id"]);
+            Chat.loadPersonalEmotes(info["user-id"]);
+            const data = {
+              enabled: true,
+              timestamp: Date.now(),
+            };
+            Chat.info.seventvCheckers[info["user-id"]] = data;
+          }
         }
       }
 
@@ -902,42 +917,25 @@ Chat = {
       }
       $chatLine.append($userInfo);
 
-      // Replacing emotes and cheers
-      var replacements = {};
-      if (typeof info.emotes === "string") {
-        info.emotes.split("/").forEach((emoteData) => {
-          var twitchEmote = emoteData.split(":");
-          var indexes = twitchEmote[1].split(",")[0].split("-");
-          var emojis = new RegExp("[\u1000-\uFFFF]+", "g");
-          var aux = message.replace(emojis, " ");
-          var emoteCode = aux.substr(indexes[0], indexes[1] - indexes[0] + 1);
-          replacements[emoteCode] =
-            '<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/' +
-            twitchEmote[0] +
-            '/default/dark/3.0"/>';
-        });
-      }
-
-      Object.entries(Chat.info.emotes).forEach((emote) => {
-        const emoteRegex = new RegExp(`(^|\\s)${escapeRegExp(emote[0])}($|\\s)`, 'g');
-        if (emoteRegex.test(message)) {
-          let replacement;
-          if (emote[1].upscale) {
-            replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
-          } else if (emote[1].zeroWidth) {
-            replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
-          } else {
-            replacement = `<img class="emote" src="${emote[1].image}"/>`;
-          }
-          replacements[emote[0]] = replacement;
+      if (service != "youtube") {
+        // Replacing emotes and cheers
+        var replacements = {};
+        if (typeof info.emotes === "string") {
+          info.emotes.split("/").forEach((emoteData) => {
+            var twitchEmote = emoteData.split(":");
+            var indexes = twitchEmote[1].split(",")[0].split("-");
+            var emojis = new RegExp("[\u1000-\uFFFF]+", "g");
+            var aux = message.replace(emojis, " ");
+            var emoteCode = aux.substr(indexes[0], indexes[1] - indexes[0] + 1);
+            replacements[emoteCode] =
+              '<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/' +
+              twitchEmote[0] +
+              '/default/dark/3.0"/>';
+          });
         }
-      });
 
-      if (Chat.info.seventvPersonalEmotes[info["user-id"]]) {
-        Object.entries(
-          Chat.info.seventvPersonalEmotes[info["user-id"]]
-        ).forEach((emote) => {
-          const emoteRegex = new RegExp(`\\b${escapeRegExp(emote[0])}\\b`, 'g');
+        Object.entries(Chat.info.emotes).forEach((emote) => {
+          const emoteRegex = new RegExp(`(^|\\s)${escapeRegExp(emote[0])}($|\\s)`, 'g');
           if (emoteRegex.test(message)) {
             let replacement;
             if (emote[1].upscale) {
@@ -950,56 +948,122 @@ Chat = {
             replacements[emote[0]] = replacement;
           }
         });
-      }
 
-      message = escapeHtml(message);
-
-      if (info.bits && parseInt(info.bits) > 0) {
-        var bits = parseInt(info.bits);
-        var parsed = false;
-        for (cheerType of Object.entries(Chat.info.cheers)) {
-          var regex = new RegExp(cheerType[0] + "\\d+\\s*", "ig");
-          if (message.search(regex) > -1) {
-            message = message.replace(regex, "");
-
-            if (!parsed) {
-              var closest = 1;
-              for (cheerTier of Object.keys(cheerType[1])
-                .map(Number)
-                .sort((a, b) => a - b)) {
-                if (bits >= cheerTier) closest = cheerTier;
-                else break;
+        if (Chat.info.seventvPersonalEmotes[info["user-id"]]) {
+          Object.entries(
+            Chat.info.seventvPersonalEmotes[info["user-id"]]
+          ).forEach((emote) => {
+            const emoteRegex = new RegExp(`\\b${escapeRegExp(emote[0])}\\b`, 'g');
+            if (emoteRegex.test(message)) {
+              let replacement;
+              if (emote[1].upscale) {
+                replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+              } else if (emote[1].zeroWidth) {
+                replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+              } else {
+                replacement = `<img class="emote" src="${emote[1].image}"/>`;
               }
-              message =
-                '<img class="cheer_emote" src="' +
-                cheerType[1][closest].image +
-                '" /><span class="cheer_bits" style="color: ' +
-                cheerType[1][closest].color +
-                ';">' +
-                bits +
-                "</span> " +
-                message;
-              parsed = true;
+              replacements[emote[0]] = replacement;
+            }
+          });
+        }
+
+        message = escapeHtml(message);
+
+        if (info.bits && parseInt(info.bits) > 0) {
+          var bits = parseInt(info.bits);
+          var parsed = false;
+          for (cheerType of Object.entries(Chat.info.cheers)) {
+            var regex = new RegExp(cheerType[0] + "\\d+\\s*", "ig");
+            if (message.search(regex) > -1) {
+              message = message.replace(regex, "");
+
+              if (!parsed) {
+                var closest = 1;
+                for (cheerTier of Object.keys(cheerType[1])
+                  .map(Number)
+                  .sort((a, b) => a - b)) {
+                  if (bits >= cheerTier) closest = cheerTier;
+                  else break;
+                }
+                message =
+                  '<img class="cheer_emote" src="' +
+                  cheerType[1][closest].image +
+                  '" /><span class="cheer_bits" style="color: ' +
+                  cheerType[1][closest].color +
+                  ';">' +
+                  bits +
+                  "</span> " +
+                  message;
+                parsed = true;
+              }
             }
           }
         }
+
+        var replacementKeys = Object.keys(replacements);
+        replacementKeys.sort(function (a, b) {
+          return b.length - a.length;
+        });
+
+        replacementKeys.forEach((replacementKey) => {
+          var regex = new RegExp(
+            "(" + escapeRegExp(replacementKey) + ")",
+            "g"
+          );
+          message = message.replace(regex, replacements[replacementKey]);
+          message = message.replace(/\s+/g, ' ').trim();
+          message = message.replace(/>(\s+)</g, '><');
+          message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
+        });
       }
 
-      var replacementKeys = Object.keys(replacements);
-      replacementKeys.sort(function (a, b) {
-        return b.length - a.length;
-      });
+      if (service == "youtube") {
+        message = "";
+        info.runs.forEach((run) => {
+          if ('emoji' in run) {
+            // This is an EmojiRun
+            message += `<img class="emote" src="${run.emoji.image[0].url}">`;
+          } else if ('text' in run) {
+            // This is a TextRun
+            message += run.text;
+          } else {
+            // Fallback for any unexpected run type
+            message += run.toString().replace(/>/g, '&gt;');
+          }
+        });
 
-      replacementKeys.forEach((replacementKey) => {
-        var regex = new RegExp(
-          "(" + escapeRegExp(replacementKey) + ")",
-          "g"
-        );
-        message = message.replace(regex, replacements[replacementKey]);
-        message = message.replace(/\s+/g, ' ').trim();
-        message = message.replace(/>(\s+)</g, '><');
-        message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
-      });
+        // Object.entries(Chat.info.emotes).forEach((emote) => {
+        //   const emoteRegex = new RegExp(`(^|\\s)${escapeRegExp(emote[0])}($|\\s)`, 'g');
+        //   if (emoteRegex.test(message)) {
+        //     let replacement;
+        //     if (emote[1].upscale) {
+        //       replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+        //     } else if (emote[1].zeroWidth) {
+        //       replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+        //     } else {
+        //       replacement = `<img class="emote" src="${emote[1].image}"/>`;
+        //     }
+        //     replacements[emote[0]] = replacement;
+        //   }
+        // });
+
+        // var replacementKeys = Object.keys(replacements);
+        // replacementKeys.sort(function (a, b) {
+        //   return b.length - a.length;
+        // });
+
+        // replacementKeys.forEach((replacementKey) => {
+        //   var regex = new RegExp(
+        //     "(" + escapeRegExp(replacementKey) + ")",
+        //     "g"
+        //   );
+        //   message = message.replace(regex, replacements[replacementKey]);
+        //   message = message.replace(/\s+/g, ' ').trim();
+        //   message = message.replace(/>(\s+)</g, '><');
+        //   message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
+        // });
+      }
 
       message = twemoji.parse(message);
       $message.html(message);
