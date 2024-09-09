@@ -21,7 +21,7 @@ if (Chat.info.yt) {
 		let badge_info = true
 
 		if (message.author.moderator == true) {
-			badges += "youtubemoderator/1"
+			badges += "youtubemod/1"
 		}
 
 		let info = {
