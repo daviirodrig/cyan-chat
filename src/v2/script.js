@@ -850,6 +850,9 @@ Chat = {
           $usernameCopy.css("position", "absolute");
           $usernameCopy.css("color", "transparent");
           $usernameCopy.css("z-index", "-1");
+          if (Chat.info.center) {
+            $usernameCopy.css("max-width", "2.5%");
+          }
           Chat.info.seventvPaints[nick].forEach((paint) => {
             if (paint.type === "gradient") {
               $username.css("background-image", paint.backgroundImage);
@@ -1080,6 +1083,9 @@ Chat = {
               $mentionCopy.css("position", "absolute");
               $mentionCopy.css("color", "transparent");
               $mentionCopy.css("z-index", "-1");
+              if (Chat.info.center) {
+                $usernameCopy.css("max-width", "2.5%");
+              }
 
               Chat.info.seventvPaints[username].forEach((paint) => {
                 if (paint.type === "gradient") {
