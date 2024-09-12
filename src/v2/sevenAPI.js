@@ -32,7 +32,7 @@ async function getUserInfo(twitchUserId) {
       if (data.user.id !== null) {
         // check if the only role is 62b48deb791a15a25c2a0354
         if (!data.user.roles.includes("6076a86b09a4c63a38ebe801")) {
-          console.log(twitchUserId, "is not subscribed to 7tv.");
+          // console.log(twitchUserId, "is not subscribed to 7tv.");
         } else {
           if (!Chat.info.seventvCheckers[twitchUserId]) {
             const data = {
