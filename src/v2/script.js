@@ -729,6 +729,7 @@ Chat = {
   },
 
   write: function (nick, info, message, service) {
+    nick = Chat.sanitizeUsername(nick);
     if (info) {
       if (Chat.info.regex) {
         if (doesStringMatchPattern(message, Chat.info)) {
@@ -781,7 +782,6 @@ Chat = {
         ];
         if (typeof info.badges === "string") {
           if (info.badges != "") {
-            console.log(info.badges);
             info.badges.split(",").forEach((badge) => {
               badge = badge.split("/");
               var priority = priorityBadges.includes(badge[0]) ? true : false;
@@ -840,8 +840,11 @@ Chat = {
       $username.addClass("nick");
       var color = Chat.getUserColor(nick, info);
       $username.css("color", color);
+      if (Chat.info.center) {
+        $username.css("padding-right", "0.5em");
+      }
       Chat.info.colors[nick] = color;
-      $username.html(info["display-name"] ? info["display-name"] : nick);
+      $username.html(info["display-name"] ? info["display-name"] : nick); // if display name is set, use that instead of twitch name
       var $usernameCopy = null;
       // check the info for seventv paints and add them to the username
       if (service != "youtube") {
@@ -852,6 +855,7 @@ Chat = {
           $usernameCopy.css("z-index", "-1");
           if (Chat.info.center) {
             $usernameCopy.css("max-width", "29.9%");
+            $usernameCopy.css("padding-right", "0.5em");
           }
           Chat.info.seventvPaints[nick].forEach((paint) => {
             if (paint.type === "gradient") {
@@ -1083,9 +1087,6 @@ Chat = {
               $mentionCopy.css("position", "absolute");
               $mentionCopy.css("color", "transparent");
               $mentionCopy.css("z-index", "-1");
-              if (Chat.info.center) {
-                $mentionCopy.css("max-width", "29.9%");
-              }
 
               Chat.info.seventvPaints[username].forEach((paint) => {
                 if (paint.type === "gradient") {
@@ -1142,6 +1143,10 @@ Chat = {
         fixZeroWidthEmotes();
       }
     }
+  },
+
+  sanitizeUsername: function (username) {
+    return username.replace(/\\s$/, '').trim();
   },
 
   clearChat: function (nick) {
