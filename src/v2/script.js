@@ -551,7 +551,7 @@ Chat = {
       }
     } else {
       var color = twitchColors[nick.charCodeAt(0) % 15];
-      console.log("generated random color for", nick, color)
+      // console.log("generated random color for", nick, color)
       if (Chat.info.readable) {
         if (color === "#8A2BE2") {
           color = "#C797F4";
@@ -719,7 +719,7 @@ Chat = {
             }
           }
         } else {
-          console.log("No 7tv paint info found for", userId);
+          // console.log("No 7tv paint info found for", userId);
           Chat.info.seventvPaints[nick] = [];
         }
       } catch (error) {
@@ -803,7 +803,6 @@ Chat = {
         }
         var $modBadge;
         badges.forEach((badge) => {
-          console.log(badge)
           if (badge.priority) {
             var $badge = $("<img/>");
             $badge.addClass("badge");
@@ -1381,7 +1380,7 @@ Chat = {
 
               if (Chat.info.blockedUsers) {
                 if (Chat.info.blockedUsers.includes(nick)) {
-                  console.log("Cyan Chat: Hiding blocked user message but getting color...'" + nick + "'");
+                  // console.log("Cyan Chat: Hiding blocked user message but getting color...'" + nick + "'");
                   Chat.info.colors[nick] = Chat.getUserColor(nick, message.tags);
                   Chat.loadUserPaints(nick, message.tags["user-id"]);
                   return;
