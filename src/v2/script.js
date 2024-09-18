@@ -918,7 +918,11 @@ Chat = {
         $userInfo.append("<span>&nbsp;</span>");
       } else {
         if (!Chat.info.hideColon || Chat.info.center) {
-          $userInfo.append('<span class="colon"> :</span>');
+          var $colon = $("<span></span>");
+          $colon.addClass("colon");
+          $colon.html(" :");
+          $colon.css("color", color);
+          $userInfo.append($colon);
         }
       }
       $chatLine.append($userInfo);

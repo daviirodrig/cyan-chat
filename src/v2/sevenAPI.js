@@ -159,6 +159,35 @@ async function getPersonalEmoteData(id) {
   });
 }
 
+async function getEmoteSetsData(id) {
+  return retry(async () => {
+    const query = `
+    query MyQuery {
+      userByConnection(id: "${id}", platform: TWITCH) {
+        emote_sets {
+          id
+          origins {
+            id
+          }
+        }
+      }
+    }`;
+    const response = await fetch(
+      addRandomQueryString("https://7tv.io/v3/gql"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      }
+    );
+
+    const data = await response.json();
+    return data.data.userByConnection;
+  });
+}
+
 async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
