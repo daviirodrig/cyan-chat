@@ -5,9 +5,21 @@ class EmoteChanged {
     }
 }
 
+async function getOriginsForSetID(setID) {
+    var info = await getEmoteSetsData(Chat.info.channelID)
+    for (var i = 0; i < info.emote_sets.length; i++) {
+        if (info.emote_sets[i].id === setID) {
+            return info.emote_sets[i].origins
+        }
+    }
+    return []
+}
+
 function seven_ws(channel) {
     (async () => {
         var info = await getUserInfo(Chat.info.channelID);
+        var origins = await getOriginsForSetID(info.emoteSetID)
+        console.log(info);
         var id = info.id;
         var emoteSetID = info.emoteSetID;
         var currentEmoteSetID = emoteSetID
@@ -36,16 +48,6 @@ function seven_ws(channel) {
                     }
                 }
             }));
-            // // Subscribe to emote events for the channel
-            // conn.send(JSON.stringify({
-            //     op: 35, // subscribe opcode
-            //     d: {
-            //         type: "emote.*", // subscription type
-            //         condition: {
-            //             object_id: id // channel ID
-            //         }
-            //     }
-            // }));
             // Subscribe to user events for the channel
             conn.send(JSON.stringify({
                 op: 35, // subscribe opcode
@@ -56,6 +58,21 @@ function seven_ws(channel) {
                     }
                 }
             }));
+
+            // subscribe to emote events for the origins
+            if (origins.length > 0) {
+                for (var i = 0; i < origins.length; i++) {
+                    conn.send(JSON.stringify({
+                        op: 35, // subscribe opcode
+                        d: {
+                            type: "emote_set.*", // subscription type
+                            condition: {
+                                object_id: origins[i].id // origin ID
+                            }
+                        }
+                    }));
+                }
+            }
         };
 
         conn.onmessage = function (event) {
@@ -86,7 +103,6 @@ function seven_ws(channel) {
                 } else if (msg.op === 0) {
                     if (msg.d.type === "emote_set.update") {
                         if (emoteEvent.d && emoteEvent.d.body) {
-                            // Chat.loadEmotes(id);
                             if (emoteEvent.d.body.pushed && emoteEvent.d.body.pushed.length > 0) {
                                 console.log(`[${channel}] Added: ${emoteEvent.d.body.pushed[0].value.name}`);
                                 SendInfoText(`Added: ${emoteEvent.d.body.pushed[0].value.name}`);
@@ -101,6 +117,47 @@ function seven_ws(channel) {
                                 SendInfoText(`Removed: ${emoteEvent.d.body.pulled[0].old_value.name}`);
                                 delete Chat.info.emotes[emoteEvent.d.body.pulled[0].old_value.name];
                             } else if (emoteEvent.d.body.updated && emoteEvent.d.body.updated.length > 0) {
+                                if (emoteEvent.d.body.updated[0].key == "origins") {
+                                    var origin = 0; // blank id for now
+                                    for (var i = 0; i < emoteEvent.d.body.updated.length; i++) { // loop through all updated values
+                                        if (emoteEvent.d.body.updated[i].old_value.length > 0) { // removed emote origin
+                                            for (var j = 0; j < emoteEvent.d.body.updated[i].old_value.length; j++) { // loop through all removed origins
+                                                origin = emoteEvent.d.body.updated[i].old_value[j].id
+                                                // Unsubscribe from emote set events for the old origin
+                                                conn.send(JSON.stringify({
+                                                    op: 36, // unsubscribe opcode
+                                                    d: {
+                                                        type: "emote_set.*", // subscription type
+                                                        condition: {
+                                                            object_id: origin // Emote set ID
+                                                        }
+                                                    }
+                                                }));
+                                            }
+                                        }
+                                        
+                                        if (emoteEvent.d.body.updated[i].value.length > 0) { // added emote origin
+                                            for (var j = 0; j < emoteEvent.d.body.updated[i].value.length; j++) { // loop through all added origins
+                                                origin = emoteEvent.d.body.updated[i].value[j].id;
+                                                // Subscribe to emote set events for the new origin
+                                                conn.send(JSON.stringify({
+                                                    op: 35, // subscribe opcode
+                                                    d: {
+                                                        type: "emote_set.*", // subscription type
+                                                        condition: {
+                                                            object_id: origin // Emote set ID
+                                                        }
+                                                    }
+                                                }));
+                                            }
+                                        }
+                                    }
+                                    Chat.loadEmotes(Chat.info.channelID);
+                                    SendInfoText("Emote origin changed")
+                                    console.log("Cyan Chat: Emote origin changed, refreshing emotes...");
+                                    return
+                                }
+                                
                                 console.log(`[${channel}] Renamed: ${emoteEvent.d.body.updated[0].old_value.name} to ${emoteEvent.d.body.updated[0].value.name}`);
                                 SendInfoText(`Renamed: ${emoteEvent.d.body.updated[0].old_value.name} to ${emoteEvent.d.body.updated[0].value.name}`);
                                 delete Chat.info.emotes[emoteEvent.d.body.updated[0].old_value.name];
