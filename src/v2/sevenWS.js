@@ -15,11 +15,46 @@ async function getOriginsForSetID(setID) {
     return []
 }
 
+function subscribeToOrigins(origins, conn) {
+    console.log("Subscribing to new origins")
+    // subscribe to emote events for the origins
+    if (origins.length > 0) {
+        for (var i = 0; i < origins.length; i++) {
+            conn.send(JSON.stringify({
+                op: 35, // subscribe opcode
+                d: {
+                    type: "emote_set.*", // subscription type
+                    condition: {
+                        object_id: origins[i].id // origin ID
+                    }
+                }
+            }));
+        }
+    }
+}
+
+function unsubscribeFromOrigins(origins, conn) {
+    console.log("unubscribing from old origins")
+    // unsubscribe from emote events for the origins
+    if (origins.length > 0) {
+        for (var i = 0; i < origins.length; i++) {
+            conn.send(JSON.stringify({
+                op: 36, // unsubscribe opcode
+                d: {
+                    type: "emote_set.*", // subscription type
+                    condition: {
+                        object_id: origins[i].id // origin ID
+                    }
+                }
+            }));
+        }
+    }
+}
+
 function seven_ws(channel) {
     (async () => {
         var info = await getUserInfo(Chat.info.channelID);
         var origins = await getOriginsForSetID(info.emoteSetID)
-        console.log(info);
         var id = info.id;
         var emoteSetID = info.emoteSetID;
         var currentEmoteSetID = emoteSetID
@@ -59,6 +94,7 @@ function seven_ws(channel) {
                 }
             }));
 
+            console.log("Subscribing to origins")
             // subscribe to emote events for the origins
             if (origins.length > 0) {
                 for (var i = 0; i < origins.length; i++) {
@@ -188,6 +224,21 @@ function seven_ws(channel) {
                                 }
                             }
                         }));
+                        console.log("unubscribing from old origins")
+                        // unsubscribe from emote events for the origins
+                        if (origins.length > 0) {
+                            for (var i = 0; i < origins.length; i++) {
+                                conn.send(JSON.stringify({
+                                    op: 36, // unsubscribe opcode
+                                    d: {
+                                        type: "emote_set.*", // subscription type
+                                        condition: {
+                                            object_id: origins[i].id // origin ID
+                                        }
+                                    }
+                                }));
+                            }
+                        }
                         // Subscribe to emote set events for the channel
                         conn.send(JSON.stringify({
                             op: 35, // subscribe opcode
@@ -198,7 +249,25 @@ function seven_ws(channel) {
                                 }
                             }
                         }));
-                        currentEmoteSetID = newEmoteSetID
+                        currentEmoteSetID = newEmoteSetID;
+                        getOriginsForSetID(newEmoteSetID).then(newOrigins => {
+                            console.log(newOrigins);
+                            console.log("Subscribing to new origins");
+                            // subscribe to emote events for the origins
+                            if (newOrigins.length > 0) {
+                                for (var i = 0; i < newOrigins.length; i++) {
+                                    conn.send(JSON.stringify({
+                                        op: 35, // subscribe opcode
+                                        d: {
+                                            type: "emote_set.*", // subscription type
+                                            condition: {
+                                                object_id: newOrigins[i].id // origin ID
+                                            }
+                                        }
+                                    }));
+                                }
+                            }
+                        });
                     } else {
                         console.log(`Unknown event: ${event.data}`);
                     }
