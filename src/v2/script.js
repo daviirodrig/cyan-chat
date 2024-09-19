@@ -1086,10 +1086,10 @@ Chat = {
             var username = word.substring(1).toLowerCase();
             var $mention = $(`<span class="mention">${word}</span>`);
             if (Chat.info.seventvPaints[username] && Chat.info.seventvPaints[username].length > 0) {
-              $mentionCopy = $mention.clone();
-              $mentionCopy.css("position", "absolute");
-              $mentionCopy.css("color", "transparent");
-              $mentionCopy.css("z-index", "-1");
+              // $mentionCopy = $mention.clone();
+              // $mentionCopy.css("position", "absolute");
+              // $mentionCopy.css("color", "transparent");
+              // $mentionCopy.css("z-index", "-1");
 
               Chat.info.seventvPaints[username].forEach((paint) => {
                 if (paint.type === "gradient") {
@@ -1104,7 +1104,8 @@ Chat = {
                 $mention.addClass("paint");
               });
               var mentionHtml =
-                $mentionCopy[0].outerHTML + $mention[0].outerHTML;
+                // $mentionCopy[0].outerHTML + $mention[0].outerHTML;
+                $mention[0].outerHTML;
               return mentionHtml;
             }
             if (Chat.info.colors[username]) {
