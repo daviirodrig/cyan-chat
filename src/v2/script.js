@@ -945,7 +945,7 @@ Chat = {
         }
 
         Object.entries(Chat.info.emotes).forEach((emote) => {
-          const emoteRegex = new RegExp(`(^|\\s)${escapeRegExp(emote[0])}($|\\s)`, 'g');
+          const emoteRegex = new RegExp(`(?<=^|\\s)${escapeRegExp(emote[0])}(?=$|\\s)`, 'g');
           if (emoteRegex.test(message)) {
             let replacement;
             if (emote[1].upscale) {
@@ -957,13 +957,13 @@ Chat = {
             }
             replacements[emote[0]] = replacement;
           }
-        });
+        });                       
 
         if (Chat.info.seventvPersonalEmotes[info["user-id"]]) {
           Object.entries(
             Chat.info.seventvPersonalEmotes[info["user-id"]]
           ).forEach((emote) => {
-            const emoteRegex = new RegExp(`\\b${escapeRegExp(emote[0])}\\b`, 'g');
+            const emoteRegex = new RegExp(`(?<=^|\\s)${escapeRegExp(emote[0])}(?=$|\\s)`, 'g');
             if (emoteRegex.test(message)) {
               let replacement;
               if (emote[1].upscale) {
@@ -976,7 +976,7 @@ Chat = {
               replacements[emote[0]] = replacement;
             }
           });
-        }
+        }                      
 
         message = escapeHtml(message);
 
