@@ -139,6 +139,6 @@ body {
 
 .animate {
   animation-name: fade;
-  animation-duration: 0.05s;
+  animation-duration: 0.2s;
   animation-timing-function: ease-in-out;
 }
