@@ -251,6 +251,7 @@ input:focus {
     height: 30px;
     margin-right: 10px;
     cursor: pointer;
+    display: none;
 }
 
 #example {
