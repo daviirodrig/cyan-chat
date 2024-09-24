@@ -468,3 +468,31 @@ window.addEventListener("load", () => {
 });
 
 // #endregion Message Pruning
+
+// #region Active User Call
+
+function makeActiveUserCall() {
+  fetch(`/active?channel=${encodeURIComponent(Chat.info.channel)}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.text();
+    })
+    .then(data => {
+      console.log('Active user call successful:', data);
+    })
+    .catch(error => {
+      console.error('Error making active user call:', error);
+    });
+}
+
+// Run immediately when connected
+setTimeout(() => {
+makeActiveUserCall();
+}, 5000);
+
+// Then run every 10 minutes
+setInterval(makeActiveUserCall, 10 * 60 * 1000);
+
+// #endregion Active User Call

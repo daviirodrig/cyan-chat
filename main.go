@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -18,10 +19,20 @@ import (
 	"github.com/nicklaw5/helix/v2"
 )
 
+type ActiveChannels struct {
+	Count          int               `json:"count"`
+	Channels       map[string]string `json:"channels"`
+	AllTimeHighest int               `json:"all_time_highest"`
+}
+
 var (
-	pollySvc *polly.Polly
-	voiceMap map[string]string
-	mu       sync.Mutex
+	pollySvc       *polly.Polly
+	voiceMap       map[string]string
+	mu             sync.Mutex
+	activeChannels ActiveChannels
+	activeMutex    sync.Mutex
+	tokens         map[string]string
+	AdminPassword  string
 )
 
 func init() {
@@ -56,6 +67,224 @@ func init() {
 		"Maxim":    "Maxim",
 		"Hans":     "Hans",
 		"Raveena":  "Raveena",
+	}
+
+	// Initialize activeChannels
+	activeChannels = ActiveChannels{
+		Count:          0,
+		Channels:       make(map[string]string),
+		AllTimeHighest: 0,
+	}
+
+	// Load existing active channels from file
+	loadTokens()
+	loadActiveChannels()
+}
+
+func loadTokens() {
+	file, err := os.ReadFile("tokens.json")
+	if err != nil {
+		log.Fatal("Error reading tokens.json:", err)
+	}
+
+	err = json.Unmarshal(file, &tokens)
+	if err != nil {
+		log.Fatal("Error parsing tokens.json:", err)
+	}
+
+	AdminPassword = tokens["admin_password"]
+}
+
+func loadActiveChannels() {
+	file, err := os.ReadFile("active.json")
+	if err == nil {
+		json.Unmarshal(file, &activeChannels)
+	}
+}
+
+func saveActiveChannels() {
+	file, _ := json.MarshalIndent(activeChannels, "", "  ")
+	os.WriteFile("active.json", file, 0644)
+}
+
+func updateActiveChannel(channel string) {
+	activeMutex.Lock()
+	defer activeMutex.Unlock()
+
+	cleanupInactiveChannels()
+
+	activeChannels.Channels[channel] = time.Now().Format(time.RFC3339)
+	activeChannels.Count = len(activeChannels.Channels)
+
+	if activeChannels.Count > activeChannels.AllTimeHighest {
+		activeChannels.AllTimeHighest = activeChannels.Count
+	}
+
+	saveActiveChannels()
+}
+
+func cleanupInactiveChannels() {
+	threshold := time.Now().Add(-20 * time.Minute)
+	for channel, lastActive := range activeChannels.Channels {
+		lastActiveTime, _ := time.Parse(time.RFC3339, lastActive)
+		if lastActiveTime.Before(threshold) {
+			delete(activeChannels.Channels, channel)
+		}
+	}
+	activeChannels.Count = len(activeChannels.Channels)
+}
+
+func handleActive(w http.ResponseWriter, r *http.Request) {
+	channel := r.URL.Query().Get("channel")
+	if channel == "" {
+		http.Error(w, "No channel specified", http.StatusBadRequest)
+		return
+	}
+
+	updateActiveChannel(channel)
+	w.WriteHeader(http.StatusOK)
+}
+
+func handleAdminActive(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// Serve the login form
+		tmpl := template.Must(template.New("login").Parse(`
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Admin Login</title>
+				<style>
+					body {
+						font-family: Arial, sans-serif;
+						background-color: #1a1a1a;
+						color: #ffffff;
+						margin: 0;
+						padding: 20px;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						height: 100vh;
+					}
+					.container {
+						background-color: #2a2a2a;
+						border-radius: 5px;
+						padding: 20px;
+						max-width: 300px;
+					}
+					h1 {
+						color: #00aaff;
+						text-align: center;
+					}
+					input[type="password"] {
+						width: 90%;
+						padding: 5%;
+						margin: 10px 0;
+						border: none;
+						border-radius: 3px;
+						background-color: #212121;
+						color: white;
+					}
+					input[type="submit"] {
+						width: 100%;
+						padding: 5%;
+						background-color: #00aaff;
+						color: #ffffff;
+						border: none;
+						border-radius: 3px;
+						cursor: pointer;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<h1>Admin Login</h1>
+					<form method="POST">
+						<input type="password" name="password" placeholder="Enter password" required>
+						<input type="submit" value="Login">
+					</form>
+				</div>
+			</body>
+			</html>
+		`))
+		tmpl.Execute(w, nil)
+	} else if r.Method == "POST" {
+		// Handle login
+		r.ParseForm()
+		password := r.FormValue("password")
+		if password != AdminPassword {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		activeMutex.Lock()
+		cleanupInactiveChannels()
+		activeMutex.Unlock()
+
+		funcMap := template.FuncMap{
+			"formatTime": func(t string) string {
+				parsedTime, err := time.Parse(time.RFC3339, t)
+				if err != nil {
+					return "Invalid time"
+				}
+				return parsedTime.Format("Jan 2, 2006 15:04:05 MST")
+			},
+		}
+
+		tmpl := template.Must(template.New("admin").Funcs(funcMap).Parse(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Active Channels</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #1a1a1a;
+                        color: #ffffff;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    h1, h2 {
+                        color: #00aaff;
+                    }
+                    .container {
+                        background-color: #2a2a2a;
+                        border-radius: 5px;
+                        padding: 20px;
+                        max-width: 800px;
+                        margin: 0 auto;
+                    }
+                    ul {
+                        list-style-type: none;
+                        padding: 0;
+                    }
+                    li {
+                        margin-bottom: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Active Channels</h1>
+                    <p>Total active channels: {{.Count}}</p>
+                    <p>All-time highest active channels: {{.AllTimeHighest}}</p>
+                    <h2>Currently Active Channels:</h2>
+                    <ul>
+                        {{range $channel, $lastActive := .Channels}}
+                            <li>{{$channel}}</li>
+                        {{end}}
+                    </ul>
+                </div>
+            </body>
+            </html>
+        `))
+
+		tmpl.Execute(w, activeChannels)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -351,10 +580,11 @@ func saveTokens(accessToken string, refreshToken string) {
 	}
 	defer file.Close()
 	err = json.NewEncoder(file).Encode(map[string]string{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
-		"client_id":     clientID,
-		"client_secret": clientSecret,
+		"access_token":   accessToken,
+		"refresh_token":  refreshToken,
+		"client_id":      clientID,
+		"client_secret":  clientSecret,
+		"admin_password": AdminPassword,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -533,6 +763,8 @@ func main() {
 	http.HandleFunc("/api/chatterino-badges", handleChatterinoBadges)
 	http.HandleFunc("/api/tts", synthesizeSpeechHandler)
 	http.HandleFunc("/ws", handleWebSocket)
+	http.HandleFunc("/active", handleActive)
+	http.HandleFunc("/admin/active", handleAdminActive)
 	// serve the current directory as a static web server
 	staticFilesV2 := http.FileServer(http.Dir("./dist"))
 	http.Handle("/", staticFilesV2)
