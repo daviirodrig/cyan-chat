@@ -4,6 +4,7 @@ t/
 .vscode
 *.exe
 tokens.json
+active.json
 dist/
 node_modules/
 compile.bat

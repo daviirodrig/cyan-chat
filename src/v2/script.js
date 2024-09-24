@@ -847,7 +847,8 @@ Chat = {
       var $usernameCopy = null;
       // check the info for seventv paints and add them to the username
       if (service != "youtube") {
-        if (Chat.info.seventvPaints[nick]) {
+        if (Chat.info.seventvPaints[nick] && Chat.info.seventvPaints[nick].length > 0) {
+          console.log(Chat.info.seventvPaints[nick]);
           $usernameCopy = $username.clone();
           $usernameCopy.css("position", "absolute");
           $usernameCopy.css("color", "transparent");
@@ -855,6 +856,7 @@ Chat = {
           if (Chat.info.center) {
             $usernameCopy.css("max-width", "29.9%");
             $usernameCopy.css("padding-right", "0.5em");
+            $usernameCopy.css("text-overflow", "clip");
           }
           Chat.info.seventvPaints[nick].forEach((paint) => {
             if (paint.type === "gradient") {
@@ -927,38 +929,38 @@ Chat = {
       }
       $chatLine.append($userInfo);
 
-      if (service != "youtube") {
-        // Replacing emotes and cheers
-        var replacements = {};
-        if (typeof info.emotes === "string") {
-          info.emotes.split("/").forEach((emoteData) => {
-            var twitchEmote = emoteData.split(":");
-            var indexes = twitchEmote[1].split(",")[0].split("-");
-            var emojis = new RegExp("[\u1000-\uFFFF]+", "g");
-            var aux = message.replace(emojis, " ");
-            var emoteCode = aux.substr(indexes[0], indexes[1] - indexes[0] + 1);
-            replacements[emoteCode] =
-              '<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/' +
-              twitchEmote[0] +
-              '/default/dark/3.0"/>';
-          });
-        }
+      // Replacing emotes and cheers
+      var replacements = {};
+      if (typeof info.emotes === "string") {
+        info.emotes.split("/").forEach((emoteData) => {
+          var twitchEmote = emoteData.split(":");
+          var indexes = twitchEmote[1].split(",")[0].split("-");
+          var emojis = new RegExp("[\u1000-\uFFFF]+", "g");
+          var aux = message.replace(emojis, " ");
+          var emoteCode = aux.substr(indexes[0], indexes[1] - indexes[0] + 1);
+          replacements[emoteCode] =
+            '<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/' +
+            twitchEmote[0] +
+            '/default/dark/3.0"/>';
+        });
+      }
 
-        Object.entries(Chat.info.emotes).forEach((emote) => {
-          const emoteRegex = new RegExp(`(?<=^|\\s)${escapeRegExp(emote[0])}(?=$|\\s)`, 'g');
-          if (emoteRegex.test(message)) {
-            let replacement;
-            if (emote[1].upscale) {
-              replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
-            } else if (emote[1].zeroWidth) {
-              replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
-            } else {
-              replacement = `<img class="emote" src="${emote[1].image}"/>`;
-            }
-            replacements[emote[0]] = replacement;
+      Object.entries(Chat.info.emotes).forEach((emote) => {
+        const emoteRegex = new RegExp(`(?<=^|\\s)${escapeRegExp(emote[0])}(?=$|\\s)`, 'g');
+        if (emoteRegex.test(message)) {
+          let replacement;
+          if (emote[1].upscale) {
+            replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+          } else if (emote[1].zeroWidth) {
+            replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+          } else {
+            replacement = `<img class="emote" src="${emote[1].image}"/>`;
           }
-        });                       
+          replacements[emote[0]] = replacement;
+        }
+      });                       
 
+      if (service != "youtube") {
         if (Chat.info.seventvPersonalEmotes[info["user-id"]]) {
           Object.entries(
             Chat.info.seventvPersonalEmotes[info["user-id"]]
@@ -976,10 +978,12 @@ Chat = {
               replacements[emote[0]] = replacement;
             }
           });
-        }                      
+        }
+      }
 
-        message = escapeHtml(message);
+      message = escapeHtml(message);
 
+      if (service != "youtube") {
         if (info.bits && parseInt(info.bits) > 0) {
           var bits = parseInt(info.bits);
           var parsed = false;
@@ -1010,23 +1014,23 @@ Chat = {
             }
           }
         }
-
-        var replacementKeys = Object.keys(replacements);
-        replacementKeys.sort(function (a, b) {
-          return b.length - a.length;
-        });
-
-        replacementKeys.forEach((replacementKey) => {
-          var regex = new RegExp(
-            "(" + escapeRegExp(replacementKey) + ")",
-            "g"
-          );
-          message = message.replace(regex, replacements[replacementKey]);
-          message = message.replace(/\s+/g, ' ').trim();
-          message = message.replace(/>(\s+)</g, '><');
-          message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
-        });
       }
+
+      var replacementKeys = Object.keys(replacements);
+      replacementKeys.sort(function (a, b) {
+        return b.length - a.length;
+      });
+
+      replacementKeys.forEach((replacementKey) => {
+        var regex = new RegExp(
+          "(" + escapeRegExp(replacementKey) + ")",
+          "g"
+        );
+        message = message.replace(regex, replacements[replacementKey]);
+        message = message.replace(/\s+/g, ' ').trim();
+        message = message.replace(/>(\s+)</g, '><');
+        message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
+      });
 
       if (service == "youtube") {
         message = "";
