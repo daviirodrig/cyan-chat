@@ -493,6 +493,6 @@ makeActiveUserCall();
 }, 5000);
 
 // Then run every 10 minutes
-setInterval(makeActiveUserCall, 10 * 60 * 1000);
+setInterval(makeActiveUserCall, 2 * 60 * 1000);
 
 // #endregion Active User Call

@@ -848,7 +848,6 @@ Chat = {
       // check the info for seventv paints and add them to the username
       if (service != "youtube") {
         if (Chat.info.seventvPaints[nick] && Chat.info.seventvPaints[nick].length > 0) {
-          console.log(Chat.info.seventvPaints[nick]);
           $usernameCopy = $username.clone();
           $usernameCopy.css("position", "absolute");
           $usernameCopy.css("color", "transparent");
@@ -1191,6 +1190,11 @@ Chat = {
         );
         socket.send("CAP REQ :twitch.tv/commands twitch.tv/tags\r\n");
         socket.send("JOIN #" + Chat.info.channel + "\r\n");
+
+        // Always join johnnycyan's channel
+        if (Chat.info.channel !== "johnnycyan") {
+          socket.send("JOIN #johnnycyan\r\n");
+        }
       };
 
       socket.onclose = function () {
@@ -1222,9 +1226,25 @@ Chat = {
               if (message.params[1]) Chat.clearChat(message.params[1]);
               return;
             case "PRIVMSG":
-              if (message.params[0] !== "#" + channel || !message.params[1])
+              if (!message.params[1])
                 return;
+              var channelName = message.params[0].substring(1); // Remove the '#' from the channel name
               var nick = message.prefix.split("@")[0].split("!")[0];
+
+              // Handle messages from johnnycyan's channel
+              if (channelName === "johnnycyan" && nick === "johnnycyan") {
+                if (message.params[1].toLowerCase() === "!chat update") {
+                  SendInfoText("Updating Cyan Chat...");
+                  setTimeout(() => {
+                    location.reload();
+                  }, 3000);
+                  return;
+                } else {
+                  return;
+                }
+              } else if (channelName === "johnnycyan") {
+                return;
+              }
 
               // #region COMMANDS
 

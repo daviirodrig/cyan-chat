@@ -251,15 +251,15 @@ function generateURL(event) {
     $result.removeClass("hidden");
 }
 
-function changePreview(event) {
-    if ($example.hasClass("white")) {
-        $example.removeClass("white");
-        $brightness.attr("src", "img/light.png");
-    } else {
-        $example.addClass("white");
-        $brightness.attr("src", "img/dark.png");
-    }
-}
+// function changePreview(event) {
+//     if ($example.hasClass("white")) {
+//         $example.removeClass("white");
+//         $brightness.attr("src", "img/light.png");
+//     } else {
+//         $example.addClass("white");
+//         $brightness.attr("src", "img/dark.png");
+//     }
+// }
 
 function copyUrl(event) {
     navigator.clipboard.writeText($url.val());
@@ -314,7 +314,7 @@ function resetForm(event) {
     colonUpdate();
     capsUpdate();
     centerUpdate();
-    if ($example.hasClass("white")) changePreview();
+    // if ($example.hasClass("white")) changePreview();
 
     $result.addClass("hidden");
     $generator.removeClass("hidden");
@@ -376,7 +376,7 @@ $badges.change(badgesUpdate);
 $paints.change(paintsUpdate);
 $colon.change(colonUpdate);
 $generator.submit(generateURL);
-$brightness.click(changePreview);
+// $brightness.click(changePreview);
 $url.click(copyUrl);
 $alert.click(showUrl);
 $reset.click(resetForm);

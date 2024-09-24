@@ -23,6 +23,7 @@ type ActiveChannels struct {
 	Count          int               `json:"count"`
 	Channels       map[string]string `json:"channels"`
 	AllTimeHighest int               `json:"all_time_highest"`
+	UniqueUsers    map[string]bool   `json:"unique_users"`
 }
 
 var (
@@ -120,11 +121,17 @@ func updateActiveChannel(channel string) {
 		activeChannels.AllTimeHighest = activeChannels.Count
 	}
 
+	// Store unique user
+	if activeChannels.UniqueUsers == nil {
+		activeChannels.UniqueUsers = make(map[string]bool)
+	}
+	activeChannels.UniqueUsers[channel] = true
+
 	saveActiveChannels()
 }
 
 func cleanupInactiveChannels() {
-	threshold := time.Now().Add(-20 * time.Minute)
+	threshold := time.Now().Add(-3 * time.Minute)
 	for channel, lastActive := range activeChannels.Channels {
 		lastActiveTime, _ := time.Parse(time.RFC3339, lastActive)
 		if lastActiveTime.Before(threshold) {
@@ -228,7 +235,14 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					return "Invalid time"
 				}
-				return parsedTime.Format("Jan 2, 2006 15:04:05 MST")
+				duration := time.Since(parsedTime)
+				minutes := int(duration.Minutes())
+
+				if minutes < 1 {
+					return "<1m ago"
+				} else {
+					return fmt.Sprintf("%dm ago", minutes)
+				}
 			},
 		}
 
@@ -264,6 +278,26 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
                     li {
                         margin-bottom: 10px;
                     }
+                    .collapsible {
+                        background-color: #3a3a3a;
+                        color: #ffffff;
+                        cursor: pointer;
+                        padding: 18px;
+                        width: 100%;
+                        border: none;
+                        text-align: left;
+                        outline: none;
+                        font-size: 15px;
+                    }
+                    .active, .collapsible:hover {
+                        background-color: #4a4a4a;
+                    }
+                    .content {
+                        padding: 0 18px;
+                        display: none;
+                        overflow: hidden;
+                        background-color: #2a2a2a;
+                    }
                 </style>
             </head>
             <body>
@@ -274,15 +308,53 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
                     <h2>Currently Active Channels:</h2>
                     <ul>
                         {{range $channel, $lastActive := .Channels}}
-                            <li>{{$channel}}</li>
+                            <li>{{$channel}} - {{formatTime $lastActive}}</li>
                         {{end}}
                     </ul>
+                    
+                    <button class="collapsible">Unique Users ({{len .UniqueUsers}})</button>
+                    <div class="content">
+                        <ul>
+                            {{range $user := .UniqueUsers}}
+                                <li>{{$user}}</li>
+                            {{end}}
+                        </ul>
+                    </div>
                 </div>
+                
+                <script>
+                var coll = document.getElementsByClassName("collapsible");
+                var i;
+
+                for (i = 0; i < coll.length; i++) {
+                    coll[i].addEventListener("click", function() {
+                        this.classList.toggle("active");
+                        var content = this.nextElementSibling;
+                        if (content.style.display === "block") {
+                            content.style.display = "none";
+                        } else {
+                            content.style.display = "block";
+                        }
+                    });
+                }
+                </script>
             </body>
             </html>
         `))
 
-		tmpl.Execute(w, activeChannels)
+		data := struct {
+			ActiveChannels
+			UniqueUsers []string
+		}{
+			ActiveChannels: activeChannels,
+			UniqueUsers:    make([]string, 0, len(activeChannels.UniqueUsers)),
+		}
+
+		for user := range activeChannels.UniqueUsers {
+			data.UniqueUsers = append(data.UniqueUsers, user)
+		}
+
+		tmpl.Execute(w, data)
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
