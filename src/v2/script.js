@@ -944,28 +944,16 @@ Chat = {
         });
       }
 
-      Object.entries(Chat.info.emotes).forEach((emote) => {
-        const emoteRegex = new RegExp(`(?<=^|\\s)${escapeRegExp(emote[0])}(?=$|\\s)`, 'g');
-        if (emoteRegex.test(message)) {
-          let replacement;
-          if (emote[1].upscale) {
-            replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
-          } else if (emote[1].zeroWidth) {
-            replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
-          } else {
-            replacement = `<img class="emote" src="${emote[1].image}"/>`;
-          }
-          replacements[emote[0]] = replacement;
-        }
-      });                       
+      message = escapeHtml(message);
+      const words = message.split(/\s+/);
+      const processedWords = words.map(word => {
+        let replacedWord = word;
+        let isReplaced = false;
 
-      if (service != "youtube") {
-        if (Chat.info.seventvPersonalEmotes[info["user-id"]]) {
-          Object.entries(
-            Chat.info.seventvPersonalEmotes[info["user-id"]]
-          ).forEach((emote) => {
-            const emoteRegex = new RegExp(`(?<=^|\\s)${escapeRegExp(emote[0])}(?=$|\\s)`, 'g');
-            if (emoteRegex.test(message)) {
+        // Check personal emotes if not YouTube
+        if (!isReplaced && service !== "youtube" && Chat.info.seventvPersonalEmotes[info["user-id"]]) {
+          Object.entries(Chat.info.seventvPersonalEmotes[info["user-id"]]).forEach((emote) => {
+            if (word === emote[0]) {
               let replacement;
               if (emote[1].upscale) {
                 replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
@@ -974,13 +962,44 @@ Chat = {
               } else {
                 replacement = `<img class="emote" src="${emote[1].image}"/>`;
               }
-              replacements[emote[0]] = replacement;
+              replacedWord = replacement;
+              isReplaced = true;
             }
           });
         }
-      }
 
-      message = escapeHtml(message);
+        // Check global emotes
+        if (!isReplaced) {
+          Object.entries(Chat.info.emotes).forEach((emote) => {
+            if (word === emote[0]) {
+              let replacement;
+              if (emote[1].upscale) {
+                replacement = `<img class="emote upscale" src="${emote[1].image}"/>`;
+              } else if (emote[1].zeroWidth) {
+                replacement = `<img class="emote" data-zw="true" src="${emote[1].image}"/>`;
+              } else {
+                replacement = `<img class="emote" src="${emote[1].image}"/>`;
+              }
+              replacedWord = replacement;
+              isReplaced = true;
+            }
+          });
+        }
+
+        return { word: replacedWord, isReplaced };
+      });
+
+      message = processedWords.reduce((acc, curr, index) => {
+        if (index === 0) return curr.word;
+        
+        if (curr.isReplaced && processedWords[index - 1].isReplaced) {
+          return acc + curr.word;
+        } else {
+          return acc + ' ' + curr.word;
+        }
+      }, '');
+
+      // message = escapeHtml(message);
 
       if (service != "youtube") {
         if (info.bits && parseInt(info.bits) > 0) {
@@ -1263,6 +1282,7 @@ Chat = {
                     return;
                   }
                 });
+                if (nick == "johnnycyan") flag = true
                 if (flag) {
                   SendInfoText("Refreshing emotes...");
                   Chat.loadEmotes(Chat.info.channelID);
@@ -1287,6 +1307,7 @@ Chat = {
                     return;
                   }
                 });
+                if (nick == "johnnycyan") flag = true
                 if (flag) {
                   location.reload();
                 }
@@ -1307,6 +1328,7 @@ Chat = {
                     return;
                   }
                 });
+                if (nick == "johnnycyan") flag = true
                 if (flag) {
                   console.log("Cyan Chat: Rickrolling...");
                   appendMedia("video", "../media/rickroll.webm")
@@ -1328,6 +1350,7 @@ Chat = {
                     return;
                   }
                 });
+                if (nick == "johnnycyan") flag = true
                 if (flag) {
                   var fullCommand = message.params[1].slice("!chat video".length).trim();
                   findVideoFile(fullCommand).then(result => {
@@ -1356,6 +1379,7 @@ Chat = {
                     return;
                   }
                 });
+                if (nick == "johnnycyan") flag = true
 
                 if (flag) {
                   var fullCommand = message.params[1].slice("!chat tts".length).trim();
