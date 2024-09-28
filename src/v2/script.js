@@ -344,17 +344,23 @@ Chat = {
               });
             });
 
-            const badgeUrl =
-              "https://cdn.frankerfacez.com/room-badge/mod/" +
-              Chat.info.channel +
-              "/4/rounded";
-            const fallbackBadgeUrl =
-              "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3";
+            // const badgeUrl =
+            //   "https://cdn.frankerfacez.com/room-badge/mod/" +
+            //   Chat.info.channel +
+            //   "/4/rounded";
+            // const fallbackBadgeUrl =
+            //   "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3";
 
             $.getJSON(
               "https://api.frankerfacez.com/v1/_room/id/" +
               encodeURIComponent(Chat.info.channelID)
             ).done(function (res) {
+              const badgeUrl =
+                "https://cdn.frankerfacez.com/room-badge/mod/" +
+                res.room.id +
+                "/4/rounded";
+              const fallbackBadgeUrl =
+                "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3";
               if (res.room.moderator_badge) {
                 fetch(badgeUrl)
                   .then((response) => {
@@ -372,7 +378,7 @@ Chat = {
               if (res.room.vip_badge) {
                 Chat.info.badges["vip:1"] =
                   "https://cdn.frankerfacez.com/room-badge/vip/" +
-                  Chat.info.channel +
+                  res.room.id +
                   "/4";
               }
             });
@@ -991,7 +997,7 @@ Chat = {
 
       message = processedWords.reduce((acc, curr, index) => {
         if (index === 0) return curr.word;
-        
+
         if (curr.isReplaced && processedWords[index - 1].isReplaced) {
           return acc + curr.word;
         } else {
@@ -1251,18 +1257,30 @@ Chat = {
               var nick = message.prefix.split("@")[0].split("!")[0];
 
               // Handle messages from johnnycyan's channel
-              if (channelName === "johnnycyan" && nick === "johnnycyan") {
-                if (message.params[1].toLowerCase() === "!chat update") {
-                  SendInfoText("Updating Cyan Chat...");
-                  setTimeout(() => {
-                    location.reload();
-                  }, 3000);
-                  return;
-                } else {
+              if (Chat.info.channel != "johnnycyan") {
+                if (channelName === "johnnycyan" && nick === "johnnycyan") {
+                  if (message.params[1].toLowerCase() === "!chat update") {
+                    SendInfoText("Updating Cyan Chat...");
+                    setTimeout(() => {
+                      location.reload();
+                    }, 3000);
+                    return;
+                  } else {
+                    return;
+                  }
+                } else if (channelName === "johnnycyan") {
                   return;
                 }
-              } else if (channelName === "johnnycyan") {
-                return;
+              } else if (Chat.info.channel == "johnnycyan") {
+                if (nick === "johnnycyan") {
+                  if (message.params[1].toLowerCase() === "!chat update") {
+                    SendInfoText("Updating Cyan Chat...");
+                    setTimeout(() => {
+                      location.reload();
+                    }, 3000);
+                    return;
+                  }
+                }
               }
 
               // #region COMMANDS
