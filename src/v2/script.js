@@ -1150,12 +1150,12 @@ Chat = {
           i != 0 &&
           $(this).data("zw") &&
           ($(messageNodes[i - 1]).hasClass("emote") ||
-            $(messageNodes[i - 1]).hasClass("emoji")) &&
-          !$(messageNodes[i - 1]).data("zw")
+            $(messageNodes[i - 1]).hasClass("emoji"))
         ) {
           hasZeroWidth = true;
           var $container = $("<span></span>");
           $container.addClass("zero-width_container");
+          $container.addClass("staging");
           $(this).addClass("zero-width");
           $(this).addClass("staging")
           $(this).before($container);

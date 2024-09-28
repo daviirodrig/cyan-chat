@@ -301,69 +301,68 @@ function playTTSAudio(text, voice) {
 }
 
 async function fixZeroWidthEmotes() {
-  // Retry up to 8 times with a 50ms delay between attempts
   for (let attempt = 1; attempt <= 8; attempt++) {
-    // Select all image elements with the class names 'emote', 'zero-width', and 'staging'
-    const imgElements = Array.from(
-      document.querySelectorAll("img.emote.zero-width.staging")
+    const containers = Array.from(
+      document.querySelectorAll(".message .zero-width_container.staging")
     );
 
-    if (imgElements.length > 0) {
-      const BATCH_SIZE = 50; // Process 50 elements at a time
-      for (let i = 0; i < imgElements.length; i += BATCH_SIZE) {
-        const batch = imgElements.slice(i, i + BATCH_SIZE);
+    if (containers.length > 0) {
+      for (const container of containers) {
+        const messageElement = container.closest('.message');
+        const allEmotes = Array.from(messageElement.querySelectorAll("img.emote"));
 
-        batch.forEach((imgElement) => {
-          const stagingRect = imgElement.getBoundingClientRect();
-          let stagingWidth = stagingRect.width;
+        // Ensure all images are loaded
+        await Promise.all(allEmotes.map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = img.onerror = resolve;
+          });
+        }));
 
-          // Adjust width based on `Chat.info.size`
-          let sub;
-          switch (Chat.info.size) {
-            case 3:
-              sub = 10;
-              break;
-            case 2:
-              sub = 7;
-              break;
-            default:
-              sub = 4;
-          }
-          sub = 0;
+        let maxWidth = 0;
 
-          const parentElement = imgElement.parentElement;
-
-          if (parentElement) {
-            const siblingEmoteElement = parentElement.querySelector(
-              "img.emote:not(.zero-width)"
-            );
-
-            if (siblingEmoteElement) {
-              const siblingRect = siblingEmoteElement.getBoundingClientRect();
-              let finalWidth = Math.max(stagingWidth, siblingRect.width) - sub;
-
-              if (finalWidth > 0) {
-                parentElement.style.width = `${finalWidth}px`;
-              } else {
-                console.log(
-                  `Final width is zero or negative for one of the images.`
-                );
-              }
-            } else {
-              console.log(
-                `No sibling emote found, removing staging class without resizing.`
-              );
-            }
-
-            imgElement.classList.remove("staging");
-          } else {
-            console.log("Parent element not found for one of the images.");
-          }
+        allEmotes.forEach((emote) => {
+          // Create a temporary container to measure the actual rendered size
+          const temp = document.createElement('div');
+          temp.style.display = 'inline-block';
+          temp.style.visibility = 'hidden';
+          document.body.appendChild(temp);
+          
+          const clone = emote.cloneNode(true);
+          temp.appendChild(clone);
+          
+          const rect = clone.getBoundingClientRect();
+          maxWidth = Math.max(maxWidth, rect.width);
+          
+          document.body.removeChild(temp);
         });
 
-        // Allow the browser to render updates
-        await new Promise(requestAnimationFrame);
+        if (maxWidth > 0) {
+          const firstContainer = messageElement.querySelector(".zero-width_container");
+
+          // Move all emotes from other containers to the first container
+          messageElement.querySelectorAll(".zero-width_container:not(:first-child)").forEach(otherContainer => {
+            Array.from(otherContainer.querySelectorAll("img.emote")).forEach(emote => {
+              firstContainer.appendChild(emote);
+            });
+            otherContainer.remove();
+          });
+
+          // Set the width of the first container
+          firstContainer.style.width = `${maxWidth}px`;
+
+          // Remove the staging class from all emotes and the container
+          firstContainer.querySelectorAll("img.emote.staging").forEach(emote => {
+            emote.classList.remove("staging");
+          });
+          firstContainer.classList.remove("staging");
+        } else {
+          console.log("Max width is zero or negative for this container.");
+        }
       }
+
+      // Allow the browser to render updates
+      await new Promise(requestAnimationFrame);
 
       // Exit the retry loop after successful processing
       break;
@@ -375,7 +374,7 @@ async function fixZeroWidthEmotes() {
     // Log failure message if no elements were found after all attempts
     if (attempt === 8) {
       console.log(
-        "Failed to find image elements with the specified class names after 8 attempts."
+        "Failed to find zero-width containers with staging class after 8 attempts."
       );
     }
   }
