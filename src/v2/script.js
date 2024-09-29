@@ -698,6 +698,7 @@ Chat = {
               seventvPaintInfo.angle,
               seventvPaintInfo.stops,
               seventvPaintInfo.function,
+              seventvPaintInfo.shape,
               seventvPaintInfo.repeat
             );
             var dropShadows = createDropShadows(seventvPaintInfo.shadows);

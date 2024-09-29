@@ -347,18 +347,18 @@ function convertColor(color) {
   return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, 1)`; // Force alpha to 1 for the desired output
 }
 
-function createGradient(angle, stops, type, repeat) {
+function createGradient(angle, stops, type, shape, repeat) {
   const gradientStops = stops.map(
     (stop) => `${convertColor(stop.color)} ${stop.at * 100}%`
   );
-  if (type === "LINEAR_GRADIENT") {
-    return `linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
-  } else if (type === "LINEAR_GRADIENT" && repeat) {
+  if (type === "LINEAR_GRADIENT" && repeat) {
     return `repeating-linear-gradient(${gradientStops.join(", ")})`;
-  } else if (type === "RADIAL_GRADIENT") {
-    return `radial-gradient(${gradientStops.join(", ")})`;
+  } else if (type === "LINEAR_GRADIENT" && !repeat) {
+    return `linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
   } else if (type === "RADIAL_GRADIENT" && repeat) {
-    return `repeating-radial-gradient(${gradientStops.join(", ")})`;
+    return `repeating-radial-gradient(${shape}, ${gradientStops.join(", ")})`;
+  } else if (type === "RADIAL_GRADIENT" && !repeat) {
+    return `radial-gradient(${shape}, ${gradientStops.join(", ")})`;
   } else {
     console.log(`Unknown gradient type: ${type}`);
   }
