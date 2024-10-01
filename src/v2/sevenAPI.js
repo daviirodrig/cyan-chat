@@ -352,7 +352,7 @@ function createGradient(angle, stops, type, shape, repeat) {
     (stop) => `${convertColor(stop.color)} ${stop.at * 100}%`
   );
   if (type === "LINEAR_GRADIENT" && repeat) {
-    return `repeating-linear-gradient(${gradientStops.join(", ")})`;
+    return `repeating-linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
   } else if (type === "LINEAR_GRADIENT" && !repeat) {
     return `linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
   } else if (type === "RADIAL_GRADIENT" && repeat) {
