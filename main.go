@@ -157,11 +157,13 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 		// Serve the login form
 		tmpl := template.Must(template.New("login").Parse(`
 			<!DOCTYPE html>
-			<html lang="en">
+			<html lang="en" style="color-scheme: dark;">
 			<head>
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title>Admin Login</title>
+				<!-- favicon -->
+    			<link rel="icon" type="image/webp" href="https://meow.catt.ing/r/8G9soV.webp?compress=false">
 				<style>
 					body {
 						font-family: Arial, sans-serif;
@@ -176,7 +178,7 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 					}
 					.container {
 						background-color: #2a2a2a;
-						border-radius: 5px;
+						border-radius: 25px;
 						padding: 20px;
 						max-width: 300px;
 					}
@@ -189,7 +191,7 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 						padding: 5%;
 						margin: 10px 0;
 						border: none;
-						border-radius: 3px;
+						border-radius: 15px;
 						background-color: #212121;
 						color: white;
 					}
@@ -199,7 +201,7 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 						background-color: #00aaff;
 						color: #ffffff;
 						border: none;
-						border-radius: 3px;
+						border-radius: 15px;
 						cursor: pointer;
 					}
 				</style>
@@ -248,11 +250,13 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 
 		tmpl := template.Must(template.New("admin").Funcs(funcMap).Parse(`
             <!DOCTYPE html>
-            <html lang="en">
+            <html lang="en" style="color-scheme: dark;">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Active Channels</title>
+				<!-- favicon -->
+    			<link rel="icon" type="image/webp" href="https://meow.catt.ing/r/8G9soV.webp?compress=false">
                 <style>
                     body {
                         font-family: Arial, sans-serif;
@@ -266,7 +270,7 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
                     }
                     .container {
                         background-color: #2a2a2a;
-                        border-radius: 5px;
+                        border-radius: 25px;
                         padding: 20px;
                         max-width: 800px;
                         margin: 0 auto;
@@ -288,6 +292,7 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
                         text-align: left;
                         outline: none;
                         font-size: 15px;
+						border-radius: 15px;
                     }
                     .active, .collapsible:hover {
                         background-color: #4a4a4a;
