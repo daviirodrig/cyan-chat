@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 
@@ -152,71 +154,42 @@ func handleActive(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func loadTemplate(filename string) (*template.Template, error) {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	tmpl, err := template.New(filepath.Base(filename)).Parse(string(content))
+	if err != nil {
+		return nil, err
+	}
+
+	return tmpl, nil
+}
+
+func loadTemplateWithFuncMap(filename string, funcMap template.FuncMap) (*template.Template, error) {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	tmpl, err := template.New(filepath.Base(filename)).Funcs(funcMap).Parse(string(content))
+	if err != nil {
+		return nil, err
+	}
+
+	return tmpl, nil
+}
+
 func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		tmpl, err := loadTemplate("login.html")
+		if err != nil {
+			http.Error(w, "Failed to load template", http.StatusInternalServerError)
+			return
+		}
 		// Serve the login form
-		tmpl := template.Must(template.New("login").Parse(`
-			<!DOCTYPE html>
-			<html lang="en" style="color-scheme: dark;">
-			<head>
-				<meta charset="UTF-8">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Admin Login</title>
-				<!-- favicon -->
-    			<link rel="icon" type="image/webp" href="https://meow.catt.ing/r/8G9soV.webp?compress=false">
-				<style>
-					body {
-						font-family: Arial, sans-serif;
-						background-color: #1a1a1a;
-						color: #ffffff;
-						margin: 0;
-						padding: 20px;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						height: 100vh;
-					}
-					.container {
-						background-color: #2a2a2a;
-						border-radius: 25px;
-						padding: 20px;
-						max-width: 300px;
-					}
-					h1 {
-						color: #00aaff;
-						text-align: center;
-					}
-					input[type="password"] {
-						width: 90%;
-						padding: 5%;
-						margin: 10px 0;
-						border: none;
-						border-radius: 15px;
-						background-color: #212121;
-						color: white;
-					}
-					input[type="submit"] {
-						width: 100%;
-						padding: 5%;
-						background-color: #00aaff;
-						color: #ffffff;
-						border: none;
-						border-radius: 15px;
-						cursor: pointer;
-					}
-				</style>
-			</head>
-			<body>
-				<div class="container">
-					<h1>Admin Login</h1>
-					<form method="POST">
-						<input type="password" name="password" placeholder="Enter password" required>
-						<input type="submit" value="Login">
-					</form>
-				</div>
-			</body>
-			</html>
-		`))
 		tmpl.Execute(w, nil)
 	} else if r.Method == "POST" {
 		// Handle login
@@ -248,104 +221,11 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		tmpl := template.Must(template.New("admin").Funcs(funcMap).Parse(`
-            <!DOCTYPE html>
-            <html lang="en" style="color-scheme: dark;">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Active Channels</title>
-				<!-- favicon -->
-    			<link rel="icon" type="image/webp" href="https://meow.catt.ing/r/8G9soV.webp?compress=false">
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        background-color: #1a1a1a;
-                        color: #ffffff;
-                        margin: 0;
-                        padding: 20px;
-                    }
-                    h1, h2 {
-                        color: #00aaff;
-                    }
-                    .container {
-                        background-color: #2a2a2a;
-                        border-radius: 25px;
-                        padding: 20px;
-                        max-width: 800px;
-                        margin: 0 auto;
-                    }
-                    ul {
-                        list-style-type: none;
-                        padding: 0;
-                    }
-                    li {
-                        margin-bottom: 10px;
-                    }
-                    .collapsible {
-                        background-color: #3a3a3a;
-                        color: #ffffff;
-                        cursor: pointer;
-                        padding: 18px;
-                        width: 100%;
-                        border: none;
-                        text-align: left;
-                        outline: none;
-                        font-size: 15px;
-						border-radius: 15px;
-                    }
-                    .active, .collapsible:hover {
-                        background-color: #4a4a4a;
-                    }
-                    .content {
-                        padding: 0 18px;
-                        display: none;
-                        overflow: hidden;
-                        background-color: #2a2a2a;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>Active Channels</h1>
-                    <p>Total active channels: {{.Count}}</p>
-                    <p>All-time highest active channels: {{.AllTimeHighest}}</p>
-                    <h2>Currently Active Channels:</h2>
-                    <ul>
-                        {{range $channel, $lastActive := .Channels}}
-                            <li>{{$channel}} - {{formatTime $lastActive}}</li>
-                        {{end}}
-                    </ul>
-                    
-                    <button class="collapsible">Unique Users ({{len .UniqueUsers}})</button>
-                    <div class="content">
-                        <ul>
-                            {{range $user := .UniqueUsers}}
-                                <li>{{$user}}</li>
-                            {{end}}
-                        </ul>
-                    </div>
-                </div>
-                
-                <script>
-                var coll = document.getElementsByClassName("collapsible");
-                var i;
-
-                for (i = 0; i < coll.length; i++) {
-                    coll[i].addEventListener("click", function() {
-                        this.classList.toggle("active");
-                        var content = this.nextElementSibling;
-                        if (content.style.display === "block") {
-                            content.style.display = "none";
-                        } else {
-                            content.style.display = "block";
-                        }
-                    });
-                }
-                </script>
-            </body>
-            </html>
-        `))
+		tmpl, err := loadTemplateWithFuncMap("admin.html", funcMap)
+		if err != nil {
+			http.Error(w, "Failed to load template", http.StatusInternalServerError)
+			return
+		}
 
 		data := struct {
 			ActiveChannels
@@ -358,6 +238,8 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 		for user := range activeChannels.UniqueUsers {
 			data.UniqueUsers = append(data.UniqueUsers, user)
 		}
+
+		sort.Strings(data.UniqueUsers)
 
 		tmpl.Execute(w, data)
 	} else {
