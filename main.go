@@ -587,6 +587,12 @@ var upgrader = websocket.Upgrader{
 }
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	// Check if the request is coming from your website
+	if !isRequestFromYourWebsite(r) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	// Extract the channel parameter from the request URL
 	channel := r.URL.Query().Get("channel")
 	if channel == "" {
