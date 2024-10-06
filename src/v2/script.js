@@ -516,23 +516,49 @@ Chat = {
     }
   }, 200),
 
+  getRandomColor: function (twitchColors, userId, nick) {
+    let colorSeed = parseInt(userId);
+    try {
+      // Check if the userId was successfully parsed as an integer
+      if (isNaN(colorSeed)) {
+        // If not a number, sum the Unicode values of all characters in userId string
+        colorSeed = 0;
+        userId = String(userId); // Ensure userId is a string
+        for (let i = 0; i < userId.length; i++) {
+          colorSeed += userId.charCodeAt(i);
+        }
+      }
+
+      // Calculate color index using modulus
+      const colorIndex = colorSeed % twitchColors.length;
+      return twitchColors[colorIndex];
+    } catch (error) {
+      console.error("Error parsing userId:", error)
+      colorSeed = nick.charCodeAt(0); // Fallback to 1st char of nick if userId parsing fails
+
+      // Calculate color index using modulus
+      const colorIndex = colorSeed % twitchColors.length;
+      return twitchColors[colorIndex];
+    }
+  },
+
   getUserColor: function (nick, info) {
     const twitchColors = [
-      "#FF0000",
-      "#0000FF",
-      "#008000",
-      "#B22222",
-      "#FF7F50",
-      "#9ACD32",
-      "#FF4500",
-      "#2E8B57",
-      "#DAA520",
-      "#D2691E",
-      "#5F9EA0",
-      "#1E90FF",
-      "#FF69B4",
-      "#8A2BE2",
-      "#00FF7F",
+      "#FF0000", // Red
+      "#0000FF", // Blue
+      "#008000", // Green
+      "#B22222", // Fire Brick
+      "#FF7F50", // Coral
+      "#9ACD32", // Yellow Green
+      "#FF4500", // Orange Red
+      "#2E8B57", // Sea Green
+      "#DAA520", // Golden Rod
+      "#D2691E", // Chocolate
+      "#5F9EA0", // Cadet Blue
+      "#1E90FF", // Dodger Blue
+      "#FF69B4", // Hot Pink
+      "#8A2BE2", // Blue Violet
+      "#00FF7F", // Spring Green
     ];
     if (typeof info.color === "string") {
       var color = info.color;
@@ -556,8 +582,10 @@ Chat = {
         var color = info.color;
       }
     } else {
-      var color = twitchColors[nick.charCodeAt(0) % 15];
-      // console.log("generated random color for", nick, color)
+      var color = Chat.getRandomColor(twitchColors, info["user-id"], nick);
+      // console.log("generated random color for", nick, color);
+      // console.log(info);
+      // console.log("userId", info["user-id"]);
       if (Chat.info.readable) {
         if (color === "#8A2BE2") {
           color = "#C797F4";
@@ -844,12 +872,11 @@ Chat = {
       // Writing username
       var $username = $("<span></span>");
       $username.addClass("nick");
-      var color = Chat.getUserColor(nick, info);
+      color = Chat.getUserColor(nick, info);
       $username.css("color", color);
       if (Chat.info.center) {
         $username.css("padding-right", "0.5em");
       }
-      Chat.info.colors[nick] = color;
       $username.html(info["display-name"] ? info["display-name"] : nick); // if display name is set, use that instead of twitch name
       var $usernameCopy = null;
       // check the info for seventv paints and add them to the username

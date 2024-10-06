@@ -479,7 +479,7 @@ function makeActiveUserCall() {
       return response.text();
     })
     .then(data => {
-      console.log('Active user call successful:', data);
+      console.log('Active user call successful:', Chat.info.channel, data);
     })
     .catch(error => {
       console.error('Error making active user call:', error);
