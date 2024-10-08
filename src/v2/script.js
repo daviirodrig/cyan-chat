@@ -873,6 +873,7 @@ Chat = {
       var $username = $("<span></span>");
       $username.addClass("nick");
       color = Chat.getUserColor(nick, info);
+      Chat.info.colors[nick] = color;
       $username.css("color", color);
       if (Chat.info.center) {
         $username.css("padding-right", "0.5em");
