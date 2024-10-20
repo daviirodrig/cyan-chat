@@ -1,3 +1,5 @@
+const sevenTvSubRoleID = "01F37R3RFR0000K96678WEQT01";
+
 // Utility function to add a delay
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,7 +33,7 @@ async function getUserInfo(twitchUserId) {
     if (data.user) {
       if (data.user.id !== null) {
         // check if the only role is 62b48deb791a15a25c2a0354
-        if (!data.user.roles.includes("6076a86b09a4c63a38ebe801")) {
+        if (!data.user.roles.includes(sevenTvSubRoleID)) {
           // console.log(twitchUserId, "is not subscribed to 7tv.");
         } else {
           if (!Chat.info.seventvCheckers[twitchUserId]) {
@@ -61,7 +63,7 @@ async function isUserSubbed(twitchUserId) {
   const user = await getUserInfo(twitchUserId);
   var subbed = true;
   if (user.roles) {
-    if (!user.roles.includes("6076a86b09a4c63a38ebe801")) {
+    if (!user.roles.includes(sevenTvSubRoleID)) {
       subbed = false;
       Chat.info.seventvNonSubs[twitchUserId] = true;
     }
@@ -242,7 +244,7 @@ async function getUserBadgeAndPaintInfo(twitchUserId) {
       }
       const sevenTvUserRoles = sevenTvUserInfo.roles;
       // check if the only role is 62b48deb791a15a25c2a0354
-      if (!sevenTvUserRoles.includes("6076a86b09a4c63a38ebe801")) {
+      if (!sevenTvUserRoles.includes(sevenTvSubRoleID)) {
         // console.log(twitchUserId,"is not subscribed to 7tv.")
         await delay(1000);
         tries--;
