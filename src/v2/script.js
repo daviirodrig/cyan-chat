@@ -1144,6 +1144,29 @@ Chat = {
       message = twemoji.parse(message);
       $message.html(message);
 
+      // Writing zero-width emotes
+      var hasZeroWidth = false;
+      messageNodes = $message.children();
+      messageNodes.each(function (i) {
+        if (
+          i != 0 &&
+          $(this).data("zw") &&
+          ($(messageNodes[i - 1]).hasClass("emote") ||
+            $(messageNodes[i - 1]).hasClass("emoji"))
+        ) {
+          hasZeroWidth = true;
+          var $container = $("<span></span>");
+          $container.addClass("zero-width_container");
+          $container.addClass("staging");
+          $(this).addClass("zero-width");
+          $(this).addClass("staging")
+          $(this).before($container);
+          $container.append(messageNodes[i - 1], this);
+        }
+      });
+      message = $message.html() + "</span>"
+      $message.html($message.html().trim());
+
       // New: Handle mentions with seventvPaint
       message = message
         .split(" ")
@@ -1186,31 +1209,11 @@ Chat = {
       // Finalize the message HTML
       $message.html(message);
 
-      // Writing zero-width emotes
-      var hasZeroWidth = false;
-      messageNodes = $message.children();
-      messageNodes.each(function (i) {
-        if (
-          i != 0 &&
-          $(this).data("zw") &&
-          ($(messageNodes[i - 1]).hasClass("emote") ||
-            $(messageNodes[i - 1]).hasClass("emoji"))
-        ) {
-          hasZeroWidth = true;
-          var $container = $("<span></span>");
-          $container.addClass("zero-width_container");
-          $container.addClass("staging");
-          $(this).addClass("zero-width");
-          $(this).addClass("staging")
-          $(this).before($container);
-          $container.append(messageNodes[i - 1], this);
-        }
-      });
-      $message.html($message.html().trim());
       $chatLine.append($message);
       Chat.info.lines.push($chatLine.wrap("<div>").parent().html());
       if (hasZeroWidth) {
-        fixZeroWidthEmotes();
+        // console.log("DEBUG Message with mentions and emotes before fixZeroWidth:", $message.html());
+        fixZeroWidthEmotes(info.id);
       }
     }
   },
