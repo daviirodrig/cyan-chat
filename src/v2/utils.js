@@ -300,82 +300,136 @@ function playTTSAudio(text, voice) {
     });
 }
 
-async function fixZeroWidthEmotes() {
+async function fixZeroWidthEmotes(messageId) {
+  if (!messageId) {
+    console.error("[fixZeroWidthEmotes]: No messageId provided.");
+    return;
+  }
+
+  // Allow 8 attempts to find and process the message
   for (let attempt = 1; attempt <= 8; attempt++) {
-    const containers = Array.from(
-      document.querySelectorAll(".message .zero-width_container.staging")
-    );
+    const messageElement = document.querySelector(`div.chat_line[data-id="${messageId}"]`);
 
-    if (containers.length > 0) {
-      for (const container of containers) {
-        const messageElement = container.closest('.message');
-        const allEmotes = Array.from(messageElement.querySelectorAll("img.emote"));
+    // If the messageElement is found, proceed
+    if (messageElement) {
+      const containers = Array.from(messageElement.querySelectorAll(".zero-width_container.staging"));
 
-        // Ensure all images are loaded
-        await Promise.all(allEmotes.map(img => {
-          if (img.complete) return Promise.resolve();
-          return new Promise(resolve => {
-            img.onload = img.onerror = resolve;
-          });
-        }));
-
+      if (containers.length > 0 || messageElement.querySelectorAll("img.emote").length > 0) {
+        let allEmotes = Array.from(messageElement.querySelectorAll("img.emote"));
+        let currentSet = [];
         let maxWidth = 0;
 
-        allEmotes.forEach((emote) => {
-          // Create a temporary container to measure the actual rendered size
-          const temp = document.createElement('div');
-          temp.style.display = 'inline-block';
-          temp.style.visibility = 'hidden';
-          document.body.appendChild(temp);
-          
-          const clone = emote.cloneNode(true);
-          temp.appendChild(clone);
-          
-          const rect = clone.getBoundingClientRect();
-          maxWidth = Math.max(maxWidth, rect.width);
-          
-          document.body.removeChild(temp);
+        await Promise.all(
+          allEmotes.map((img) => {
+            return img.complete
+              ? Promise.resolve()
+              : new Promise((resolve) => {
+                  img.onload = img.onerror = resolve;
+                });
+          })
+        );
+
+        allEmotes.forEach((emote, index) => {
+          const isZeroWidth = emote.dataset.zw === "true";
+
+          if (!isZeroWidth) {
+            // For a normal emote:
+            if (currentSet.length > 0) {
+              // We have a set we're concluding (zero-width(s) + normal emote)
+
+              // Find or create a container for the group
+              let firstContainer = currentSet[0].closest(".zero-width_container");
+
+              if (!firstContainer && currentSet.length === 1 && !currentSet[0].classList.contains('zero-width')) {
+                // Special case: if there's only one item in the set and it's a normal emote (no zero-width to pair),
+                // skip container creation and keep it as is.
+                currentSet = [];
+                return; // Nothing to process for single normal emote
+              }
+
+              if (!firstContainer) {
+                console.error("[fixZeroWidthEmotes]: firstContainer is null for a set, continuing.");
+                return;
+              }
+
+              // Set the max width by evaluating all emotes in the set
+              maxWidth = Math.max(...currentSet.map((e) => e.getBoundingClientRect().width));
+
+              currentSet.forEach((em) => {
+                firstContainer.appendChild(em);
+              });
+
+              // Set the width of the zero-width container to the widest emote
+              firstContainer.style.width = `${maxWidth}px`;
+
+              firstContainer.classList.remove("staging");
+              firstContainer.querySelectorAll("img.emote.staging").forEach((em) => {
+                em.classList.remove("staging");
+              });
+
+              currentSet = [];
+            }
+
+            // Start a new set with this normal emote
+            currentSet.push(emote);
+          } else {
+            // For a zero-width emote:
+            // If it's an orphan (not immediately preceding a normal emote), handle it separately
+            if (index === 0 || !allEmotes[index - 1].dataset.zw === "true") {
+              // Check if the zero-width is orphaned (no normal emote before)
+              let singleZeroWidth = document.createElement("span");
+              singleZeroWidth.classList.add("zero-width_container");
+              emote.after(singleZeroWidth);
+              singleZeroWidth.appendChild(emote);
+            } else {
+              // Add zero-width emote to the current set
+              currentSet.push(emote);
+            }
+          }
         });
 
-        if (maxWidth > 0) {
-          const firstContainer = messageElement.querySelector(".zero-width_container");
+        // If there's any remaining set, finalize it
+        if (currentSet.length > 0) {
+          const firstContainer = currentSet[0].closest(".zero-width_container");
 
-          // Move all emotes from other containers to the first container
-          messageElement.querySelectorAll(".zero-width_container:not(:first-child)").forEach(otherContainer => {
-            Array.from(otherContainer.querySelectorAll("img.emote")).forEach(emote => {
-              firstContainer.appendChild(emote);
-            });
-            otherContainer.remove();
+          if (!firstContainer) {
+            console.error("[fixZeroWidthEmotes]: firstContainer is null for the final set.");
+            continue;
+          }
+
+          maxWidth = Math.max(...currentSet.map((e) => e.getBoundingClientRect().width));
+
+          currentSet.forEach((em) => {
+            firstContainer.appendChild(em);
           });
 
-          // Set the width of the first container
           firstContainer.style.width = `${maxWidth}px`;
 
-          // Remove the staging class from all emotes and the container
-          firstContainer.querySelectorAll("img.emote.staging").forEach(emote => {
-            emote.classList.remove("staging");
-          });
           firstContainer.classList.remove("staging");
-        } else {
-          console.log("Max width is zero or negative for this container.");
+          firstContainer.querySelectorAll("img.emote.staging").forEach((em) => {
+            em.classList.remove("staging");
+          });
         }
+
+        // Remove empty containers at the end
+        Array.from(messageElement.querySelectorAll(".zero-width_container")).forEach((container) => {
+          if (container.children.length === 0) {
+            container.remove();
+          }
+        });
+
+        // Let the browser render updates
+        await new Promise(requestAnimationFrame);
+        
+        break;  // Break out of retry loop after successful handling
       }
-
-      // Allow the browser to render updates
-      await new Promise(requestAnimationFrame);
-
-      // Exit the retry loop after successful processing
-      break;
     } else {
-      // Wait for 100ms before trying again
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Wait for 100ms before next attempt
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // Log failure message if no elements were found after all attempts
     if (attempt === 8) {
-      console.log(
-        "Failed to find zero-width containers with staging class after 8 attempts."
-      );
+      console.error(`[fixZeroWidthEmotes]: Message with data-id="${messageId}" not found after 8 attempts.`);
     }
   }
 }
