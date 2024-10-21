@@ -189,9 +189,12 @@ Chat = {
       (res) => {
         res?.emotes?.forEach((emote) => {
           const emoteData = emote.data.host.files.pop();
+          var link = `https:${emote.data.host.url}/${emoteData.name}`;
+          // if link ends in .gif replace with .webp
+          if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
           Chat.info.emotes[emote.name] = {
             id: emote.id,
-            image: `https:${emote.data.host.url}/${emoteData.name}`,
+            image: link,
             zeroWidth: emote.data.flags == 256,
           };
         });
@@ -205,9 +208,12 @@ Chat = {
     ).done((res) => {
       res?.emote_set?.emotes?.forEach((emote) => {
         const emoteData = emote.data.host.files.pop();
+        var link = `https:${emote.data.host.url}/${emoteData.name}`;
+        // if link ends in .gif replace with .webp
+        if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
         Chat.info.emotes[emote.name] = {
           id: emote.id,
-          image: `https:${emote.data.host.url}/${emoteData.name}`,
+          image: link,
           zeroWidth: emote.data.flags == 256,
         };
       });
@@ -244,10 +250,13 @@ Chat = {
 
         emoteSetResponse?.emotes?.forEach((emote) => {
           const emoteData = emote.data.host.files.pop();
+          var link = `https:${emote.data.host.url}/${emoteData.name}`;
+          // if link ends in .gif replace with .webp
+          if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
           const personalEmote = {
             name: emote.name,
             id: emote.id,
-            image: `https:${emote.data.host.url}/${emoteData.name}`,
+            image: link,
             zeroWidth: emote.data.flags == 256,
           };
           // Add personalEmote if not already in Chat.info.seventvPersonalEmotes[channelID]
