@@ -143,9 +143,12 @@ function seven_ws(channel) {
                                 console.log(`[${channel}] Added: ${emoteEvent.d.body.pushed[0].value.name}`);
                                 SendInfoText(`Added: ${emoteEvent.d.body.pushed[0].value.name}`);
                                 const emoteData = emoteEvent.d.body.pushed[0].value.data.host.files.pop();
+                                var link = `https:${emoteEvent.d.body.pushed[0].value.data.host.url}/${emoteData.name}`;
+                                // if link ends in .gif replace with .webp
+                                if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
                                 Chat.info.emotes[emoteEvent.d.body.pushed[0].value.name] = {
                                     id: emoteEvent.d.body.pushed[0].value.id,
-                                    image: `https:${emoteEvent.d.body.pushed[0].value.data.host.url}/${emoteData.name}`,
+                                    image: link,
                                     zeroWidth: emoteEvent.d.body.pushed[0].value.data.flags == 256,
                                 };
                             } else if (emoteEvent.d.body.pulled && emoteEvent.d.body.pulled.length > 0) {
@@ -198,6 +201,9 @@ function seven_ws(channel) {
                                 SendInfoText(`Renamed: ${emoteEvent.d.body.updated[0].old_value.name} to ${emoteEvent.d.body.updated[0].value.name}`);
                                 delete Chat.info.emotes[emoteEvent.d.body.updated[0].old_value.name];
                                 const emoteData = emoteEvent.d.body.updated[0].value.data.host.files.pop();
+                                var link = `https:${emoteEvent.d.body.updated[0].value.data.host.url}/${emoteData.name}`;
+                                // if link ends in .gif replace with .webp
+                                if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
                                 Chat.info.emotes[emoteEvent.d.body.updated[0].value.name] = {
                                     id: emoteEvent.d.body.updated[0].value.id,
                                     image: `https:${emoteEvent.d.body.updated[0].value.data.host.url}/${emoteData.name}`,
