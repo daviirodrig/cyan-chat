@@ -65,6 +65,14 @@ function heightUpdate(event) {
     $chatline.css("line-height", height);
 }
 
+const toTitleCase = (phrase) => {
+    return phrase
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 function fontUpdate(event) {
     let font = fonts[Number($font.val())];
     console.log("Font:", font);
@@ -78,12 +86,12 @@ function fontUpdate(event) {
             return;
         }
         console.log("Custom font is not empty");
-        WebFont.load({
-            google: {
-                families: [$custom_font.val()],
-            },
-        });
-        $example.css("font-family", $custom_font.val());
+        const fontName = toTitleCase($custom_font.val());
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css?family=${fontName}`;
+        document.head.appendChild(link);
+        $example.css("font-family", fontName);
     }
 }
 
@@ -95,12 +103,12 @@ function customFontUpdate(event) {
     }
     console.log("Custom font is not empty");
     removeCSS("font");
-    WebFont.load({
-        google: {
-            families: [$custom_font.val()],
-        },
-    });
-    $example.css("font-family", $custom_font.val());
+    const fontName = toTitleCase($custom_font.val());
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css?family=${fontName}`;
+    document.head.appendChild(link);
+    $example.css("font-family", fontName);
 }
 
 function strokeUpdate(event) {
