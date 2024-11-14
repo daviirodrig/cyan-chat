@@ -41,14 +41,22 @@ function appendCSS(type, name) {
   }).appendTo("head");
 }
 
+const toTitleCase = (phrase) => {
+  return phrase
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+};
+
 function loadCustomFont(name) {
   const $chat_container = $("#chat_container");
-  WebFont.load({
-    google: {
-      families: [name],
-    },
-  });
-  $chat_container.css("font-family", name);
+  const fontName = toTitleCase(name);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css?family=${fontName}`;
+  document.head.appendChild(link);
+  $chat_container.css("font-family", fontName);
 }
 
 function escapeRegExp(string) {
