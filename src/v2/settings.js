@@ -20,10 +20,8 @@ const sizes = [
 ];
 
 const strokes = [
-    'thin',
-    'medium',
+    'fine',
     'thick',
-    'thicker'
 ];
 
 const shadows = [
