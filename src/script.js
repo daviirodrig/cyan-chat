@@ -114,7 +114,11 @@ function customFontUpdate(event) {
 function strokeUpdate(event) {
     if ($stroke.val() == "0") removeStyles("stroke");
     else {
-        let stroke = strokes[Number($stroke.val()) - 1];
+        strokeNum = Number($stroke.val()) - 1;
+        if (strokeNum > strokes.Length) {
+            strokeNum = strokes.Length;
+        }
+        let stroke = strokes[strokeNum];
         applyStyles("stroke", stroke);
     }
 }

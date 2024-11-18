@@ -1,10 +1,10 @@
 :root {
-  --stroke-1: 2px;
-  --stroke-2: 4px;
-  --stroke-3: 6px;
-  --stroke-1-min: -2px;
-  --stroke-2-min: -4px;
-  --stroke-3-min: -6px;
+  --stroke-1: 1.5px;
+  --stroke-2: 3px;
+  --stroke-3: 4.5px;
+  --stroke-1-min: -1.5px;
+  --stroke-2-min: -3px;
+  --stroke-3-min: -4.5px;
 }
 
 #chat_container {

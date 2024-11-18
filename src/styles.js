@@ -193,7 +193,7 @@ const ES_large_3 = `
 
 // STROKE
 
-const stroke_thin = `
+const stroke_fine = `
 :root {
   --stroke-1: 1px;
   --stroke-2: 2px;
@@ -235,7 +235,7 @@ const stroke_thin = `
  
 }`
 
-const stroke_medium = `
+const stroke_thick = `
 :root {
   --stroke-1: 1.5px;
   --stroke-2: 3px;
@@ -243,90 +243,6 @@ const stroke_medium = `
   --stroke-1-min: -1.5px;
   --stroke-2-min: -3px;
   --stroke-3-min: -4.5px;
-}
-
-#example {
-  text-shadow: var(--stroke-1) var(--stroke-3) 0px #000,
-               var(--stroke-2) var(--stroke-2) 0px #000,
-               var(--stroke-3) var(--stroke-1) 0px #000,
-               var(--stroke-3) 0px 0px #000,
-               var(--stroke-3) var(--stroke-1-min) 0px #000,
-               var(--stroke-2) var(--stroke-2-min) 0px #000,
-               var(--stroke-1) var(--stroke-3-min) 0px #000,
-               var(--stroke-1-min) var(--stroke-3) 0px #000,
-               var(--stroke-2-min) var(--stroke-2) 0px #000,
-               var(--stroke-3-min) var(--stroke-1) 0px #000,
-               var(--stroke-3-min) 0px 0px #000,
-               var(--stroke-3-min) var(--stroke-1-min) 0px #000,
-               var(--stroke-2-min) var(--stroke-2-min) 0px #000,
-               var(--stroke-1-min) var(--stroke-3-min) 0px #000,
-               var(--stroke-3) var(--stroke-1) 0px #000,
-               var(--stroke-2) var(--stroke-2) 0px #000,
-               var(--stroke-1) var(--stroke-3) 0px #000,
-               0px var(--stroke-3) 0px #000,
-               var(--stroke-1-min) var(--stroke-3) 0px #000,
-               var(--stroke-2-min) var(--stroke-2) 0px #000,
-               var(--stroke-3-min) var(--stroke-1) 0px #000,
-               var(--stroke-3) var(--stroke-1-min) 0px #000,
-               var(--stroke-2) var(--stroke-2-min) 0px #000,
-               var(--stroke-1) var(--stroke-3-min) 0px #000,
-               0px var(--stroke-3-min) 0px #000,
-               var(--stroke-1-min) var(--stroke-3-min) 0px #000,
-               var(--stroke-2-min) var(--stroke-2-min) 0px #000,
-               var(--stroke-3-min) var(--stroke-1-min) 0px #000;
- 
-}`
-
-const stroke_thick = `
-:root {
-  --stroke-1: 2px;
-  --stroke-2: 4px;
-  --stroke-3: 6px;
-  --stroke-1-min: -2px;
-  --stroke-2-min: -4px;
-  --stroke-3-min: -6px;
-}
-
-#example {
-  text-shadow: var(--stroke-1) var(--stroke-3) 0px #000,
-               var(--stroke-2) var(--stroke-2) 0px #000,
-               var(--stroke-3) var(--stroke-1) 0px #000,
-               var(--stroke-3) 0px 0px #000,
-               var(--stroke-3) var(--stroke-1-min) 0px #000,
-               var(--stroke-2) var(--stroke-2-min) 0px #000,
-               var(--stroke-1) var(--stroke-3-min) 0px #000,
-               var(--stroke-1-min) var(--stroke-3) 0px #000,
-               var(--stroke-2-min) var(--stroke-2) 0px #000,
-               var(--stroke-3-min) var(--stroke-1) 0px #000,
-               var(--stroke-3-min) 0px 0px #000,
-               var(--stroke-3-min) var(--stroke-1-min) 0px #000,
-               var(--stroke-2-min) var(--stroke-2-min) 0px #000,
-               var(--stroke-1-min) var(--stroke-3-min) 0px #000,
-               var(--stroke-3) var(--stroke-1) 0px #000,
-               var(--stroke-2) var(--stroke-2) 0px #000,
-               var(--stroke-1) var(--stroke-3) 0px #000,
-               0px var(--stroke-3) 0px #000,
-               var(--stroke-1-min) var(--stroke-3) 0px #000,
-               var(--stroke-2-min) var(--stroke-2) 0px #000,
-               var(--stroke-3-min) var(--stroke-1) 0px #000,
-               var(--stroke-3) var(--stroke-1-min) 0px #000,
-               var(--stroke-2) var(--stroke-2-min) 0px #000,
-               var(--stroke-1) var(--stroke-3-min) 0px #000,
-               0px var(--stroke-3-min) 0px #000,
-               var(--stroke-1-min) var(--stroke-3-min) 0px #000,
-               var(--stroke-2-min) var(--stroke-2-min) 0px #000,
-               var(--stroke-3-min) var(--stroke-1-min) 0px #000;
- 
-}`
-
-const stroke_thicker = `
-:root {
-  --stroke-1: 2.5px;
-  --stroke-2: 5px;
-  --stroke-3: 7.5px;
-  --stroke-1-min: -2.5px;
-  --stroke-2-min: -5px;
-  --stroke-3-min: -7.5px;
 }
 
 #example {

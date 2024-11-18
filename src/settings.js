@@ -33,10 +33,8 @@ const sizes_ES3 = [
 ]
 
 const strokes = [
-    stroke_thin,
-    stroke_medium,
-    stroke_thick,
-    stroke_thicker
+    stroke_fine,
+    stroke_thick
 ];
 
 const shadows = [

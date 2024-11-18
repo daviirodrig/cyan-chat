@@ -321,6 +321,7 @@ Chat = {
       }
 
       if (Chat.info.stroke && Chat.info.stroke > 0) {
+        if (Chat.info.stroke > 2) Chat.info.stroke = 2
         let stroke = strokes[Chat.info.stroke - 1];
         appendCSS("stroke", stroke);
       }
@@ -1172,9 +1173,13 @@ Chat = {
         .split(" ")
         .map((word) => {
           if (word.startsWith("@")) {
-            var username = word.substring(1).toLowerCase();
+            var username = word.substring(1).toLowerCase().replace("</span>", "");
+            console.log(username);
+            console.log(Chat.info.seventvPaints[username].length);
             var $mention = $(`<span class="mention">${word}</span>`);
+            console.log(Chat.info.seventvPaints);
             if (Chat.info.seventvPaints[username] && Chat.info.seventvPaints[username].length > 0) {
+              console.log(`Found paint for ${username}: ${Chat.info.seventvPaints[username]}`);
               // $mentionCopy = $mention.clone();
               // $mentionCopy.css("position", "absolute");
               // $mentionCopy.css("color", "transparent");
