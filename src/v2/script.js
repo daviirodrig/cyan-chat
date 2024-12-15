@@ -232,7 +232,7 @@ Chat = {
       const userResponse = await getPersonalEmoteData(channelID);
 
       userResponse?.emote_sets?.forEach((emoteSet) => {
-        if (emoteSet.flags === 4) {
+        if (emoteSet.flags === 4 || emoteSet.flags === 11) {
           if (!emoteSetIDs.includes(emoteSet.id)) {
             emoteSetIDs.push(emoteSet.id);
           }
