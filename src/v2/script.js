@@ -68,6 +68,7 @@ Chat = {
     fade: "fade" in $.QueryString ? parseInt($.QueryString.fade) : 360,
     size: "size" in $.QueryString ? parseInt($.QueryString.size) : 2,
     height: "height" in $.QueryString ? parseInt($.QueryString.height) : 3,
+    weight: "weight" in $.QueryString ? parseInt($.QueryString.weight) : 4,
     font:
       "font" in $.QueryString && !isNaN($.QueryString.font)
         ? parseInt($.QueryString.font)
@@ -291,7 +292,6 @@ Chat = {
 
       // Load CSS
       let size = sizes[Chat.info.size - 1];
-      let height = heights[Chat.info.height]
       var font;
       if (typeof Chat.info.font === "number") {
         font = fonts[Chat.info.font];
@@ -315,17 +315,35 @@ Chat = {
       }
 
       appendCSS("size", size);
-      appendCSS("height", height)
       if (emoteScale > 1) {
         appendCSS("emoteScale_" + size, emoteScale);
       }
 
+      if (Chat.info.height) {
+        if (Chat.info.height > 4) Chat.info.height = 4
+        let height = heights[Chat.info.height];
+        appendCSS("height", height);
+      }
       if (Chat.info.stroke && Chat.info.stroke > 0) {
         if (Chat.info.stroke > 2) Chat.info.stroke = 2
         let stroke = strokes[Chat.info.stroke - 1];
         appendCSS("stroke", stroke);
       }
+      if (Chat.info.weight) {
+        console.log("Weight is "+Chat.info.weight)
+        if (Chat.info.weight > 5 && Chat.info.weight < 100) {
+          Chat.info.weight = 5;
+          let weight = weights[Chat.info.weight - 1];
+          appendCSS("weight", weight);
+        } else if (Chat.info.weight >= 100) {
+            $("#chat_container").css("font-weight", Chat.info.weight);
+        } else {
+          let weight = weights[Chat.info.weight - 1];
+          appendCSS("weight", weight);
+        }
+      }
       if (Chat.info.shadow && Chat.info.shadow > 0) {
+        if (Chat.info.shadow > 3) Chat.info.shadow = 3
         let shadow = shadows[Chat.info.shadow - 1];
         appendCSS("shadow", shadow);
       }
@@ -1227,9 +1245,9 @@ Chat = {
     return username.replace(/\\s$/, '').trim();
   },
 
-  clearChat: function (nick) {
+  clearChat: function () {
     setTimeout(function () {
-      $(".chat_line[data-nick=" + nick + "]").remove();
+      $(".chat_line").remove();
     }, 100);
   },
 
@@ -1294,7 +1312,8 @@ Chat = {
                 Chat.clearMessage(message.tags["target-msg-id"]);
               return;
             case "CLEARCHAT":
-              if (message.params[1]) Chat.clearChat(message.params[1]);
+              console.log("Cyan Chat: Clearing chat...");
+              Chat.clearChat();
               return;
             case "PRIVMSG":
               if (!message.params[1])

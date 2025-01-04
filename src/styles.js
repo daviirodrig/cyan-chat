@@ -117,6 +117,38 @@ const size_large = `
   height: 55px;
 }`
 
+// FONT WEIGHT
+
+const weight_one = `
+#example {
+  font-weight: 200;
+}
+`
+
+const weight_two = `
+#example {
+  font-weight: 400;
+}
+`
+
+const weight_three = `
+#example {
+  font-weight: 600;
+}
+`
+
+const weight_four = `
+#example {
+  font-weight: 800;
+}
+`
+
+const weight_five = `
+#example {
+  font-weight: 1000;
+}
+`
+
 // EMOTE SCALE
 
 const ES_small_2 = `

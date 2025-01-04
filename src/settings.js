@@ -20,6 +20,14 @@ const sizes = [
     size_large
 ]
 
+const weights = [
+    weight_one,
+    weight_two,
+    weight_three,
+    weight_four,
+    weight_five
+]
+
 const sizes_ES2 = [
     size_small+ES_small_2,
     size_medium+ES_medium_2,

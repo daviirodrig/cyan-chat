@@ -38,3 +38,11 @@ const heights = [
     'large',
     'largest'
 ]
+
+const weights = [
+    'one',
+    'two',
+    'three',
+    'four',
+    'five'
+]

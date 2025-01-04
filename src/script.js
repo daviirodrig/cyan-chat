@@ -123,6 +123,15 @@ function strokeUpdate(event) {
     }
 }
 
+function weightUpdate(event) {
+    weightNum = Number($weight.val()) - 1;
+    if (weightNum > weights.Length) {
+        weightNum = weights.Length;
+    }
+    let weight = weights[weightNum];
+    applyStyles("weight", weight);
+}
+
 function shadowUpdate(event) {
     if ($shadow.val() == "0") {
         $example.css("filter", "unset");
@@ -237,6 +246,7 @@ function generateURL(event) {
         font: selectedFont,
         height: $height.val(),
         stroke: $stroke.val() != "0" ? $stroke.val() : false,
+        weight: $weight.val() != "4" ? $weight.val() : false,
         shadow: $shadow.val() != "0" ? $shadow.val() : false,
         bots: $bots.is(":checked"),
         hide_commands: $commands.is(":checked"),
@@ -297,6 +307,7 @@ function resetForm(event) {
     $font.val("0");
     $height.val("4");
     $stroke.val("0");
+    $weight.val("4");
     $shadow.val("0");
     $bots.prop("checked", false);
     $commands.prop("checked", false);
@@ -320,6 +331,7 @@ function resetForm(event) {
     fontUpdate();
     heightUpdate();
     strokeUpdate();
+    weightUpdate();
     shadowUpdate();
     badgesUpdate();
     paintsUpdate();
@@ -363,6 +375,7 @@ const $font = $("select[name='font']");
 const $height = $("select[name='height']");
 const $custom_font = $("input[name='custom_font']");
 const $stroke = $("select[name='stroke']");
+const $weight = $("select[name='weight']");
 const $shadow = $("select[name='shadow']");
 const $brightness = $("#brightness");
 const $example = $("#example");
@@ -381,6 +394,7 @@ $font.change(fontUpdate);
 $height.change(heightUpdate);
 $custom_font.change(customFontUpdate);
 $stroke.change(strokeUpdate);
+$weight.change(weightUpdate);
 $shadow.change(shadowUpdate);
 $small_caps.change(capsUpdate);
 $center.change(centerUpdate);
