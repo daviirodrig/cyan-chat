@@ -764,9 +764,11 @@ Chat = {
               backgroundImage: gradient,
               filter: dropShadows,
             };
-            if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
-              Chat.info.seventvPaints[nick] = [];
-              Chat.info.seventvPaints[nick].push(userPaint);
+            if (Chat.info.seventvPaints[nick]) {
+              if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+                Chat.info.seventvPaints[nick] = [];
+                Chat.info.seventvPaints[nick].push(userPaint);
+              }
             }
           } else {
             var dropShadows = createDropShadows(seventvPaintInfo.shadows);
@@ -776,9 +778,11 @@ Chat = {
               backgroundImage: seventvPaintInfo.image_url,
               filter: dropShadows,
             };
-            if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
-              Chat.info.seventvPaints[nick] = [];
-              Chat.info.seventvPaints[nick].push(userPaint);
+            if (Chat.info.seventvPaints[nick]) {
+              if (!Chat.info.seventvPaints[nick].includes(userPaint)) {
+                Chat.info.seventvPaints[nick] = [];
+                Chat.info.seventvPaints[nick].push(userPaint);
+              }
             }
           }
         } else {
@@ -1192,10 +1196,10 @@ Chat = {
         .map((word) => {
           if (word.startsWith("@")) {
             var username = word.substring(1).toLowerCase().replace("</span>", "");
-            console.log(username);
-            console.log(Chat.info.seventvPaints[username].length);
+            // console.log(username);
+            // console.log(Chat.info.seventvPaints[username].length);
             var $mention = $(`<span class="mention">${word}</span>`);
-            console.log(Chat.info.seventvPaints);
+            // console.log(Chat.info.seventvPaints);
             if (Chat.info.seventvPaints[username] && Chat.info.seventvPaints[username].length > 0) {
               console.log(`Found paint for ${username}: ${Chat.info.seventvPaints[username]}`);
               // $mentionCopy = $mention.clone();
@@ -1212,7 +1216,16 @@ Chat = {
                     "url(" + paint.backgroundImage + ")"
                   );
                 }
-                $mention.css("filter", paint.filter);
+                let mentionShadow = "";
+                if (Chat.info.stroke) {
+                  if (Chat.info.stroke === 1) {
+                    mentionShadow = " drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px)"
+                  } else if (Chat.info.stroke === 2) {
+                    mentionShadow = " drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px)"
+                  }
+                }
+                console.log(paint.filter+mentionShadow);
+                $mention.css("filter", paint.filter+mentionShadow);
                 $mention.addClass("paint");
               });
               var mentionHtml =
