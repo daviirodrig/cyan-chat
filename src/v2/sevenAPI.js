@@ -134,6 +134,7 @@ async function getCosmeticDetails(ids) {
 }
 
 async function getPersonalEmoteData(id) {
+  return async () => {};
   return retry(async () => {
     const query = `
     query MyQuery {
@@ -162,6 +163,8 @@ async function getPersonalEmoteData(id) {
 }
 
 async function getEmoteSetsData(id) {
+  return async () => {};
+
   return retry(async () => {
     const query = `
     query MyQuery {
@@ -195,6 +198,8 @@ async function delay(ms) {
 }
 
 async function getUserCosmeticData(id) {
+  return async () => {};
+
   return retry(async () => {
     const query = `
     query MyQuery {
@@ -354,7 +359,9 @@ function createGradient(angle, stops, type, shape, repeat) {
     (stop) => `${convertColor(stop.color)} ${stop.at * 100}%`
   );
   if (type === "LINEAR_GRADIENT" && repeat) {
-    return `repeating-linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
+    return `repeating-linear-gradient(${angle}deg, ${gradientStops.join(
+      ", "
+    )})`;
   } else if (type === "LINEAR_GRADIENT" && !repeat) {
     return `linear-gradient(${angle}deg, ${gradientStops.join(", ")})`;
   } else if (type === "RADIAL_GRADIENT" && repeat) {
@@ -378,7 +385,9 @@ function createDropShadows(shadows) {
           mult = Chat.info.size;
         }
       }
-      return `drop-shadow(${shadow.x_offset * mult}px ${shadow.y_offset * mult}px ${shadow.radius * mult}px ${color})`;
+      return `drop-shadow(${shadow.x_offset * mult}px ${
+        shadow.y_offset * mult
+      }px ${shadow.radius * mult}px ${color})`;
     })
     .join(" ");
 }

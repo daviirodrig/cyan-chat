@@ -962,9 +962,9 @@ Chat = {
             Date.now()
           ) {
             // console.log("7tv checker expired so checking again");
-            Chat.loadUserBadges(nick, info["user-id"]);
-            Chat.loadUserPaints(nick, info["user-id"]);
-            Chat.loadPersonalEmotes(info["user-id"]);
+            // Chat.loadUserBadges(nick, info["user-id"]);
+            // Chat.loadUserPaints(nick, info["user-id"]);
+            // Chat.loadPersonalEmotes(info["user-id"]);
             const data = {
               enabled: true,
               timestamp: Date.now(),
@@ -1552,7 +1552,7 @@ Chat = {
                 !Chat.info.seventvNoUsers[message.tags["user-id"]] &&
                 !Chat.info.seventvNonSubs[message.tags["user-id"]]
               ) {
-                Chat.loadPersonalEmotes(message.tags["user-id"]);
+                // Chat.loadPersonalEmotes(message.tags["user-id"]);
               }
 
               if (
