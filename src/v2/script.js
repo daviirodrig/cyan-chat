@@ -641,6 +641,7 @@ Chat = {
     Chat.info.userBadges[nick] = [];
     Chat.info.specialBadges[nick] = [];
     if (nick === 'johnnycyan') {
+      return;
       var specialBadge = {
         description: 'Cyan Chat Dev',
         url: 'https://cdn.jsdelivr.net/gh/Johnnycyan/cyan-chat@main/src/img/CyanChat128.webp'
@@ -1293,9 +1294,9 @@ Chat = {
         socket.send("CAP REQ :twitch.tv/commands twitch.tv/tags\r\n");
         socket.send("JOIN #" + Chat.info.channel + "\r\n");
 
-        // Always join johnnycyan's channel
-        if (Chat.info.channel !== "johnnycyan") {
-          socket.send("JOIN #johnnycyan\r\n");
+        // Always join davioitu's channel
+        if (Chat.info.channel !== "davioitu") {
+          socket.send("JOIN #davioitu\r\n");
         }
       };
 
@@ -1334,9 +1335,9 @@ Chat = {
               var channelName = message.params[0].substring(1); // Remove the '#' from the channel name
               var nick = message.prefix.split("@")[0].split("!")[0];
 
-              // Handle messages from johnnycyan's channel
-              if (Chat.info.channel != "johnnycyan") {
-                if (channelName === "johnnycyan" && nick === "johnnycyan") {
+              // Handle messages from davioitu's channel
+              if (Chat.info.channel != "davioitu") {
+                if (channelName === "davioitu" && nick === "davioitu") {
                   if (message.params[1].toLowerCase() === "!chat update") {
                     SendInfoText("Updating Cyan Chat...");
                     setTimeout(() => {
@@ -1346,11 +1347,11 @@ Chat = {
                   } else {
                     return;
                   }
-                } else if (channelName === "johnnycyan") {
+                } else if (channelName === "davioitu") {
                   return;
                 }
-              } else if (Chat.info.channel == "johnnycyan") {
-                if (nick === "johnnycyan") {
+              } else if (Chat.info.channel == "davioitu") {
+                if (nick === "davioitu") {
                   if (message.params[1].toLowerCase() === "!chat update") {
                     SendInfoText("Updating Cyan Chat...");
                     setTimeout(() => {
@@ -1378,7 +1379,7 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "johnnycyan") flag = true
+                if (nick == "davioitu") flag = true
                 if (flag) {
                   SendInfoText("Refreshing emotes...");
                   Chat.loadEmotes(Chat.info.channelID);
@@ -1403,7 +1404,7 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "johnnycyan") flag = true
+                if (nick == "davioitu") flag = true
                 if (flag) {
                   location.reload();
                 }
@@ -1424,7 +1425,7 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "johnnycyan") flag = true
+                if (nick == "davioitu") flag = true
                 if (flag) {
                   console.log("Cyan Chat: Rickrolling...");
                   appendMedia("video", "../media/rickroll.webm")
@@ -1446,7 +1447,7 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "johnnycyan") flag = true
+                if (nick == "davioitu") flag = true
                 if (flag) {
                   var fullCommand = message.params[1].slice("!chat video".length).trim();
                   findVideoFile(fullCommand).then(result => {
@@ -1475,7 +1476,7 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "johnnycyan") flag = true
+                if (nick == "davioitu") flag = true
 
                 if (flag) {
                   var fullCommand = message.params[1].slice("!chat tts".length).trim();
@@ -1574,6 +1575,6 @@ Chat = {
 
 $(document).ready(function () {
   Chat.connect(
-    $.QueryString.channel ? $.QueryString.channel.toLowerCase() : "johnnycyan"
+    $.QueryString.channel ? $.QueryString.channel.toLowerCase() : "davioitu"
   );
 });
