@@ -19,6 +19,8 @@ FROM alpine:latest AS runner
 
 COPY --from=build /app/dist /app/dist
 COPY --from=build-server /app/server /app/server
+COPY --from=build /app/login.html /app/login.html
+COPY --from=build /app/admin.html /app/admin.html
 
 EXPOSE 3000
 
