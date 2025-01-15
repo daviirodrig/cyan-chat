@@ -691,7 +691,7 @@ func main() {
 	if location == "local" {
 		callbackUrl = "http://localhost" + port + "/auth/callback"
 	} else {
-		callbackUrl = "https://chat.johnnycyan.com/auth/callback"
+		callbackUrl = "https://chatsemban.justdavi.dev/auth/callback"
 	}
 
 	client, err = helix.NewClient(&helix.Options{
