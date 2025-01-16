@@ -174,7 +174,7 @@ function seven_ws(channel) {
                                                 }));
                                             }
                                         }
-                                        
+
                                         if (emoteEvent.d.body.updated[i].value.length > 0) { // added emote origin
                                             for (var j = 0; j < emoteEvent.d.body.updated[i].value.length; j++) { // loop through all added origins
                                                 origin = emoteEvent.d.body.updated[i].value[j].id;

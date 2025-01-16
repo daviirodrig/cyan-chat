@@ -163,7 +163,7 @@ async function getPersonalEmoteData(id) {
 }
 
 async function getEmoteSetsData(id) {
-  return async () => {};
+  // return async () => {};
 
   return retry(async () => {
     const query = `
