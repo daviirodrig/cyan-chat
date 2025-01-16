@@ -32,7 +32,9 @@
     <!-- Modal Structure -->
     <div id="emotePopup">
         <h2>Info</h2>
-        <p>Emote Sync is experimental. It can be laggy when there are many emotes being spammed at once. Even so it is the recommended default to have it on. Its purpose is to keep all emotes in sync with each other. If you have performance issues then you can use this to disable it.</p>
+        <p>Emote Sync is experimental. It can be laggy when there are many emotes being spammed at once. Even so it is
+            the recommended default to have it on. Its purpose is to keep all emotes in sync with each other. If you
+            have performance issues then you can use this to disable it.</p>
         <button id="emotePopupButton" onclick="closePopup()">Close</button>
     </div>
     <header>
@@ -73,40 +75,58 @@
                 <li><em>!chat refresh</em> - Refreshes the emotes in chat.</li>
                 <li><em>!chat reload</em> - Reloads the overlay.</li>
                 <li><em>!chat rickroll</em> - Rickrolls the chat.</li>
-                <!-- <li><em>!chat tts</em> - Lets you send a tts message (Also can specify a voice with -v {voice}).</li> -->
+                <li><em>!chat tts</em> - Lets you send a tts message (Also can specify a voice with -v {voice}).</li>
             </ul>
         </details>
 
-        <!-- <details>
+        <details>
             <summary style="text-align: center;">
                 Voices
             </summary>
             <p>
-                <em>Cyan Chat</em> supports the following voices:
-                <br />
-            <ul>
-                <li>Brian</li>
-                <li>Ivy</li>
-                <li>Justin</li>
-                <li>Russell</li>
-                <li>Nicole</li>
-                <li>Emma</li>
-                <li>Amy</li>
-                <li>Joanna</li>
-                <li>Salli</li>
-                <li>Kimberly</li>
-                <li>Kendra</li>
-                <li>Joey</li>
-                <li>Mizuki (Japanese)</li>
-                <li>Chantal (French)</li>
-                <li>Mathieu (French)</li>
-                <li>Maxim (Russian)</li>
-                <li>Hans (German)</li>
-                <li>Raveena (Indian)</li>
-            </ul>
+                <em>Cyan Chat</em> supports all Azure Neural voices. Here are some examples grouped by language:
+                <br>
+                <a href="https://cdn.justdavi.dev/voices.txt" target="_blank"
+                    style="display: inline-block; margin: 10px 0; padding: 8px 16px; background-color: #099ec4; color: white; text-decoration: none; border-radius: 4px;">See
+                    all available voices here</a>
             </p>
-        </details> -->
+            <div style="columns: 3; column-gap: 0px;">
+                <ul>
+                    <h4>English</h4>
+                    <li>en-US-AnaNeural</li>
+                    <li>en-US-AriaNeural</li>
+                    <li>en-US-ChristopherNeural</li>
+                    <li>en-GB-LibbyNeural</li>
+                    <li>en-AU-NatashaNeural</li>
+                </ul>
 
+                <ul>
+                    <h4>Portuguese</h4>
+                    <li>pt-BR-AntonioNeural</li>
+                    <li>pt-BR-FranciscaNeural</li>
+                    <li>pt-BR-ThalitaMultilingualNeural</li>
+                    <li>pt-PT-DuarteNeural</li>
+                    <li>pt-PT-RaquelNeural</li>
+                </ul>
+
+                <ul>
+                    <h4>Spanish</h4>
+                    <li>es-ES-AlvaroNeural</li>
+                    <li>es-MX-DaliaNeural</li>
+                    <li>es-AR-ElenaNeural</li>
+                </ul>
+
+                <ul>
+                    <h4>French</h4>
+                    <li>fr-FR-DeniseNeural</li>
+                    <li>fr-CA-SylvieNeural</li>
+                    <li>fr-BE-CharlineNeural</li>
+                </ul>
+            </div>
+            <p style="text-align: center; margin-top: 10px;">
+                <em>Note: Use -v followed by the voice name to specify a voice (e.g. !chat tts -v en-US-AriaNeural)</em>
+            </p>
+        </details>
         <form name="generator">
             <div class="form_row center">
                 <input type="text" name="channel" required placeholder="Twitch Channel" />
@@ -353,8 +373,9 @@
                   ">@xen_ninjas</span>
                             gn
                             <img class="emote" src="https://cdn.7tv.app/emote/63882e9d346422503a288b5e/4x.webp"
-                                style="visibility: visible"/><img class="emote" src="https://cdn.7tv.app/emote/639008385901e8ad82935b7f/4x.webp"
-                                style="visibility: visible"/></span>
+                                style="visibility: visible" /><img class="emote"
+                                src="https://cdn.7tv.app/emote/639008385901e8ad82935b7f/4x.webp"
+                                style="visibility: visible" /></span>
                     </div>
                     <div class="chat_line">
                         <span class="user_info"><img class="badge"
@@ -376,9 +397,9 @@
                   ">@xen_ninjas</span>
                             gn
                             <img class="emote" src="https://cdn.7tv.app/emote/63882e9d346422503a288b5e/4x.webp"
-                                style="visibility: visible"/><img class="emote"
+                                style="visibility: visible" /><img class="emote"
                                 src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_24396e3f5a64449e9ba19b794b0a6aa6/default/dark/3.0"
-                                style="visibility: visible"/></span>
+                                style="visibility: visible" /></span>
                     </div>
                     <div class="chat_line">
                         <span class="user_info"><img class="badge"
@@ -403,8 +424,9 @@
                     filter: drop-shadow(rgb(15, 175, 255) 0px 0px 0.1px);
                   ">xen_ninjas</span><span class="colon"> :</span></span><span class="message"><img class="emote"
                                 src="https://cdn.7tv.app/emote/639008385901e8ad82935b7f/4x.webp"
-                                style="visibility: visible"/><img class="emote" src="https://cdn.7tv.app/emote/6107cb319dc18aaf9f0e451e/4x.webp"
-                                style="visibility: visible"/></span>
+                                style="visibility: visible" /><img class="emote"
+                                src="https://cdn.7tv.app/emote/6107cb319dc18aaf9f0e451e/4x.webp"
+                                style="visibility: visible" /></span>
                     </div>
                     <div class="chat_line">
                         <span class="user_info"><img class="badge"
@@ -427,7 +449,8 @@
                     filter: drop-shadow(rgb(158, 226, 255) 0px 1px 0.1px)
                       drop-shadow(rgb(255, 112, 243) 1px 0px 0.1px)
                       drop-shadow(rgb(95, 124, 116) 1px 0px 3px);
-                  ">Johnnycyan</span><span class="colon"> :</span></span><span class="message"><span class="mention paint" style="
+                  ">Johnnycyan</span><span class="colon"> :</span></span><span class="message"><span
+                                class="mention paint" style="
                     color: rgb(255, 0, 0);
                     background-image: linear-gradient(
                       0deg,
@@ -439,8 +462,9 @@
                     filter: drop-shadow(rgb(15, 175, 255) 0px 0px 0.1px);
                   ">@xen_ninjas</span>
                             <img class="emote" src="https://cdn.7tv.app/emote/639234ce908ab3ef06b3c640/4x.webp"
-                                style="visibility: visible"/><img class="emote" src="https://cdn.7tv.app/emote/61a78600e9684edbbc37c61c/4x.webp"
-                                style="visibility: visible"/></span>
+                                style="visibility: visible" /><img class="emote"
+                                src="https://cdn.7tv.app/emote/61a78600e9684edbbc37c61c/4x.webp"
+                                style="visibility: visible" /></span>
                     </div>
                 </div>
                 <input type="submit" value="Generate" />
