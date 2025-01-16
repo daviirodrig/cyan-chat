@@ -5,13 +5,13 @@ function parseFlags(input, schema) {
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
-    if (part.startsWith('-')) {
-      const flagName = part.replace(/^-+/, '');
+    if (part.startsWith("-")) {
+      const flagName = part.replace(/^-+/, "");
       if (schema.hasOwnProperty(flagName)) {
         const flagType = schema[flagName];
         if (flagType === Boolean) {
           flags[flagName] = true;
-        } else if (i + 1 < parts.length && !parts[i + 1].startsWith('-')) {
+        } else if (i + 1 < parts.length && !parts[i + 1].startsWith("-")) {
           flags[flagName] = convertType(parts[i + 1], flagType);
           i++; // Skip the next part as it's the value
         }
@@ -21,13 +21,13 @@ function parseFlags(input, schema) {
     }
   }
 
-  return { flags, rest: rest.join(' ') };
+  return { flags, rest: rest.join(" ") };
 }
 
 function convertType(value, type) {
   if (type === String) return value;
   if (type === Number) return Number(value);
-  if (type === Boolean) return value.toLowerCase() === 'true';
+  if (type === Boolean) return value.toLowerCase() === "true";
   if (Array.isArray(type)) return [value]; // For simplicity, just wrap in array
   return value; // Default to string if type is not recognized
 }
@@ -43,17 +43,17 @@ function appendCSS(type, name) {
 
 const toTitleCase = (phrase) => {
   return phrase
-      .toLowerCase()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 function loadCustomFont(name) {
   const $chat_container = $("#chat_container");
   const fontName = toTitleCase(name);
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
   link.href = `https://fonts.googleapis.com/css?family=${fontName}`;
   document.head.appendChild(link);
   $chat_container.css("font-family", fontName);
@@ -176,7 +176,7 @@ function SendInfoText(text) {
 
   timeoutID = setTimeout(function () {
     $infoText.css("opacity", "0");
-  }, 5000);
+  }, 2500);
 }
 
 function doesStringMatchPattern(stringToTest, info) {
@@ -199,7 +199,7 @@ function removeRandomQueryString(url) {
 
 async function fileExists(url) {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
+    const response = await fetch(url, { method: "HEAD" });
     return response.ok;
   } catch (error) {
     console.error("Error checking file existence:", error);
@@ -222,7 +222,7 @@ function findVideoFile(source) {
 
       // Check if the file exists
       if (await fileExists(filePath)) {
-        resolve(fileName);  // Return just the filename with extension
+        resolve(fileName); // Return just the filename with extension
         return;
       }
     }
@@ -316,14 +316,23 @@ async function fixZeroWidthEmotes(messageId) {
 
   // Allow 8 attempts to find and process the message
   for (let attempt = 1; attempt <= 8; attempt++) {
-    const messageElement = document.querySelector(`div.chat_line[data-id="${messageId}"]`);
+    const messageElement = document.querySelector(
+      `div.chat_line[data-id="${messageId}"]`
+    );
 
     // If the messageElement is found, proceed
     if (messageElement) {
-      const containers = Array.from(messageElement.querySelectorAll(".zero-width_container.staging"));
+      const containers = Array.from(
+        messageElement.querySelectorAll(".zero-width_container.staging")
+      );
 
-      if (containers.length > 0 || messageElement.querySelectorAll("img.emote").length > 0) {
-        let allEmotes = Array.from(messageElement.querySelectorAll("img.emote"));
+      if (
+        containers.length > 0 ||
+        messageElement.querySelectorAll("img.emote").length > 0
+      ) {
+        let allEmotes = Array.from(
+          messageElement.querySelectorAll("img.emote")
+        );
         let currentSet = [];
         let maxWidth = 0;
 
@@ -346,9 +355,15 @@ async function fixZeroWidthEmotes(messageId) {
               // We have a set we're concluding (zero-width(s) + normal emote)
 
               // Find or create a container for the group
-              let firstContainer = currentSet[0].closest(".zero-width_container");
+              let firstContainer = currentSet[0].closest(
+                ".zero-width_container"
+              );
 
-              if (!firstContainer && currentSet.length === 1 && !currentSet[0].classList.contains('zero-width')) {
+              if (
+                !firstContainer &&
+                currentSet.length === 1 &&
+                !currentSet[0].classList.contains("zero-width")
+              ) {
                 // Special case: if there's only one item in the set and it's a normal emote (no zero-width to pair),
                 // skip container creation and keep it as is.
                 currentSet = [];
@@ -356,12 +371,16 @@ async function fixZeroWidthEmotes(messageId) {
               }
 
               if (!firstContainer) {
-                console.error("[fixZeroWidthEmotes]: firstContainer is null for a set, continuing.");
+                console.error(
+                  "[fixZeroWidthEmotes]: firstContainer is null for a set, continuing."
+                );
                 return;
               }
 
               // Set the max width by evaluating all emotes in the set
-              maxWidth = Math.max(...currentSet.map((e) => e.getBoundingClientRect().width));
+              maxWidth = Math.max(
+                ...currentSet.map((e) => e.getBoundingClientRect().width)
+              );
 
               currentSet.forEach((em) => {
                 firstContainer.appendChild(em);
@@ -371,9 +390,11 @@ async function fixZeroWidthEmotes(messageId) {
               firstContainer.style.width = `${maxWidth}px`;
 
               firstContainer.classList.remove("staging");
-              firstContainer.querySelectorAll("img.emote.staging").forEach((em) => {
-                em.classList.remove("staging");
-              });
+              firstContainer
+                .querySelectorAll("img.emote.staging")
+                .forEach((em) => {
+                  em.classList.remove("staging");
+                });
 
               currentSet = [];
             }
@@ -401,11 +422,15 @@ async function fixZeroWidthEmotes(messageId) {
           const firstContainer = currentSet[0].closest(".zero-width_container");
 
           if (!firstContainer) {
-            console.error("[fixZeroWidthEmotes]: firstContainer is null for the final set.");
+            console.error(
+              "[fixZeroWidthEmotes]: firstContainer is null for the final set."
+            );
             continue;
           }
 
-          maxWidth = Math.max(...currentSet.map((e) => e.getBoundingClientRect().width));
+          maxWidth = Math.max(
+            ...currentSet.map((e) => e.getBoundingClientRect().width)
+          );
 
           currentSet.forEach((em) => {
             firstContainer.appendChild(em);
@@ -420,7 +445,9 @@ async function fixZeroWidthEmotes(messageId) {
         }
 
         // Remove empty containers at the end
-        Array.from(messageElement.querySelectorAll(".zero-width_container")).forEach((container) => {
+        Array.from(
+          messageElement.querySelectorAll(".zero-width_container")
+        ).forEach((container) => {
           if (container.children.length === 0) {
             container.remove();
           }
@@ -428,35 +455,43 @@ async function fixZeroWidthEmotes(messageId) {
 
         // Let the browser render updates
         await new Promise(requestAnimationFrame);
-        
-        break;  // Break out of retry loop after successful handling
+
+        break; // Break out of retry loop after successful handling
       }
     } else {
       // Wait for 100ms before next attempt
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     if (attempt === 8) {
-      console.error(`[fixZeroWidthEmotes]: Message with data-id="${messageId}" not found after 8 attempts.`);
+      console.error(
+        `[fixZeroWidthEmotes]: Message with data-id="${messageId}" not found after 8 attempts.`
+      );
     }
   }
 }
 
 // #region Message Pruning
 
-const intersectionObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    const elementRect = entry.target.getBoundingClientRect();
+const intersectionObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      const elementRect = entry.target.getBoundingClientRect();
 
-    if (elementRect.top < 0 || elementRect.top >= window.innerHeight - elementRect.height) {
-      handleChatLineRemoval(entry.target);
-    }
-  });
-}, {
-  root: null,
-  rootMargin: '0px',
-  threshold: [0, 1]
-});
+      if (
+        elementRect.top < 0 ||
+        elementRect.top >= window.innerHeight - elementRect.height
+      ) {
+        handleChatLineRemoval(entry.target);
+      }
+    });
+  },
+  {
+    root: null,
+    rootMargin: "0px",
+    threshold: [0, 1],
+  }
+);
 
 function startObservingChatContainerForLines() {
   const chatContainer = document.getElementById("chat_container");
@@ -534,23 +569,23 @@ window.addEventListener("load", () => {
 
 function makeActiveUserCall() {
   fetch(`/active?channel=${encodeURIComponent(Chat.info.channel)}`)
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       return response.text();
     })
-    .then(data => {
-      console.log('Active user call successful:', Chat.info.channel, data);
+    .then((data) => {
+      console.log("Active user call successful:", Chat.info.channel, data);
     })
-    .catch(error => {
-      console.error('Error making active user call:', error);
+    .catch((error) => {
+      console.error("Error making active user call:", error);
     });
 }
 
 // Run immediately when connected
 setTimeout(() => {
-makeActiveUserCall();
+  makeActiveUserCall();
 }, 5000);
 
 // Then run every 10 minutes
