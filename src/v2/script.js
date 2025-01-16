@@ -123,10 +123,7 @@ Chat = {
       "disable_pruning" in $.QueryString
         ? $.QueryString.disable_pruning.toLowerCase() === "true"
         : false,
-    yt:
-      "yt" in $.QueryString
-        ? $.QueryString.yt.toLowerCase()
-        : false,
+    yt: "yt" in $.QueryString ? $.QueryString.yt.toLowerCase() : false,
   },
 
   loadEmotes: function (channelID) {
@@ -192,7 +189,7 @@ Chat = {
           const emoteData = emote.data.host.files.pop();
           var link = `https:${emote.data.host.url}/${emoteData.name}`;
           // if link ends in .gif replace with .webp
-          if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
+          if (link.endsWith(".gif")) link = link.replace(".gif", ".webp");
           Chat.info.emotes[emote.name] = {
             id: emote.id,
             image: link,
@@ -211,7 +208,7 @@ Chat = {
         const emoteData = emote.data.host.files.pop();
         var link = `https:${emote.data.host.url}/${emoteData.name}`;
         // if link ends in .gif replace with .webp
-        if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
+        if (link.endsWith(".gif")) link = link.replace(".gif", ".webp");
         Chat.info.emotes[emote.name] = {
           id: emote.id,
           image: link,
@@ -253,7 +250,7 @@ Chat = {
           const emoteData = emote.data.host.files.pop();
           var link = `https:${emote.data.host.url}/${emoteData.name}`;
           // if link ends in .gif replace with .webp
-          if (link.endsWith(".gif")) link = link.replace(".gif", ".webp")
+          if (link.endsWith(".gif")) link = link.replace(".gif", ".webp");
           const personalEmote = {
             name: emote.name,
             id: emote.id,
@@ -282,12 +279,15 @@ Chat = {
       client_id = res.client_id;
 
       // Load channel colors
-      TwitchAPI("/chat/color?user_id=" + Chat.info.channelID).done(
-        function (res) {
-          res = res.data[0];
-          Chat.info.colors[Chat.info.channel] = Chat.getUserColor(Chat.info.channel, res);
-        }
-      );
+      TwitchAPI("/chat/color?user_id=" + Chat.info.channelID).done(function (
+        res
+      ) {
+        res = res.data[0];
+        Chat.info.colors[Chat.info.channel] = Chat.getUserColor(
+          Chat.info.channel,
+          res
+        );
+      });
       Chat.loadUserPaints(Chat.info.channel, Chat.info.channelID);
 
       // Load CSS
@@ -320,30 +320,30 @@ Chat = {
       }
 
       if (Chat.info.height) {
-        if (Chat.info.height > 4) Chat.info.height = 4
+        if (Chat.info.height > 4) Chat.info.height = 4;
         let height = heights[Chat.info.height];
         appendCSS("height", height);
       }
       if (Chat.info.stroke && Chat.info.stroke > 0) {
-        if (Chat.info.stroke > 2) Chat.info.stroke = 2
+        if (Chat.info.stroke > 2) Chat.info.stroke = 2;
         let stroke = strokes[Chat.info.stroke - 1];
         appendCSS("stroke", stroke);
       }
       if (Chat.info.weight) {
-        console.log("Weight is "+Chat.info.weight)
+        console.log("Weight is " + Chat.info.weight);
         if (Chat.info.weight > 5 && Chat.info.weight < 100) {
           Chat.info.weight = 5;
           let weight = weights[Chat.info.weight - 1];
           appendCSS("weight", weight);
         } else if (Chat.info.weight >= 100) {
-            $("#chat_container").css("font-weight", Chat.info.weight);
+          $("#chat_container").css("font-weight", Chat.info.weight);
         } else {
           let weight = weights[Chat.info.weight - 1];
           appendCSS("weight", weight);
         }
       }
       if (Chat.info.shadow && Chat.info.shadow > 0) {
-        if (Chat.info.shadow > 3) Chat.info.shadow = 3
+        if (Chat.info.shadow > 3) Chat.info.shadow = 3;
         let shadow = shadows[Chat.info.shadow - 1];
         appendCSS("shadow", shadow);
       }
@@ -381,7 +381,7 @@ Chat = {
 
             $.getJSON(
               "https://api.frankerfacez.com/v1/_room/id/" +
-              encodeURIComponent(Chat.info.channelID)
+                encodeURIComponent(Chat.info.channelID)
             ).done(function (res) {
               const badgeUrl =
                 "https://cdn.frankerfacez.com/room-badge/mod/" +
@@ -447,7 +447,6 @@ Chat = {
           .fail(function () {
             Chat.info.chatterinoBadges = [];
           });
-
       }
 
       // Load cheers images
@@ -561,7 +560,7 @@ Chat = {
       const colorIndex = colorSeed % twitchColors.length;
       return twitchColors[colorIndex];
     } catch (error) {
-      console.error("Error parsing userId:", error)
+      console.error("Error parsing userId:", error);
       colorSeed = nick.charCodeAt(0); // Fallback to 1st char of nick if userId parsing fails
 
       // Calculate color index using modulus
@@ -640,13 +639,14 @@ Chat = {
   loadUserBadges: function (nick, userId) {
     Chat.info.userBadges[nick] = [];
     Chat.info.specialBadges[nick] = [];
-    if (nick === 'johnnycyan') {
+    if (nick === "johnnycyan") {
       return;
       var specialBadge = {
-        description: 'Cyan Chat Dev',
-        url: 'https://cdn.jsdelivr.net/gh/Johnnycyan/cyan-chat@main/src/img/CyanChat128.webp'
+        description: "Cyan Chat Dev",
+        url: "https://cdn.jsdelivr.net/gh/Johnnycyan/cyan-chat@main/src/img/CyanChat128.webp",
       };
-      if (!Chat.info.specialBadges[nick].includes(specialBadge)) Chat.info.specialBadges[nick].push(specialBadge);
+      if (!Chat.info.specialBadges[nick].includes(specialBadge))
+        Chat.info.specialBadges[nick].push(specialBadge);
     }
     $.getJSON("https://api.frankerfacez.com/v1/user/" + nick).always(function (
       res
@@ -915,7 +915,10 @@ Chat = {
       var $usernameCopy = null;
       // check the info for seventv paints and add them to the username
       if (service != "youtube") {
-        if (Chat.info.seventvPaints[nick] && Chat.info.seventvPaints[nick].length > 0) {
+        if (
+          Chat.info.seventvPaints[nick] &&
+          Chat.info.seventvPaints[nick].length > 0
+        ) {
           $usernameCopy = $username.clone();
           $usernameCopy.css("position", "absolute");
           $usernameCopy.css("color", "transparent");
@@ -945,7 +948,7 @@ Chat = {
       }
 
       if (Chat.info.hideColon && !Chat.info.center) {
-        $username.addClass("colon")
+        $username.addClass("colon");
       }
 
       $userInfo.append($username);
@@ -1014,13 +1017,19 @@ Chat = {
 
       message = escapeHtml(message);
       const words = message.split(/\s+/);
-      const processedWords = words.map(word => {
+      const processedWords = words.map((word) => {
         let replacedWord = word;
         let isReplaced = false;
 
         // Check personal emotes if not YouTube
-        if (!isReplaced && service !== "youtube" && Chat.info.seventvPersonalEmotes[info["user-id"]]) {
-          Object.entries(Chat.info.seventvPersonalEmotes[info["user-id"]]).forEach((emote) => {
+        if (
+          !isReplaced &&
+          service !== "youtube" &&
+          Chat.info.seventvPersonalEmotes[info["user-id"]]
+        ) {
+          Object.entries(
+            Chat.info.seventvPersonalEmotes[info["user-id"]]
+          ).forEach((emote) => {
             if (word === emote[0]) {
               let replacement;
               if (emote[1].upscale) {
@@ -1063,9 +1072,9 @@ Chat = {
         if (curr.isReplaced && processedWords[index - 1].isReplaced) {
           return acc + curr.word;
         } else {
-          return acc + ' ' + curr.word;
+          return acc + " " + curr.word;
         }
-      }, '');
+      }, "");
 
       // message = escapeHtml(message);
 
@@ -1108,28 +1117,28 @@ Chat = {
       });
 
       replacementKeys.forEach((replacementKey) => {
-        var regex = new RegExp(
-          "(" + escapeRegExp(replacementKey) + ")",
-          "g"
-        );
+        var regex = new RegExp("(" + escapeRegExp(replacementKey) + ")", "g");
         message = message.replace(regex, replacements[replacementKey]);
-        message = message.replace(/\s+/g, ' ').trim();
-        message = message.replace(/>(\s+)</g, '><');
-        message = message.replace(/(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g, '$1$2');
+        message = message.replace(/\s+/g, " ").trim();
+        message = message.replace(/>(\s+)</g, "><");
+        message = message.replace(
+          /(<img[^>]*class="emote"[^>]*>)\s+(<img[^>]*class="emote"[^>]*>)/g,
+          "$1$2"
+        );
       });
 
       if (service == "youtube") {
         message = "";
         info.runs.forEach((run) => {
-          if ('emoji' in run) {
+          if ("emoji" in run) {
             // This is an EmojiRun
             message += `<img class="emote" src="${run.emoji.image[0].url}">`;
-          } else if ('text' in run) {
+          } else if ("text" in run) {
             // This is a TextRun
             message += run.text;
           } else {
             // Fallback for any unexpected run type
-            message += run.toString().replace(/>/g, '&gt;');
+            message += run.toString().replace(/>/g, "&gt;");
           }
         });
 
@@ -1183,12 +1192,12 @@ Chat = {
           $container.addClass("zero-width_container");
           $container.addClass("staging");
           $(this).addClass("zero-width");
-          $(this).addClass("staging")
+          $(this).addClass("staging");
           $(this).before($container);
           $container.append(messageNodes[i - 1], this);
         }
       });
-      message = $message.html() + "</span>"
+      message = $message.html() + "</span>";
       $message.html($message.html().trim());
 
       // New: Handle mentions with seventvPaint
@@ -1196,13 +1205,21 @@ Chat = {
         .split(" ")
         .map((word) => {
           if (word.startsWith("@")) {
-            var username = word.substring(1).toLowerCase().replace("</span>", "");
+            var username = word
+              .substring(1)
+              .toLowerCase()
+              .replace("</span>", "");
             // console.log(username);
             // console.log(Chat.info.seventvPaints[username].length);
             var $mention = $(`<span class="mention">${word}</span>`);
             // console.log(Chat.info.seventvPaints);
-            if (Chat.info.seventvPaints[username] && Chat.info.seventvPaints[username].length > 0) {
-              console.log(`Found paint for ${username}: ${Chat.info.seventvPaints[username]}`);
+            if (
+              Chat.info.seventvPaints[username] &&
+              Chat.info.seventvPaints[username].length > 0
+            ) {
+              console.log(
+                `Found paint for ${username}: ${Chat.info.seventvPaints[username]}`
+              );
               // $mentionCopy = $mention.clone();
               // $mentionCopy.css("position", "absolute");
               // $mentionCopy.css("color", "transparent");
@@ -1220,13 +1237,15 @@ Chat = {
                 let mentionShadow = "";
                 if (Chat.info.stroke) {
                   if (Chat.info.stroke === 1) {
-                    mentionShadow = " drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px)"
+                    mentionShadow =
+                      " drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px)";
                   } else if (Chat.info.stroke === 2) {
-                    mentionShadow = " drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px)"
+                    mentionShadow =
+                      " drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px) drop-shadow(rgb(0, 0, 0) 0px 0px 0.5px)";
                   }
                 }
-                console.log(paint.filter+mentionShadow);
-                $mention.css("filter", paint.filter+mentionShadow);
+                console.log(paint.filter + mentionShadow);
+                $mention.css("filter", paint.filter + mentionShadow);
                 $mention.addClass("paint");
               });
               var mentionHtml =
@@ -1256,12 +1275,18 @@ Chat = {
   },
 
   sanitizeUsername: function (username) {
-    return username.replace(/\\s$/, '').trim();
+    return username.replace(/\\s$/, "").trim();
   },
 
   clearChat: function () {
     setTimeout(function () {
       $(".chat_line").remove();
+    }, 100);
+  },
+
+  clearUser: function (userNick) {
+    setTimeout(function () {
+      $(".chat_line[data-nick=" + userNick + "]").remove();
     }, 100);
   },
 
@@ -1326,12 +1351,16 @@ Chat = {
                 Chat.clearMessage(message.tags["target-msg-id"]);
               return;
             case "CLEARCHAT":
-              console.log("Cyan Chat: Clearing chat...");
-              Chat.clearChat();
+              // @ban-duration=600;room-id=30672329;target-user-id=1222485651;tmi-sent-ts=1736998762203 :tmi.twitch.tv CLEARCHAT #felps :username_nick
+              // console.log("Cyan Chat: Clearing chat...");
+              // console.log(message.params[1]);
+              // console.log(message);
+              // console.log(message.tags);
+
+              Chat.clearUser(message.params[1]);
               return;
             case "PRIVMSG":
-              if (!message.params[1])
-                return;
+              if (!message.params[1]) return;
               var channelName = message.params[0].substring(1); // Remove the '#' from the channel name
               var nick = message.prefix.split("@")[0].split("!")[0];
 
@@ -1379,7 +1408,7 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "davioitu") flag = true
+                if (nick == "davioitu") flag = true;
                 if (flag) {
                   SendInfoText("Refreshing emotes...");
                   Chat.loadEmotes(Chat.info.channelID);
@@ -1404,7 +1433,7 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "davioitu") flag = true
+                if (nick == "davioitu") flag = true;
                 if (flag) {
                   location.reload();
                 }
@@ -1425,10 +1454,10 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "davioitu") flag = true
+                if (nick == "davioitu") flag = true;
                 if (flag) {
                   console.log("Cyan Chat: Rickrolling...");
-                  appendMedia("video", "../media/rickroll.webm")
+                  appendMedia("video", "../media/rickroll.webm");
                   return;
                 }
               }
@@ -1447,13 +1476,15 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "davioitu") flag = true
+                if (nick == "davioitu") flag = true;
                 if (flag) {
-                  var fullCommand = message.params[1].slice("!chat video".length).trim();
-                  findVideoFile(fullCommand).then(result => {
+                  var fullCommand = message.params[1]
+                    .slice("!chat video".length)
+                    .trim();
+                  findVideoFile(fullCommand).then((result) => {
                     if (result) {
                       console.log(`Cyan Chat: Playing ` + result);
-                      appendMedia("video", `../media/${result}`)
+                      appendMedia("video", `../media/${result}`);
                     } else {
                       console.log("Video file not found");
                     }
@@ -1476,39 +1507,364 @@ Chat = {
                     return;
                   }
                 });
-                if (nick == "davioitu") flag = true
+                if (nick == "davioitu") flag = true;
 
                 if (flag) {
-                  var fullCommand = message.params[1].slice("!chat tts".length).trim();
+                  var fullCommand = message.params[1]
+                    .slice("!chat tts".length)
+                    .trim();
 
                   const schema = {
                     v: String,
                     voice: String,
-                    s: String
+                    s: String,
                   };
 
                   const { flags, rest } = parseFlags(fullCommand, schema);
 
                   var text = rest;
-                  var voice = "Brian"; // Default voice
+                  var voice = "pt-BR-AntonioNeural"; // Default voice
 
                   const allowedVoices = [
-                    "Brian", "Ivy", "Justin", "Russell", "Nicole", "Emma", "Amy", "Joanna",
-                    "Salli", "Kimberly", "Kendra", "Joey", "Mizuki", "Chantal", "Mathieu",
-                    "Maxim", "Hans", "Raveena"
+                    "af-ZA-AdriNeural",
+                    "af-ZA-WillemNeural",
+                    "am-ET-AmehaNeural",
+                    "am-ET-MekdesNeural",
+                    "ar-AE-FatimaNeural",
+                    "ar-AE-HamdanNeural",
+                    "ar-BH-AliNeural",
+                    "ar-BH-LailaNeural",
+                    "ar-DZ-AminaNeural",
+                    "ar-DZ-IsmaelNeural",
+                    "ar-EG-SalmaNeural",
+                    "ar-EG-ShakirNeural",
+                    "ar-IQ-BasselNeural",
+                    "ar-IQ-RanaNeural",
+                    "ar-JO-SanaNeural",
+                    "ar-JO-TaimNeural",
+                    "ar-KW-FahedNeural",
+                    "ar-KW-NouraNeural",
+                    "ar-LB-LaylaNeural",
+                    "ar-LB-RamiNeural",
+                    "ar-LY-ImanNeural",
+                    "ar-LY-OmarNeural",
+                    "ar-MA-JamalNeural",
+                    "ar-MA-MounaNeural",
+                    "ar-OM-AbdullahNeural",
+                    "ar-OM-AyshaNeural",
+                    "ar-QA-AmalNeural",
+                    "ar-QA-MoazNeural",
+                    "ar-SA-HamedNeural",
+                    "ar-SA-ZariyahNeural",
+                    "ar-SY-AmanyNeural",
+                    "ar-SY-LaithNeural",
+                    "ar-TN-HediNeural",
+                    "ar-TN-ReemNeural",
+                    "ar-YE-MaryamNeural",
+                    "ar-YE-SalehNeural",
+                    "az-AZ-BabekNeural",
+                    "az-AZ-BanuNeural",
+                    "bg-BG-BorislavNeural",
+                    "bg-BG-KalinaNeural",
+                    "bn-BD-NabanitaNeural",
+                    "bn-BD-PradeepNeural",
+                    "bn-IN-BashkarNeural",
+                    "bn-IN-TanishaaNeural",
+                    "bs-BA-GoranNeural",
+                    "bs-BA-VesnaNeural",
+                    "ca-ES-EnricNeural",
+                    "ca-ES-JoanaNeural",
+                    "cs-CZ-AntoninNeural",
+                    "cs-CZ-VlastaNeural",
+                    "cy-GB-AledNeural",
+                    "cy-GB-NiaNeural",
+                    "da-DK-ChristelNeural",
+                    "da-DK-JeppeNeural",
+                    "de-AT-IngridNeural",
+                    "de-AT-JonasNeural",
+                    "de-CH-JanNeural",
+                    "de-CH-LeniNeural",
+                    "de-DE-AmalaNeural",
+                    "de-DE-ConradNeural",
+                    "de-DE-FlorianMultilingualNeural",
+                    "de-DE-KatjaNeural",
+                    "de-DE-KillianNeural",
+                    "de-DE-SeraphinaMultilingualNeural",
+                    "el-GR-AthinaNeural",
+                    "el-GR-NestorasNeural",
+                    "en-AU-NatashaNeural",
+                    "en-AU-WilliamNeural",
+                    "en-CA-ClaraNeural",
+                    "en-CA-LiamNeural",
+                    "en-GB-LibbyNeural",
+                    "en-GB-MaisieNeural",
+                    "en-GB-RyanNeural",
+                    "en-GB-SoniaNeural",
+                    "en-GB-ThomasNeural",
+                    "en-HK-SamNeural",
+                    "en-HK-YanNeural",
+                    "en-IE-ConnorNeural",
+                    "en-IE-EmilyNeural",
+                    "en-IN-NeerjaExpressiveNeural",
+                    "en-IN-NeerjaNeural",
+                    "en-IN-PrabhatNeural",
+                    "en-KE-AsiliaNeural",
+                    "en-KE-ChilembaNeural",
+                    "en-NG-AbeoNeural",
+                    "en-NG-EzinneNeural",
+                    "en-NZ-MitchellNeural",
+                    "en-NZ-MollyNeural",
+                    "en-PH-JamesNeural",
+                    "en-PH-RosaNeural",
+                    "en-SG-LunaNeural",
+                    "en-SG-WayneNeural",
+                    "en-TZ-ElimuNeural",
+                    "en-TZ-ImaniNeural",
+                    "en-US-AnaNeural",
+                    "en-US-AndrewMultilingualNeural",
+                    "en-US-AndrewNeural",
+                    "en-US-AriaNeural",
+                    "en-US-AvaMultilingualNeural",
+                    "en-US-AvaNeural",
+                    "en-US-BrianMultilingualNeural",
+                    "en-US-BrianNeural",
+                    "en-US-ChristopherNeural",
+                    "en-US-EmmaMultilingualNeural",
+                    "en-US-EmmaNeural",
+                    "en-US-EricNeural",
+                    "en-US-GuyNeural",
+                    "en-US-JennyNeural",
+                    "en-US-MichelleNeural",
+                    "en-US-RogerNeural",
+                    "en-US-SteffanNeural",
+                    "en-ZA-LeahNeural",
+                    "en-ZA-LukeNeural",
+                    "es-AR-ElenaNeural",
+                    "es-AR-TomasNeural",
+                    "es-BO-MarceloNeural",
+                    "es-BO-SofiaNeural",
+                    "es-CL-CatalinaNeural",
+                    "es-CL-LorenzoNeural",
+                    "es-CO-GonzaloNeural",
+                    "es-CO-SalomeNeural",
+                    "es-CR-JuanNeural",
+                    "es-CR-MariaNeural",
+                    "es-CU-BelkysNeural",
+                    "es-CU-ManuelNeural",
+                    "es-DO-EmilioNeural",
+                    "es-DO-RamonaNeural",
+                    "es-EC-AndreaNeural",
+                    "es-EC-LuisNeural",
+                    "es-ES-AlvaroNeural",
+                    "es-ES-ElviraNeural",
+                    "es-ES-XimenaNeural",
+                    "es-GQ-JavierNeural",
+                    "es-GQ-TeresaNeural",
+                    "es-GT-AndresNeural",
+                    "es-GT-MartaNeural",
+                    "es-HN-CarlosNeural",
+                    "es-HN-KarlaNeural",
+                    "es-MX-DaliaNeural",
+                    "es-MX-JorgeNeural",
+                    "es-NI-FedericoNeural",
+                    "es-NI-YolandaNeural",
+                    "es-PA-MargaritaNeural",
+                    "es-PA-RobertoNeural",
+                    "es-PE-AlexNeural",
+                    "es-PE-CamilaNeural",
+                    "es-PR-KarinaNeural",
+                    "es-PR-VictorNeural",
+                    "es-PY-MarioNeural",
+                    "es-PY-TaniaNeural",
+                    "es-SV-LorenaNeural",
+                    "es-SV-RodrigoNeural",
+                    "es-US-AlonsoNeural",
+                    "es-US-PalomaNeural",
+                    "es-UY-MateoNeural",
+                    "es-UY-ValentinaNeural",
+                    "es-VE-PaolaNeural",
+                    "es-VE-SebastianNeural",
+                    "et-EE-AnuNeural",
+                    "et-EE-KertNeural",
+                    "fa-IR-DilaraNeural",
+                    "fa-IR-FaridNeural",
+                    "fi-FI-HarriNeural",
+                    "fi-FI-NooraNeural",
+                    "fil-PH-AngeloNeural",
+                    "fil-PH-BlessicaNeural",
+                    "fr-BE-CharlineNeural",
+                    "fr-BE-GerardNeural",
+                    "fr-CA-AntoineNeural",
+                    "fr-CA-JeanNeural",
+                    "fr-CA-SylvieNeural",
+                    "fr-CA-ThierryNeural",
+                    "fr-CH-ArianeNeural",
+                    "fr-CH-FabriceNeural",
+                    "fr-FR-DeniseNeural",
+                    "fr-FR-EloiseNeural",
+                    "fr-FR-HenriNeural",
+                    "fr-FR-RemyMultilingualNeural",
+                    "fr-FR-VivienneMultilingualNeural",
+                    "ga-IE-ColmNeural",
+                    "ga-IE-OrlaNeural",
+                    "gl-ES-RoiNeural",
+                    "gl-ES-SabelaNeural",
+                    "gu-IN-DhwaniNeural",
+                    "gu-IN-NiranjanNeural",
+                    "he-IL-AvriNeural",
+                    "he-IL-HilaNeural",
+                    "hi-IN-MadhurNeural",
+                    "hi-IN-SwaraNeural",
+                    "hr-HR-GabrijelaNeural",
+                    "hr-HR-SreckoNeural",
+                    "hu-HU-NoemiNeural",
+                    "hu-HU-TamasNeural",
+                    "id-ID-ArdiNeural",
+                    "id-ID-GadisNeural",
+                    "is-IS-GudrunNeural",
+                    "is-IS-GunnarNeural",
+                    "it-IT-DiegoNeural",
+                    "it-IT-ElsaNeural",
+                    "it-IT-GiuseppeMultilingualNeural",
+                    "it-IT-IsabellaNeural",
+                    "iu-Cans-CA-SiqiniqNeural",
+                    "iu-Cans-CA-TaqqiqNeural",
+                    "iu-Latn-CA-SiqiniqNeural",
+                    "iu-Latn-CA-TaqqiqNeural",
+                    "ja-JP-KeitaNeural",
+                    "ja-JP-NanamiNeural",
+                    "jv-ID-DimasNeural",
+                    "jv-ID-SitiNeural",
+                    "ka-GE-EkaNeural",
+                    "ka-GE-GiorgiNeural",
+                    "kk-KZ-AigulNeural",
+                    "kk-KZ-DauletNeural",
+                    "km-KH-PisethNeural",
+                    "km-KH-SreymomNeural",
+                    "kn-IN-GaganNeural",
+                    "kn-IN-SapnaNeural",
+                    "ko-KR-HyunsuMultilingualNeural",
+                    "ko-KR-InJoonNeural",
+                    "ko-KR-SunHiNeural",
+                    "lo-LA-ChanthavongNeural",
+                    "lo-LA-KeomanyNeural",
+                    "lt-LT-LeonasNeural",
+                    "lt-LT-OnaNeural",
+                    "lv-LV-EveritaNeural",
+                    "lv-LV-NilsNeural",
+                    "mk-MK-AleksandarNeural",
+                    "mk-MK-MarijaNeural",
+                    "ml-IN-MidhunNeural",
+                    "ml-IN-SobhanaNeural",
+                    "mn-MN-BataaNeural",
+                    "mn-MN-YesuiNeural",
+                    "mr-IN-AarohiNeural",
+                    "mr-IN-ManoharNeural",
+                    "ms-MY-OsmanNeural",
+                    "ms-MY-YasminNeural",
+                    "mt-MT-GraceNeural",
+                    "mt-MT-JosephNeural",
+                    "my-MM-NilarNeural",
+                    "my-MM-ThihaNeural",
+                    "nb-NO-FinnNeural",
+                    "nb-NO-PernilleNeural",
+                    "ne-NP-HemkalaNeural",
+                    "ne-NP-SagarNeural",
+                    "nl-BE-ArnaudNeural",
+                    "nl-BE-DenaNeural",
+                    "nl-NL-ColetteNeural",
+                    "nl-NL-FennaNeural",
+                    "nl-NL-MaartenNeural",
+                    "pl-PL-MarekNeural",
+                    "pl-PL-ZofiaNeural",
+                    "ps-AF-GulNawazNeural",
+                    "ps-AF-LatifaNeural",
+                    "pt-BR-AntonioNeural",
+                    "pt-BR-FranciscaNeural",
+                    "pt-BR-ThalitaMultilingualNeural",
+                    "pt-PT-DuarteNeural",
+                    "pt-PT-RaquelNeural",
+                    "ro-RO-AlinaNeural",
+                    "ro-RO-EmilNeural",
+                    "ru-RU-DmitryNeural",
+                    "ru-RU-SvetlanaNeural",
+                    "si-LK-SameeraNeural",
+                    "si-LK-ThiliniNeural",
+                    "sk-SK-LukasNeural",
+                    "sk-SK-ViktoriaNeural",
+                    "sl-SI-PetraNeural",
+                    "sl-SI-RokNeural",
+                    "so-SO-MuuseNeural",
+                    "so-SO-UbaxNeural",
+                    "sq-AL-AnilaNeural",
+                    "sq-AL-IlirNeural",
+                    "sr-RS-NicholasNeural",
+                    "sr-RS-SophieNeural",
+                    "su-ID-JajangNeural",
+                    "su-ID-TutiNeural",
+                    "sv-SE-MattiasNeural",
+                    "sv-SE-SofieNeural",
+                    "sw-KE-RafikiNeural",
+                    "sw-KE-ZuriNeural",
+                    "sw-TZ-DaudiNeural",
+                    "sw-TZ-RehemaNeural",
+                    "ta-IN-PallaviNeural",
+                    "ta-IN-ValluvarNeural",
+                    "ta-LK-KumarNeural",
+                    "ta-LK-SaranyaNeural",
+                    "ta-MY-KaniNeural",
+                    "ta-MY-SuryaNeural",
+                    "ta-SG-AnbuNeural",
+                    "ta-SG-VenbaNeural",
+                    "te-IN-MohanNeural",
+                    "te-IN-ShrutiNeural",
+                    "th-TH-NiwatNeural",
+                    "th-TH-PremwadeeNeural",
+                    "tr-TR-AhmetNeural",
+                    "tr-TR-EmelNeural",
+                    "uk-UA-OstapNeural",
+                    "uk-UA-PolinaNeural",
+                    "ur-IN-GulNeural",
+                    "ur-IN-SalmanNeural",
+                    "ur-PK-AsadNeural",
+                    "ur-PK-UzmaNeural",
+                    "uz-UZ-MadinaNeural",
+                    "uz-UZ-SardorNeural",
+                    "vi-VN-HoaiMyNeural",
+                    "vi-VN-NamMinhNeural",
+                    "zh-CN-XiaoxiaoNeural",
+                    "zh-CN-XiaoyiNeural",
+                    "zh-CN-YunjianNeural",
+                    "zh-CN-YunxiNeural",
+                    "zh-CN-YunxiaNeural",
+                    "zh-CN-YunyangNeural",
+                    "zh-CN-liaoning-XiaobeiNeural",
+                    "zh-CN-shaanxi-XiaoniNeural",
+                    "zh-HK-HiuGaaiNeural",
+                    "zh-HK-HiuMaanNeural",
+                    "zh-HK-WanLungNeural",
+                    "zh-TW-HsiaoChenNeural",
+                    "zh-TW-HsiaoYuNeural",
+                    "zh-TW-YunJheNeural",
+                    "zu-ZA-ThandoNeural",
+                    "zu-ZA-ThembaNeural",
                   ];
 
                   // Check for voice in flags
                   const potentialVoice = flags.v || flags.voice || flags.s;
                   if (potentialVoice) {
-                    const normalizedVoice = potentialVoice.charAt(0).toUpperCase() + potentialVoice.slice(1).toLowerCase();
+                    const normalizedVoice =
+                      potentialVoice.charAt(0).toUpperCase() +
+                      potentialVoice.slice(1).toLowerCase();
                     if (allowedVoices.includes(normalizedVoice)) {
                       voice = normalizedVoice;
                     }
                   }
 
                   playTTSAudio(text, voice);
-                  console.log(`Cyan Chat: Playing TTS Audio ... [Voice: ${voice}]`);
+                  console.log(
+                    `Cyan Chat: Playing TTS Audio ... [Voice: ${voice}]`
+                  );
                   return;
                 }
               }
@@ -1522,7 +1878,10 @@ Chat = {
 
               if (!Chat.info.showBots) {
                 if (Chat.info.bots.includes(nick)) {
-                  Chat.info.colors[nick] = Chat.getUserColor(nick, message.tags);
+                  Chat.info.colors[nick] = Chat.getUserColor(
+                    nick,
+                    message.tags
+                  );
                   Chat.loadUserPaints(nick, message.tags["user-id"]);
                   return;
                 }
@@ -1531,7 +1890,10 @@ Chat = {
               if (Chat.info.blockedUsers) {
                 if (Chat.info.blockedUsers.includes(nick)) {
                   // console.log("Cyan Chat: Hiding blocked user message but getting color...'" + nick + "'");
-                  Chat.info.colors[nick] = Chat.getUserColor(nick, message.tags);
+                  Chat.info.colors[nick] = Chat.getUserColor(
+                    nick,
+                    message.tags
+                  );
                   Chat.loadUserPaints(nick, message.tags["user-id"]);
                   return;
                 }

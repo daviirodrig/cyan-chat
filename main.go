@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"sync"
@@ -248,8 +249,11 @@ func handleAdminActive(w http.ResponseWriter, r *http.Request) {
 }
 
 func synthesizeSpeechHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Starting speech synthesis request from: %s", r.RemoteAddr)
+
 	// Check if the request is coming from your website
 	if !isRequestFromYourWebsite(r) {
+		log.Printf("Unauthorized request from: %s", r.RemoteAddr)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -257,56 +261,75 @@ func synthesizeSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	// Get parameters from the request
 	voiceName := r.URL.Query().Get("voice")
 	text := r.URL.Query().Get("text")
+	log.Printf("Received request - Voice: %s, Text length: %d", voiceName, len(text))
 
 	// Make sure the length of text is under 1000 characters
 	if len(text) > 1000 {
+		log.Printf("Text length exceeded limit: %d characters", len(text))
 		http.Error(w, "Text length exceeds the limit of 1000 characters", http.StatusBadRequest)
 		return
 	}
 
-	// Convert voice name to Polly voice ID
-	voiceID, ok := voiceMap[voiceName]
-	if !ok {
-		http.Error(w, "Invalid voice name", http.StatusBadRequest)
+	// Create a temporary file with a unique name
+	tmpFile, err := os.CreateTemp("", "tts-*.mp3")
+	if err != nil {
+		log.Printf("Failed to create temporary file: %v", err)
+		http.Error(w, "Failed to create temporary file", http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Created temporary file: %s", tmpFile.Name())
+	tmpFile.Close()
+	defer os.Remove(tmpFile.Name()) // Clean up the temporary file when done
 
-	// Set up the input parameters
-	input := &polly.SynthesizeSpeechInput{
-		OutputFormat: aws.String("mp3"),
-		Text:         aws.String(text),
-		VoiceId:      aws.String(voiceID),
-	}
+	// Prepare the command with proper voice and text
+	cmd := exec.Command("edge-tts",
+		"--text", text,
+		"--voice", voiceName,
+		"--write-media", tmpFile.Name(),
+	)
+	log.Printf("Executing edge-tts command: %v", cmd.Args)
 
-	// Use a mutex to ensure thread-safe access to the Polly client
-	mu.Lock()
-	output, err := pollySvc.SynthesizeSpeech(input)
-	mu.Unlock()
-
-	if err != nil {
+	// Execute the command
+	if err := cmd.Run(); err != nil {
+		log.Printf("Failed to execute edge-tts command: %v", err)
 		http.Error(w, "Failed to synthesize speech", http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Successfully generated speech audio file")
 
-	// Read the audio stream
-	audioBytes, err := io.ReadAll(output.AudioStream)
+	// Open the generated file
+	audioFile, err := os.Open(tmpFile.Name())
 	if err != nil {
-		http.Error(w, "Failed to read audio stream", http.StatusInternalServerError)
+		log.Printf("Failed to open generated audio file: %v", err)
+		http.Error(w, "Failed to read audio file", http.StatusInternalServerError)
 		return
 	}
+	defer audioFile.Close()
+
+	// Get file info for Content-Length header
+	fileInfo, err := audioFile.Stat()
+	if err != nil {
+		log.Printf("Failed to get audio file info: %v", err)
+		http.Error(w, "Failed to get audio file info", http.StatusInternalServerError)
+		return
+	}
+	log.Printf("Audio file size: %d bytes", fileInfo.Size())
 
 	// Set response headers
 	w.Header().Set("Content-Type", "audio/mpeg")
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(audioBytes)))
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
+	log.Printf("Set response headers - Content-Type: audio/mpeg, Content-Length: %d", fileInfo.Size())
 
-	// Write the audio data directly to the response
-	_, err = w.Write(audioBytes)
+	// Stream the file to the response
+	bytesWritten, err := io.Copy(w, audioFile)
 	if err != nil {
-		http.Error(w, "Failed to write audio data", http.StatusInternalServerError)
+		log.Printf("Failed to stream audio data: %v", err)
+		http.Error(w, "Failed to stream audio data", http.StatusInternalServerError)
 		return
 	}
-}
+	log.Printf("Successfully streamed %d bytes of audio data", bytesWritten)
 
+}
 func isRequestFromYourWebsite(r *http.Request) bool {
 	// Check if it's a same-origin request
 	origin := r.Header.Get("Origin")
