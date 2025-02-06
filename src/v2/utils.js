@@ -473,25 +473,39 @@ async function fixZeroWidthEmotes(messageId) {
 
 // #region Message Pruning
 
-const intersectionObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      const elementRect = entry.target.getBoundingClientRect();
+// const intersectionObserver = new IntersectionObserver(
+//   (entries) => {
+//     entries.forEach((entry) => {
+//       // Get the bounding rectangle of the chat line element
+//       const elementRect = entry.target.getBoundingClientRect();
 
-      if (
-        elementRect.top < 0 ||
-        elementRect.top >= window.innerHeight - elementRect.height
-      ) {
-        handleChatLineRemoval(entry.target);
-      }
-    });
-  },
-  {
-    root: null,
-    rootMargin: "0px",
-    threshold: [0, 1],
-  }
-);
+//       console.log('[Debug] Chat line position:', {
+//         top: elementRect.top,
+//         windowHeight: window.innerHeight,
+//         elementHeight: elementRect.height,
+//         element: entry.target
+//       });
+
+//       // Check if the element is above the viewport (top < 0)
+//       // or below the viewport (top >= window height - element height)
+//       if (
+//         elementRect.top < -100 ||
+//         elementRect.top >= window.innerHeight - elementRect.height
+//       ) {
+//         console.log('[Debug] Removing chat line:', entry.target);
+//         handleChatLineRemoval(entry.target);
+//       }
+//     });
+//   },
+//   {
+//     // null means use the viewport as the root
+//     root: null,
+//     // No margin around the root
+//     rootMargin: "0px",
+//     // Observe when element is 0% or 100% visible
+//     threshold: [0, 1],
+//   }
+// );
 
 function startObservingChatContainerForLines() {
   const chatContainer = document.getElementById("chat_container");
@@ -503,7 +517,7 @@ function startObservingChatContainerForLines() {
             if (node.nodeType === 1 && node.classList.contains("chat_line")) {
               // Wait a bit to ensure the element is fully rendered
               setTimeout(() => {
-                intersectionObserver.observe(node);
+                // intersectionObserver.observe(node);
               }, 100);
             }
           }
@@ -521,7 +535,7 @@ function startObservingChatContainerForLines() {
 }
 
 function handleChatLineRemoval(chatLine) {
-  intersectionObserver.unobserve(chatLine);
+  // intersectionObserver.unobserve(chatLine);
   chatLine.remove();
 
   // Fading looked bad but may reimplement later
