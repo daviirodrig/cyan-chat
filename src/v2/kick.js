@@ -244,6 +244,16 @@ function formatKickMessage(message) {
       return acc;
     }, {});
 
+    // Handle Kick moderator badge
+    const modBadge = message.sender.identity.badges.find((b) => b.type === "moderator");
+    if (modBadge) {
+      badgeImages.push({
+        description: modBadge.text || "moderator",
+        url: "https://cdn.justdavi.dev/twitch-moderator.webp",
+        priority: true,
+      });
+    }
+
     // Handle Kick subscriber badge
     const subBadge = message.sender.identity.badges.find((b) => b.type === "subscriber" && b.count);
     if (subBadge && window.Chat && Chat.info && Array.isArray(Chat.info.kickSubscriberBadges)) {
@@ -262,6 +272,11 @@ function formatKickMessage(message) {
         });
       }
     }
+  }
+
+  // Fix: Add space between consecutive [emote:...:...] tags if they are together
+  if (typeof message.content === "string") {
+    message.content = message.content.replace(/](?=\[emote:)/g, "] ");
   }
 
   let info = {
@@ -293,7 +308,7 @@ function formatKickMessage(message) {
 
   return info;
 }
-if (Chat.info.kick) {
+if (Chat.info.kickuser) {
   // Usage example
   const client = new KickWebSocketClient();
 
@@ -316,11 +331,17 @@ if (Chat.info.kick) {
 
   client.connect();
 
-  // Subscribe to channels
-  client.subscribeToChannel(`chatroom_${Chat.info.kick}`);
-  client.subscribeToChannel(`chatrooms.${Chat.info.kick}.v2`);
-  client.subscribeToChannel("channel.10000746");
-  client.subscribeToChannel("channel_10000746");
-  client.subscribeToChannel(`chatrooms.${Chat.info.kick}`);
-  client.subscribeToChannel("predictions-channel-10000746");
+  // Wait for Chat.info.kick to be set by the API call, then subscribe to channels
+  const waitForKickId = setInterval(() => {
+    if (Chat.info.kick) {
+      clearInterval(waitForKickId);
+
+      // Subscribe to channels using the dynamically obtained channel ID
+      client.subscribeToChannel(`chatroom_${Chat.info.kick}`);
+      client.subscribeToChannel(`chatrooms.${Chat.info.kick}.v2`);
+      client.subscribeToChannel(`chatrooms.${Chat.info.kick}`);
+
+      console.log(`Subscribed to Kick channels for channel ID: ${Chat.info.kick}`);
+    }
+  }, 100); // Check every 100ms
 }

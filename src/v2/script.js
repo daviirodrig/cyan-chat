@@ -219,27 +219,17 @@ Chat = {
       });
     });
 
-    if (Chat.info.kick && Chat.info.kickuser) {
-      // Fetch Kick emotes
-      $.getJSON(
-        "https://kick.com/emotes/" + encodeURIComponent(Chat.info.kickuser)
-      ).done(function (res) {
-        res.forEach((emoteSet) => {
-          emoteSet.emotes.forEach((emote) => {
-            const emoteName = `[emote:${emote.id}:${emote.name}]`;
-            Chat.info.emotes[emoteName] = {
-              id: emote.id,
-              image: "https://files.kick.com/emotes/" + emote.id + "/fullsize",
-              zeroWidth: false,
-            };
-          });
-        });
-      });
-
+    if (Chat.info.kickuser) {
       // Fetch Kick subscriber badges and store for later use
       $.getJSON(
         "https://kick.com/api/v2/channels/" + encodeURIComponent(Chat.info.kickuser)
       ).done(function (res) {
+        if (res && res.chatroom && res.chatroom.id) {
+          // Save the channel ID for Kick WebSocket connections
+          Chat.info.kick = res.chatroom.id;
+          console.log(`Kick channel ID set to: ${Chat.info.kick}`);
+        }
+
         if (res && Array.isArray(res.subscriber_badges)) {
           // Sort badges by months ascending for easier lookup
           Chat.info.kickSubscriberBadges = res.subscriber_badges.sort((a, b) => a.months - b.months);
@@ -1062,6 +1052,14 @@ Chat = {
       }
 
       message = escapeHtml(message);
+
+      // Handle Kick emotes directly if it's a Kick service
+      if (service === "kick") {
+        message = message.replace(/\[emote:(\d+):[^\]]+\]/g, function(match, emoteId) {
+          return `<img class="emote" src="https://files.kick.com/emotes/${emoteId}/fullsize" alt="${match}"/>`;
+        });
+      }
+
       const words = message.split(/\s+/);
       const processedWords = words.map((word) => {
         let replacedWord = word;
