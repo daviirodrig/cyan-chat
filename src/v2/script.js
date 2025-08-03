@@ -124,6 +124,8 @@ Chat = {
         ? $.QueryString.disable_pruning.toLowerCase() === "true"
         : false,
     yt: "yt" in $.QueryString ? $.QueryString.yt.toLowerCase() : false,
+    kick: "kick" in $.QueryString ? $.QueryString.kick.toLowerCase() : false,
+    kickuser: "kickuser" in $.QueryString ? $.QueryString.kickuser.toLowerCase() : false
   },
 
   loadEmotes: function (channelID) {
@@ -216,6 +218,38 @@ Chat = {
         };
       });
     });
+
+    if (Chat.info.kick && Chat.info.kickuser) {
+      // Fetch Kick emotes
+      $.getJSON(
+        "https://kick.com/emotes/" + encodeURIComponent(Chat.info.kickuser)
+      ).done(function (res) {
+        res.forEach((emoteSet) => {
+          emoteSet.emotes.forEach((emote) => {
+            const emoteName = `[emote:${emote.id}:${emote.name}]`;
+            Chat.info.emotes[emoteName] = {
+              id: emote.id,
+              image: "https://files.kick.com/emotes/" + emote.id + "/fullsize",
+              zeroWidth: false,
+            };
+          });
+        });
+      });
+
+      // Fetch Kick subscriber badges and store for later use
+      $.getJSON(
+        "https://kick.com/api/v2/channels/" + encodeURIComponent(Chat.info.kickuser)
+      ).done(function (res) {
+        if (res && Array.isArray(res.subscriber_badges)) {
+          // Sort badges by months ascending for easier lookup
+          Chat.info.kickSubscriberBadges = res.subscriber_badges.sort((a, b) => a.months - b.months);
+        } else {
+          Chat.info.kickSubscriberBadges = [];
+        }
+      }).fail(function () {
+        Chat.info.kickSubscriberBadges = [];
+      });
+    }
   },
 
   loadPersonalEmotes: async function (channelID) {
@@ -868,6 +902,18 @@ Chat = {
               }
             });
           }
+        }
+        // Handle Kick badges (info.badges as array of objects)
+        if (Array.isArray(info.badges)) {
+          info.badges.forEach((badgeObj) => {
+            if (badgeObj && badgeObj.url) {
+              badges.push({
+                description: badgeObj.description || "subscriber",
+                url: badgeObj.url,
+                priority: false,
+              });
+            }
+          });
         }
         var $modBadge;
         badges.forEach((badge) => {
