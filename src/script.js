@@ -263,6 +263,7 @@ function generateURL(event) {
         disable_pruning: $pruning.is(":checked"),
         block: $blockedUsers.val().replace(/\s+/g, ""),
         yt: $ytChannel.val().replace('@', ''),
+        kickuser: $kickuser.val(),
     };
 
     const params = encodeQueryData(data);
@@ -300,6 +301,7 @@ function showUrl(event) {
 function resetForm(event) {
     $channel.val("");
     $ytChannel.val("");
+    $kickuser.val("");
     $regex.val("");
     $blockedUsers.val("");
     $size.val("3");
@@ -354,6 +356,7 @@ function backToForm(event) {
 const $generator = $("form[name='generator']");
 const $channel = $('input[name="channel"]');
 const $ytChannel = $('input[name="yt-channel"]');
+const $kickuser = $('input[name="kickuser"]');
 const $animate = $('input[name="animate"]');
 const $bots = $('input[name="bots"]');
 const $fade_bool = $("input[name='fade_bool']");
