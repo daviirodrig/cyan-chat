@@ -346,7 +346,18 @@ func isRequestFromYourWebsite(r *http.Request) bool {
 		if err != nil {
 			return false
 		}
-		return originURL.Host == host
+		// Allow same host
+		if originURL.Host == host {
+			return true
+		}
+		// Explicitly allow local dev from localhost:3000
+		if originURL.Host == "localhost:3000" {
+			return true
+		}
+		if originURL.Host == "unificado.justdavi.dev" {
+			return true
+		}
+		return false
 	}
 
 	return false
@@ -758,8 +769,46 @@ func main() {
 	http.Handle("/", staticFilesV2)
 
 	log.Println("Serving static files from current directory on http://localhost" + port)
-	err = http.ListenAndServe(port, nil)
+	// Wrap the default mux with CORS middleware
+	err = http.ListenAndServe(port, withCORS(http.DefaultServeMux))
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+}
+
+// withCORS is a simple middleware to enable CORS for localhost:3000 (dev)
+func withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		fmt.Println("CORS Origin:", origin)
+		switch origin {
+		case "http://localhost:3000":
+			// Reflect the allowed origin
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			// Enable cookies/Authorization header if needed
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			if r.Method == http.MethodOptions {
+				// Preflight request
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+		case "https://unificado.justdavi.dev":
+			// Reflect the allowed origin
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			// Enable cookies/Authorization header if needed
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			if r.Method == http.MethodOptions {
+				// Preflight request
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
