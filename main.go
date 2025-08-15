@@ -780,7 +780,7 @@ func main() {
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		fmt.Println("CORS Origin:", origin)
+		// fmt.Println("CORS Origin:", origin)
 		switch origin {
 		case "http://localhost:3000":
 			// Reflect the allowed origin
