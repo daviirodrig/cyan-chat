@@ -513,13 +513,13 @@ Chat = {
         var $animDiv = $("<div></div>");
         if (Chat.info.invert) {
           $("#chat_container").prepend($animDiv);
-          $animDiv.animate({ height: auxHeight }, 150, function () {
+          $animDiv.animate({ height: auxHeight }, 100, function () {
             $(this).remove();
             $("#chat_container").prepend(lines);
           });
         } else {
           $("#chat_container").append($animDiv);
-          $animDiv.animate({ height: auxHeight }, 150, function () {
+          $animDiv.animate({ height: auxHeight }, 100, function () {
             $(this).remove();
             $("#chat_container").append(lines);
           });
@@ -840,7 +840,7 @@ Chat = {
       var $chatLine = $("<div></div>");
       $chatLine.addClass("chat_line");
       if (Chat.info.animate) {
-        $chatLine.addClass("animate");
+        // $chatLine.addClass("animate");
       }
       $chatLine.attr("data-nick", nick);
       $chatLine.attr("data-time", Date.now());
