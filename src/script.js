@@ -251,6 +251,7 @@ function generateURL(event) {
         bots: $bots.is(":checked"),
         hide_commands: $commands.is(":checked"),
         hide_badges: $badges.is(":checked"),
+        hideTwitch: $hideTwitch.is(":checked"),
         hide_paints: $paints.is(":checked"),
         hide_colon: $colon.is(":checked"),
         animate: $animate.is(":checked"),
@@ -315,6 +316,7 @@ function resetForm(event) {
     $commands.prop("checked", false);
     $badges.prop("checked", false);
     $paints.prop("checked", false);
+    $hideTwitch.prop("checked", false);
     $colon.prop("checked", false);
     $animate.prop("checked", true);
     $fade_bool.prop("checked", false);
@@ -370,6 +372,7 @@ const $readable = $('input[name="readable"]');
 const $sync = $('input[name="sync"]');
 const $pruning = $('input[name="pruning"]');
 const $badges = $("input[name='badges']");
+const $hideTwitch = $("input[name='hideTwitch']");
 const $paints = $("input[name='paints']");
 const $colon = $("input[name='colon']");
 const $size = $("select[name='size']");
