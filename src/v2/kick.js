@@ -279,6 +279,15 @@ function formatKickMessage(message) {
     message.content = message.content.replace(/](?=\[emote:)/g, "] ");
   }
 
+  // Extract reply information if present
+  let replyInfo = null;
+  if (message.type === "reply" && message.metadata && message.metadata.original_sender) {
+    replyInfo = {
+      username: message.metadata.original_sender.username,
+      content: message.metadata.original_message ? message.metadata.original_message.content : "",
+    };
+  }
+
   let info = {
     "badge-info": badge_info,
     badges: badgeImages, // Will be used by Chat.write to render badges
@@ -302,6 +311,7 @@ function formatKickMessage(message) {
       message.sender && message.sender.id ? String(message.sender.id) : "",
     "user-type": true,
     runs: message.runs,
+    reply: replyInfo,
   };
 
   console.log(`Formatted Kick message badges: ${JSON.stringify(info.badges)}`);

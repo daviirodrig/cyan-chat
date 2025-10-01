@@ -1026,6 +1026,12 @@ Chat = {
       // Writing message
       var $message = $("<span></span>");
       $message.addClass("message");
+
+      // Prefix @username for Kick replies
+      if (info.reply && info.reply.username) {
+        message = '@' + info.reply.username + ' ' + message;
+      }
+
       if (/^\x01ACTION.*\x01$/.test(message)) {
         $message.css("color", color);
         message = message
