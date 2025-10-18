@@ -263,7 +263,7 @@ function generateURL(event) {
         disable_sync: $sync.is(":checked"),
         disable_pruning: $pruning.is(":checked"),
         block: $blockedUsers.val().replace(/\s+/g, ""),
-        // yt: $ytChannel.val().replace('@', ''),
+        yt: $ytChannel.val().replace(/@/g, '').trim(),
         kickuser: $kickuser.val(),
     };
 
@@ -301,7 +301,7 @@ function showUrl(event) {
 
 function resetForm(event) {
     $channel.val("");
-    // $ytChannel.val("");
+    $ytChannel.val("");
     $kickuser.val("");
     $regex.val("");
     $blockedUsers.val("");
@@ -357,7 +357,7 @@ function backToForm(event) {
 
 const $generator = $("form[name='generator']");
 const $channel = $('input[name="channel"]');
-// const $ytChannel = $('input[name="yt-channel"]');
+const $ytChannel = $('input[name="yt-channel"]');
 const $kickuser = $('input[name="kickuser"]');
 const $animate = $('input[name="animate"]');
 const $bots = $('input[name="bots"]');
