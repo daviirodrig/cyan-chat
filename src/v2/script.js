@@ -832,6 +832,35 @@ Chat = {
       if (service === "twitch" && Chat.info.hidetwitch) {
         return;
       }
+      // Normalize nickname for comparisons
+      const nickLower = (nick || "").toLowerCase();
+
+      // Generic filters (apply to Kick, Twitch, and others uniformly)
+      // 1) Hide commands starting with '!'
+      if (
+        Chat.info.hideCommands &&
+        typeof message === "string" &&
+        message.trim().startsWith("!")
+      ) {
+        return;
+      }
+
+      // 2) Hide known bots when bots are not allowed
+      if (
+        !Chat.info.showBots &&
+        Array.isArray(Chat.info.bots) &&
+        Chat.info.bots.includes(nickLower)
+      ) {
+        return;
+      }
+
+      // 3) Hide messages from explicitly blocked users (from `block=` URL param)
+      if (
+        Array.isArray(Chat.info.blockedUsers) &&
+        Chat.info.blockedUsers.includes(nickLower)
+      ) {
+        return;
+      }
       if (Chat.info.regex) {
         if (doesStringMatchPattern(message, Chat.info)) {
           return;
