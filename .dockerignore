@@ -16,3 +16,4 @@ backup/
 youtube-websocket/
 *.bak
 server
+.git
