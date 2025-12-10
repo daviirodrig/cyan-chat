@@ -84,9 +84,9 @@ Chat = {
         ? $.QueryString.invert.toLowerCase() === "true"
         : false,
     // Hide Twitch-origin messages while keeping emotes and integrations
-    hidetwitch:
-      "hidetwitch" in $.QueryString
-        ? $.QueryString.hidetwitch.toLowerCase() === "true"
+    hideTwitch:
+      "hideTwitch" in $.QueryString
+        ? $.QueryString.hideTwitch.toLowerCase() === "true"
         : false,
     emotes: {},
     badges: {},
@@ -829,7 +829,7 @@ Chat = {
     nick = Chat.sanitizeUsername(nick);
     if (info) {
       // If asked to hide Twitch messages, skip rendering them here
-      if (service === "twitch" && Chat.info.hidetwitch) {
+      if (service === "twitch" && Chat.info.hideTwitch) {
         return;
       }
       // Normalize nickname for comparisons
