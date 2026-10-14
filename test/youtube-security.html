@@ -38,9 +38,12 @@ document.querySelector('#overlay').onload = async function () {
       if (!row.textContent.includes('<h1>Olá') || !row.textContent.includes('</h1> &lt;b&gt; <img src=x onerror="window.securityExecuted=true">')) throw Error('Literal text/entity fidelity failed');
       if (row.querySelectorAll('img.emote').length !== 1) throw Error('Emoji URL filtering failed');
       if (row.querySelectorAll('img.badge').length !== 1) throw Error('Badge URL filtering failed');
-      doc.querySelector('#chat_container').appendChild(row);
+      frame.Chat.info.lines.push(row.innerHTML);
     }
-    await new Promise(resolve => setTimeout(resolve, 100));
+    for (let attempt = 0; attempt < 50 && doc.querySelectorAll('.chat_line .nick').length < 2; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (doc.querySelectorAll('.chat_line .nick').length < 2) throw Error('Overlay did not display both messages');
     if (frame.securityExecuted) throw Error('Viewer event handler executed');
     result.textContent = 'PASS: raw and encoded frames render literal text; names, emotes, badges and Unicode preserved; malicious HTML and image URLs blocked.';
     document.documentElement.dataset.status = 'passed';

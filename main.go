@@ -708,7 +708,6 @@ func main() {
 		log.Fatal("No client secret found.")
 		return
 	}
-	log.Println("Access token: " + accessToken)
 
 	args := os.Args[1:]
 	port := args[0]
