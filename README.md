@@ -54,6 +54,8 @@ Viewer text and display names are rendered as text, never viewer-supplied HTML.
 The legacy gateway's `textEncoding: "html"` marker decodes only its five escaped
 entities once before text insertion; unmarked messages remain literal.
 Emoji and badge images accept only safe HTTP(S) URLs.
+The overlay explicitly requests `/ws?textEncoding=html`; the gateway also
+recognizes the two existing production overlay origins for older OBS clients.
 
 Run `npm ci && npm run build`, serve the repository root with
 `python -m http.server 8120`, and open

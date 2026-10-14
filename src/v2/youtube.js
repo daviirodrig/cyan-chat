@@ -3,7 +3,7 @@ if (Chat.info.yt) {
 	const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
 	// Construct the WebSocket URL using the current host and the relative path
-	const wsUrl = `${wsProtocol}//yt-websocket.justdavi.dev/ws`;
+	const wsUrl = `${wsProtocol}//yt-websocket.justdavi.dev/ws?textEncoding=html`;
 
 	// Track YouTube authorId -> nick to support REMOVE_AUTHOR events
 	const ytAuthorIdToNick = {};
