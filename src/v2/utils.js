@@ -71,6 +71,16 @@ function escapeHtml(message) {
     .replace(/(>)(?!\()/g, "&gt;");
 }
 
+function safeYouTubeImageUrl(value) {
+  if (typeof value !== "string" || value.length > 2048 || /[\s<>"'\\]/.test(value)) return null;
+  try {
+    const url = new URL(value);
+    return (url.protocol === "https:" || url.protocol === "http:") && !url.username && !url.password ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 // function TwitchOAuth() {
 //     return $.ajax({
 //         type: "GET",

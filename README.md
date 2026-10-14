@@ -47,3 +47,16 @@
 </details>
 
 Thank you to [ixnoahlive](https://github.com/ixnoahlive) for creating a [Youtube Websocket](https://github.com/ixnoahlive/youtube-websocket) that I use for this project.
+
+## YouTube rendering security
+
+Viewer text and display names are rendered as text, never viewer-supplied HTML.
+The legacy gateway's `textEncoding: "html"` marker decodes only its five escaped
+entities once before text insertion; unmarked messages remain literal.
+Emoji and badge images accept only safe HTTP(S) URLs.
+
+Run `npm ci && npm run build`, serve the repository root with
+`python -m http.server 8120`, and open
+`http://127.0.0.1:8120/test/youtube-security.html` for the browser regression.
+It checks raw/encoded frames, literal entities, Unicode, author names, emotes,
+badges, HTML event-handler injection, and malicious image URLs.

@@ -57,7 +57,7 @@ if (Chat.info.yt) {
 		let stringBadges = '';
 		if (msg.is_moderator) stringBadges = 'youtubemod/1';
 		const arrayBadges = Array.isArray(msg.badges)
-			? msg.badges.filter(Boolean).map((url) => ({ url }))
+			? msg.badges.map(safeYouTubeImageUrl).filter(Boolean).map((url) => ({ url }))
 			: [];
 
 		const info = {
@@ -124,7 +124,21 @@ if (Chat.info.yt) {
 
 		switch (payload.type) {
 			case 'ADD': {
-				const msg = payload.msg || {};
+				let msg = payload.msg || {};
+				if (payload.textEncoding === 'html') {
+					const entities = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" };
+					const decode = (value) => typeof value === 'string'
+						? value.replace(/&(amp|lt|gt|quot|#39);/g, (_, entity) => entities[entity])
+						: value;
+					msg = {
+						...msg,
+						author: decode(msg.author),
+						messageFragments: Array.isArray(msg.messageFragments)
+							? msg.messageFragments.map((fragment) => typeof fragment.text === 'string'
+								? { ...fragment, text: decode(fragment.text) } : fragment)
+							: [],
+					};
+				}
 				// Remember nick by authorId for future removals
 				if (msg.authorId && msg.author) {
 					const sanitized = Chat.sanitizeUsername(msg.author);

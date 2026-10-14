@@ -985,7 +985,7 @@ Chat = {
       if (Chat.info.center) {
         $username.css("padding-right", "0.5em");
       }
-      $username.html(info["display-name"] ? info["display-name"] : nick); // if display name is set, use that instead of twitch name
+      $username.text(info["display-name"] ? info["display-name"] : nick);
       var $usernameCopy = null;
       // check the info for seventv paints and add them to the username
       if (service != "youtube") {
@@ -1216,19 +1216,22 @@ Chat = {
       });
 
       if (service == "youtube") {
-        message = "";
+        const content = document.createElement("span");
         info.runs.forEach((run) => {
           if ("emoji" in run) {
-            // This is an EmojiRun
-            message += `<img class="emote" src="${run.emoji.image[0].url}">`;
-          } else if ("text" in run) {
-            // This is a TextRun
-            message += run.text;
-          } else {
-            // Fallback for any unexpected run type
-            message += run.toString().replace(/>/g, "&gt;");
+            const url = safeYouTubeImageUrl(run.emoji.image[0].url);
+            if (url) {
+              const image = document.createElement("img");
+              image.className = "emote";
+              image.src = url;
+              content.appendChild(image);
+            }
+          } else if (typeof run.text === "string") {
+            content.appendChild(document.createTextNode(run.text));
           }
         });
+        // Subsequent emote handling consumes HTML serialized only from safe DOM nodes.
+        message = content.innerHTML;
 
         // Object.entries(Chat.info.emotes).forEach((emote) => {
         //   const emoteRegex = new RegExp(`(^|\\s)${escapeRegExp(emote[0])}($|\\s)`, 'g');

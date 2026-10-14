@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>YouTube rendering security regression</title>
+<pre id="result">Running…</pre>
+<iframe id="overlay" src="../dist/v2/index.html" style="width:800px;height:400px;border:0"></iframe>
+<script>
+const result = document.querySelector('#result');
+document.querySelector('#overlay').onload = async function () {
+  try {
+    const frame = this.contentWindow;
+    const doc = frame.document;
+    frame.Chat.info.yt = 'security-regression';
+    frame.Chat.info.hideBadges = false;
+    frame.Chat.info.lines = [];
+    frame.ReconnectingWebSocket = function () { this.send = () => {}; };
+    const script = doc.createElement('script');
+    script.src = new URL('../src/v2/youtube.js', location.href).href;
+    await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; doc.head.appendChild(script); });
+    const text = '<h1>Olá 💜</h1> &lt;b&gt; <img src=x onerror="window.securityExecuted=true">';
+    const author = '<h1>Davi & amigos</h1>';
+    const encode = value => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    for (const marked of [false, true]) {
+      frame.yt_socket.onmessage({ data: JSON.stringify({
+        type: 'ADD', ...(marked ? { textEncoding: 'html' } : {}),
+        msg: { id: marked ? 'encoded' : 'raw', authorId: 'viewer',
+          author: marked ? encode(author) : author,
+          messageFragments: [{ text: marked ? encode(text) : text },
+            { emoji: 'https://example.com/emote.png' },
+            { emoji: 'javascript:window.securityExecuted=true' },
+            { emoji: 'https://example.com/" onerror="window.securityExecuted=true' }],
+          badges: ['https://example.com/badge.png', 'javascript:window.securityExecuted=true'],
+          color: '#123456', is_moderator: false },
+      }) });
+      const row = doc.createElement('div');
+      row.innerHTML = frame.Chat.info.lines.pop();
+      if (row.querySelector('h1,script,[onerror],[onload]')) throw Error('Viewer HTML became DOM');
+      if (row.querySelector('.nick')?.textContent !== author) throw Error('Author was altered');
+      if (!row.textContent.includes('<h1>Olá') || !row.textContent.includes('</h1> &lt;b&gt; <img src=x onerror="window.securityExecuted=true">')) throw Error('Literal text/entity fidelity failed');
+      if (row.querySelectorAll('img.emote').length !== 1) throw Error('Emoji URL filtering failed');
+      if (row.querySelectorAll('img.badge').length !== 1) throw Error('Badge URL filtering failed');
+      doc.querySelector('#chat_container').appendChild(row);
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
+    if (frame.securityExecuted) throw Error('Viewer event handler executed');
+    result.textContent = 'PASS: raw and encoded frames render literal text; names, emotes, badges and Unicode preserved; malicious HTML and image URLs blocked.';
+    document.documentElement.dataset.status = 'passed';
+  } catch (error) {
+    result.textContent = 'FAIL: ' + error.message;
+    document.documentElement.dataset.status = 'failed';
+  }
+};
+</script>
